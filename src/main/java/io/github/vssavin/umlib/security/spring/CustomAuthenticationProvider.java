@@ -1,0 +1,77 @@
+package io.github.vssavin.umlib.security.spring;
+
+import io.github.vssavin.umlib.entity.User;
+import io.github.vssavin.umlib.service.SecureService;
+import io.github.vssavin.umlib.service.UserService;
+import io.github.vssavin.umlib.utils.UmUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author vssavin on 18.12.2021
+ */
+@Component
+public class CustomAuthenticationProvider implements AuthenticationProvider {
+
+    private UserService userService;
+    private PasswordEncoder passwordEncoder;
+    private SecureService secureService;
+
+    @Autowired
+    public CustomAuthenticationProvider(UserService userService, PasswordEncoder passwordEncoder,
+                                        UmUtil umUtil) {
+        this.secureService = umUtil.getAuthService();
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        Object credentials = authentication.getCredentials();
+        Object userName = authentication.getPrincipal();
+        if (credentials != null) {
+            User user = userService.getUserByName(userName.toString());
+            if (user != null) {
+                Object details = authentication.getDetails();
+                String addr = "";
+                if (details instanceof WebAuthenticationDetails) {
+                    addr = ((WebAuthenticationDetails) details).getRemoteAddress();
+                }
+                String password = secureService.decrypt(credentials.toString(), secureService.getSecureKey(addr));
+                if (passwordEncoder.matches(password, user.getPassword())) {
+                    List<GrantedAuthority> authorities = new ArrayList<>();
+                    authorities.add(new SimpleGrantedAuthority(user.getAuthority()));
+                    return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(),
+                            password, authorities);
+                }
+                else {
+                    throw new BadCredentialsException("Authentication failed");
+                }
+
+            } else {
+                return authentication;
+            }
+
+        } else {
+            return authentication;
+        }
+
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+    }
+}
