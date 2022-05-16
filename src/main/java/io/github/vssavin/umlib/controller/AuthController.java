@@ -24,19 +24,15 @@ public class AuthController {
 
     private static final String PERFORM_LOGOUT = "/perform-logout";
 
-    private Set<String> PAGE_LOGIN_PARAMS;
-    private Set<String> PAGE_LOGOUT_PARAMS;
+    private final Set<String> PAGE_LOGIN_PARAMS;
+    private final Set<String> PAGE_LOGOUT_PARAMS;
 
-    private LocaleConfig.LocaleSpringMessageSource loginMessageSource;
-    private LocaleConfig.LocaleSpringMessageSource logoutMessageSource;
-    private UmLanguage language;
-    private SecureService secureService;
+    private final UmLanguage language;
+    private final SecureService secureService;
 
     public AuthController(LocaleConfig.LocaleSpringMessageSource loginMessageSource,
                           LocaleConfig.LocaleSpringMessageSource logoutMessageSource,
                           UmLanguage language, UmUtil umUtil) {
-        this.loginMessageSource = loginMessageSource;
-        this.logoutMessageSource = logoutMessageSource;
         this.language = language;
         this.secureService = umUtil.getAuthService();
         PAGE_LOGIN_PARAMS = loginMessageSource.getKeys();

@@ -29,11 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String LOGIN_PROCESSING_URL = "/perform-login";
     public static final String LOGOUT_URL = "/logout";
 
-    private DataSource dataSource;
-    private AuthenticationSuccessHandler authSuccessHandler;
-    private AuthenticationFailureHandler authFailureHandler;
-    private AuthenticationProvider authProvider;
-    private PasswordEncoder passwordEncoder;
+    private final DataSource dataSource;
+    private final AuthenticationSuccessHandler authSuccessHandler;
+    private final AuthenticationFailureHandler authFailureHandler;
+    private final AuthenticationProvider authProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public SecurityConfig(DataSource dataSource, AuthenticationSuccessHandler authSuccessHandler,
@@ -61,7 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JdbcUserDetailsManager jdbcUserDetailsManager() throws Exception {
+    public JdbcUserDetailsManager jdbcUserDetailsManager() {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager();
         jdbcUserDetailsManager.setDataSource(dataSource);
         return jdbcUserDetailsManager;

@@ -45,15 +45,15 @@ public class AdminController {
         IGNORED_PARAMS.add("newPassword");
     }
 
-    private Set<String> pageAdminParams;
-    private Set<String> pageRegistrationParams;
-    private Set<String> pageChangeUserPasswordParams;
-    private Set<String> pageAdminConfirmUserParams;
+    private final Set<String> pageAdminParams;
+    private final Set<String> pageRegistrationParams;
+    private final Set<String> pageChangeUserPasswordParams;
+    private final Set<String> pageAdminConfirmUserParams;
 
-    private UserService userService;
-    private SecureService secureService;
-    private PasswordEncoder passwordEncoder;
-    private UmLanguage language;
+    private final UserService userService;
+    private final SecureService secureService;
+    private final PasswordEncoder passwordEncoder;
+    private final UmLanguage language;
 
     public AdminController(UserService userService, UmUtil applicationUtil, PasswordEncoder passwordEncoder,
                            LocaleConfig.LocaleSpringMessageSource adminMessageSource,
@@ -72,8 +72,7 @@ public class AdminController {
     }
 
     @GetMapping()
-    public ModelAndView admin(HttpServletRequest request, HttpServletResponse response,
-                              @RequestParam(required = false) final String lang) {
+    public ModelAndView admin(HttpServletResponse response, @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
         if (isAuthorizedUser(authorizedName)) {
@@ -92,8 +91,8 @@ public class AdminController {
     }
 
     @GetMapping(value = {"/" + PAGE_CONFIRM_USER, "/" + PAGE_CONFIRM_USER + ".html"})
-    public ModelAndView adminConfirmUser(HttpServletRequest request, HttpServletResponse response,
-                              @RequestParam(required = false) final String lang) {
+    public ModelAndView adminConfirmUser(HttpServletResponse response,
+                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
         if (isAuthorizedUser(authorizedName)) {
@@ -112,7 +111,7 @@ public class AdminController {
     }
 
     @GetMapping(value = {"/" + PAGE_REGISTRATION, "/" + PAGE_REGISTRATION + ".html"})
-    public ModelAndView registration(HttpServletRequest request, HttpServletResponse response, Model model,
+    public ModelAndView registration(HttpServletRequest request, Model model,
                                      @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -220,7 +219,7 @@ public class AdminController {
 
     @GetMapping(value = {"/" + PAGE_CHANGE_USER_PASSWORD, "/" + PAGE_CHANGE_USER_PASSWORD + ".html"},
             produces = {"application/json; charset=utf-8"})
-    public ModelAndView changeUserPassword(HttpServletRequest request, HttpServletResponse response,
+    public ModelAndView changeUserPassword(HttpServletRequest request,
                                            @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView(PAGE_CHANGE_USER_PASSWORD);
         String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();

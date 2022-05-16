@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) throws Exception {
-        User savedUser = null;
+        User savedUser;
         try {
             savedUser = userRepository.save(user);
         }
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(User user) throws Exception {
-        User updatedUser = null;
+        User updatedUser;
         try {
             updatedUser = userRepository.save(user);
         }

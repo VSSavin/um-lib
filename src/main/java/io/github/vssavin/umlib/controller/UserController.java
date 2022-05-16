@@ -52,16 +52,16 @@ public class UserController {
         IGNORED_PARAMS.add("currentPassword");
     }
 
-    private Set<String> pageRegistrationParams;
-    private Set<String> pageChangePasswordParams;
-    private Set<String> pageConfirmUserParams;
+    private final Set<String> pageRegistrationParams;
+    private final Set<String> pageChangePasswordParams;
+    private final Set<String> pageConfirmUserParams;
 
-    private UserService userService;
-    private SecureService secureService;
-    private EmailService emailService;
-    private UmConfig mainConfig;
-    private PasswordEncoder passwordEncoder;
-    private UmLanguage language;
+    private final UserService userService;
+    private final SecureService secureService;
+    private final EmailService emailService;
+    private final UmConfig mainConfig;
+    private final PasswordEncoder passwordEncoder;
+    private final UmLanguage language;
 
     public UserController(UserService userService, UmUtil umUtil, EmailService emailService,
                           UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language,
@@ -81,7 +81,7 @@ public class UserController {
 
 
     @GetMapping(value = {"/" + PAGE_REGISTRATION, "/" + PAGE_REGISTRATION + ".html"})
-    public ModelAndView registration(HttpServletRequest request, HttpServletResponse response, Model model,
+    public ModelAndView registration(HttpServletRequest request, Model model,
                                      @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = "";
@@ -300,7 +300,7 @@ public class UserController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            Collection authorities = authentication.getAuthorities();
+            Collection<?> authorities = authentication.getAuthorities();
             for(Object authority : authorities) {
                 if (authority.toString().equals("ROLE_ADMIN")) {
                     isAdminUser = true;

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by vssavin on 16.05.2022.
@@ -22,7 +21,7 @@ public class DefaultSecureController {
     }
 
     @GetMapping(value = "/key")
-    public ResponseEntity<String> secureKey(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> secureKey(HttpServletRequest request) {
         String addr = request.getRemoteAddr();
         return new ResponseEntity<>(secureService.getSecureKey(addr), HttpStatus.OK);
     }

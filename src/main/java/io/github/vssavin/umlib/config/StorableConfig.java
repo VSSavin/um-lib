@@ -84,13 +84,8 @@ public class StorableConfig {
             Set<Map.Entry<Object, Object>> set1 = super.entrySet();
             Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
 
-            Iterator<Map.Entry<Object, Object>> iterator = set1.stream().sorted(new Comparator<Map.Entry<Object, Object>>() {
-
-                @Override
-                public int compare(Map.Entry<Object, Object> o1, Map.Entry<Object, Object> o2) {
-                    return o1.getKey().toString().compareTo(o2.getKey().toString());
-                }
-            }).iterator();
+            Iterator<Map.Entry<Object, Object>> iterator =
+                    set1.stream().sorted(Comparator.comparing(o -> o.getKey().toString())).iterator();
 
             while (iterator.hasNext())
                 set2.add(iterator.next());
@@ -100,7 +95,7 @@ public class StorableConfig {
 
         @Override
         public synchronized Enumeration<Object> keys() {
-            return Collections.enumeration(new TreeSet<Object>(super.keySet()));
+            return Collections.enumeration(new TreeSet<>(super.keySet()));
         }
     }
 

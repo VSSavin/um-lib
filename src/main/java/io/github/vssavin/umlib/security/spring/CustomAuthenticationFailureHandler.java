@@ -7,7 +7,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,8 +23,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
     private static final int MAX_FAILURE_COUNTS = 3;
     private static final int BANNED_TIME_MINUTES = 60;
-    private static ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
-    private static ConcurrentHashMap<String, Long> banExpireTimes = new ConcurrentHashMap<>(50);
+    private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
+    private static final ConcurrentHashMap<String, Long> banExpireTimes = new ConcurrentHashMap<>(50);
 
     public static boolean isBannedIp(String ipAddress) {
         Integer failureCounts = blackList.get(ipAddress);
@@ -53,7 +52,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception)
-            throws IOException, ServletException {
+            throws IOException {
 
         String userIp = request.getRemoteAddr();
         Integer failureCounts = blackList.get(userIp);

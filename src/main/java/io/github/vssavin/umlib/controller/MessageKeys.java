@@ -18,7 +18,7 @@ public enum MessageKeys {
     CONFIRM_SUCCESS_MESSAGE("confirmSuccessMessage"),
     CONFIRM_FAILED_MESSAGE("confirmFailedMessage");
 
-    private String messageKey;
+    private final String messageKey;
 
     MessageKeys(String messageKey) {
         this.messageKey = messageKey;

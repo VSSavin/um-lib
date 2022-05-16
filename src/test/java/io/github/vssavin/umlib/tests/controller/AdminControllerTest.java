@@ -24,7 +24,7 @@ public class AdminControllerTest extends AbstractTest {
     private LocaleConfig.LocaleSpringMessageSource registrationMessageSource;
     private LocaleConfig.LocaleSpringMessageSource changeUserPasswordMessageSource;
 
-    private User testUser = new User("admin", "admin", "admin",
+    private final User testUser = new User("admin", "admin", "admin",
             "admin@example.com", "ADMIN");
 
     @Autowired

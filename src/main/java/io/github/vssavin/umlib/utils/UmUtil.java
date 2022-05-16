@@ -19,10 +19,10 @@ import java.util.Map;
 public class UmUtil {
     private static final Logger log = LoggerFactory.getLogger(UmUtil.class);
     private static String[] applicationArgs;
-    private ApplicationContext context;
-    private SecureService defaultSecureService;
+    private final ApplicationContext context;
+    private final SecureService defaultSecureService;
+    private final PlatformSpecificSecure encryptPropertiesPasswordService;
     private SecureService authService;
-    private PlatformSpecificSecure encryptPropertiesPasswordService;
 
     public UmUtil(ApplicationContext context, SecureService secureService,
                   @Qualifier("applicationSecureService") PlatformSpecificSecure applicationSecureService) {
@@ -57,10 +57,10 @@ public class UmUtil {
                     throw new RuntimeException("Not initialized application context or default secure service!");
                 }
                 if (!authServiceName.isEmpty()) {
-                    if (authServiceName.toLowerCase().equals("aes")) {
+                    if (authServiceName.equalsIgnoreCase("aes")) {
                         authService = (SecureService) context.getBean("AESSecureService");
                     }
-                    else if (authServiceName.toLowerCase().equals("rsa")) {
+                    else if (authServiceName.equalsIgnoreCase("rsa")) {
                         authService = (SecureService) context.getBean("RSASecureService");
                     }
                 }

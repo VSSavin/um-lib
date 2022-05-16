@@ -14,13 +14,12 @@ import java.util.*;
 public class LocaleConfig {
     private static final String DEFAULT_LANGUAGE = "ru";
     public static final Locale DEFAULT_LOCALE = Locale.forLanguageTag(DEFAULT_LANGUAGE);
-    public static final Locale RUSSIAN_LOCALE = Locale.forLanguageTag("ru");
     public static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
     private static final Map<String, String> LANGUAGE_NAMES = new HashMap<>();
     private static final Map<String, String> FLAGS_MAP = new HashMap<>();
 
 
-    private static Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
+    private static final Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
 
     static {
         LANGUAGE_NAMES.put("en", "English");
@@ -40,7 +39,6 @@ public class LocaleConfig {
         public Set<String> getKeys() {
             HashSet<String> keySet = new HashSet<>();
             PropertiesHolder holder = super.getMergedProperties(DEFAULT_LOCALE);
-            if (holder == null) return new HashSet<>();
             Properties props = holder.getProperties();
             if (props == null) return new HashSet<>();
             else {

@@ -25,9 +25,9 @@ import java.util.List;
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private UserService userService;
-    private PasswordEncoder passwordEncoder;
-    private SecureService secureService;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final SecureService secureService;
 
     @Autowired
     public CustomAuthenticationProvider(UserService userService, PasswordEncoder passwordEncoder,
