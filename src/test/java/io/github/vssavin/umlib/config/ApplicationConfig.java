@@ -34,12 +34,6 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 public class ApplicationConfig {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationConfig.class);
 
-    @Autowired
-    public ApplicationConfig() {
-        System.setProperty("spring.datasource.data", "classpath:init.sql");
-        System.setProperty("spring.datasource.initialization-mode", "always");
-    }
-
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
