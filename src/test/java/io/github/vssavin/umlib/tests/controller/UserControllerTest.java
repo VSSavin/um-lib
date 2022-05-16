@@ -77,7 +77,6 @@ public class UserControllerTest extends AbstractTest {
                 .andExpect(status().is(302));
     }
 
-    //TODO: test failures!
     @Test
     public void changeUserPasswordSuccessful() throws Exception {
         String currentPassword = testUser.getPassword();
