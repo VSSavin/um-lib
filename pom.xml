@@ -12,6 +12,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <distribution.url>https://maven.pkg.github.com/vssavin/${project.artifactId}</distribution.url>
+        <github.server.id>github-personal</github.server.id>
         <spring.version>5.2.13.RELEASE</spring.version>
         <spring.security.test.version>5.2.13.RELEASE</spring.security.test.version>
         <spring.boot.starter.test.version>2.3.9.RELEASE</spring.boot.starter.test.version>
@@ -19,9 +21,17 @@
         <spring.security.version>5.2.1.RELEASE</spring.security.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>${github.server.id}</id>
+            <name>Secure library</name>
+            <url>${distribution.url}</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
-            <id>github</id>
+            <id>${github.server.id}</id>
             <name>Secure lib repository</name>
             <url>https://maven.pkg.github.com/vssavin/secure-lib</url>
             <releases>
