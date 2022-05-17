@@ -32,7 +32,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         User user = userService.getUserByName(authentication.getPrincipal().toString());
         if (user != null) {
-            if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.ADMIN_SUCCESS_URL;
+            if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
             if (user.getExpirationDate().before(new Date())) {
                 userService.deleteUser(user);
                 successUrl = UmConfig.LOGIN_URL + "?error=true";
