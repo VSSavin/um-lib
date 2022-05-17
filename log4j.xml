@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" >
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%-4r %d{HH:mm:ss,SSS} [%t] (%F:%L) %-5p %c %x - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="FILE_LOG" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="log/log.txt" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%5p %d{dd MMM yyyy HH:mm:ss,SSS} [%t] (%F:%L) - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="SPRING_LOG" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="log/log-spring.txt" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%5p %d{dd MMM yyyy HH:mm:ss,SSS} [%t] (%F:%L) - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="APACHE_LOG" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="log/log-apache.txt" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%5p %d{dd MMM yyyy HH:mm:ss,SSS} [%t] (%F:%L) - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="HIBERNATE_LOG" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="log/log-hibernate.txt" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%5p %d{dd MMM yyyy HH:mm:ss,SSS} [%t] (%F:%L) - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="NULLOUT" class="org.apache.log4j.varia.NullAppender">
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%-4r %d{HH:mm:ss,SSS} [%t] (%F:%L) %-5p %c %x - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="DATA_REQUESTS_LOG" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="log/log-data-requests.txt" />
+        <param name="Threshold" value="DEBUG" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%-4r %d{HH:mm:ss,SSS} [%t] (%F:%L) %-5p %c %x - %m%n" />
+        </layout>
+    </appender>
+
+    <logger name="org.springframework" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="SPRING_LOG" />
+    </logger>
+
+    <logger name="org.hibernate" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="HIBERNATE_LOG" />
+    </logger>
+
+    <root>
+        <level value="INFO" />
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE_LOG" />
+    </root>
+</log4j:configuration>
