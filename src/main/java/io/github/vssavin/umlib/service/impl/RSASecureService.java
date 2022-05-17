@@ -9,6 +9,5 @@ import org.springframework.stereotype.Component;
  * @author vssavin on 24.01.22
  */
 @Component
-@Primary
 public class RSASecureService extends RSASecure implements SecureService {
 }
