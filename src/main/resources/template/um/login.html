@@ -75,7 +75,7 @@
         </select>
     </div>
 
-    <form name="form-register" method="get" target="_blank">
+    <form th:if="${registrationAllowed}" name="form-register" method="get" target="_blank">
         <div class="container" align="right">
             <p>
                 <label hidden for="lang" class="sr-only"></label>

@@ -27,6 +27,9 @@ public class UmConfig extends StorableConfig{
     @Value("${" + NAME_PREFIX + ".url}")
     private String applicationUrl;
 
+    @Value("${um.registration.allowed:true}")
+    private Boolean registrationAllowed;
+
     private static final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
     static
@@ -56,4 +59,7 @@ public class UmConfig extends StorableConfig{
         this.applicationUrl = applicationUrl;
     }
 
+    public Boolean getRegistrationAllowed() {
+        return registrationAllowed;
+    }
 }

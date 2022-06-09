@@ -29,12 +29,14 @@ public class AuthController {
 
     private final UmLanguage language;
     private final SecureService secureService;
+    private final UmConfig umConfig;
 
     public AuthController(LocaleConfig.LocaleSpringMessageSource loginMessageSource,
                           LocaleConfig.LocaleSpringMessageSource logoutMessageSource,
-                          UmLanguage language, UmUtil umUtil) {
+                          UmLanguage language, UmUtil umUtil, UmConfig umConfig) {
         this.language = language;
         this.secureService = umUtil.getAuthService();
+        this.umConfig = umConfig;
         PAGE_LOGIN_PARAMS = loginMessageSource.getKeys();
         PAGE_LOGOUT_PARAMS = logoutMessageSource.getKeys();
     }
@@ -55,6 +57,10 @@ public class AuthController {
 
         MvcHelper.addObjectsToModelAndView(modelAndView, PAGE_LOGIN_PARAMS, language,
                 secureService.getEncryptMethodNameForView(), lang);
+
+        if (modelAndView != null) {
+            modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
+        }
 
         return modelAndView;
     }
