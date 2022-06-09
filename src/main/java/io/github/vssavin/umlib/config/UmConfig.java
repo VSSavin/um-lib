@@ -32,6 +32,8 @@ public class UmConfig extends StorableConfig{
 
     private static final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
+    private boolean permissionsUpdated = false;
+
     static
     {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
@@ -61,5 +63,34 @@ public class UmConfig extends StorableConfig{
 
     public Boolean getRegistrationAllowed() {
         return registrationAllowed;
+    }
+
+    public void updateAuthorizedPermissions() {
+        if (!permissionsUpdated) {
+            if (!registrationAllowed) {
+                int registrationIndex = -1, performRegisterIndex = -1;
+
+                for(int i = 0; i < authorizedUrlPermissions.size(); i++) {
+                    AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
+                    if (authorizedUrlPermission.getUrl().equals("/user/registration")) {
+                        registrationIndex = i;
+                    } else if (authorizedUrlPermission.getUrl().equals("/user/perform-register")) {
+                        performRegisterIndex = i;
+                    }
+                }
+
+                if (registrationIndex != -1) {
+                    authorizedUrlPermissions.set(registrationIndex,
+                            new AuthorizedUrlPermission("/user/registration", new String[]{"ADMIN"}));
+                }
+
+                if (performRegisterIndex != -1) {
+                    authorizedUrlPermissions.set(performRegisterIndex,
+                            new AuthorizedUrlPermission("/user/perform-register", new String[]{"ADMIN"}));
+                }
+
+                permissionsUpdated = true;
+            }
+        }
     }
 }

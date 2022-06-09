@@ -38,9 +38,10 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DefaultSecurityConfig(DataSource dataSource, AuthenticationSuccessHandler authSuccessHandler,
-                          AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
-                          PasswordEncoder passwordEncoder) {
+    public DefaultSecurityConfig(UmConfig umConfig, DataSource dataSource,
+                                 AuthenticationSuccessHandler authSuccessHandler,
+                                 AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
+                                 PasswordEncoder passwordEncoder) {
         this.dataSource = dataSource;
         this.authSuccessHandler = authSuccessHandler;
         this.authFailureHandler = authFailureHandler;
@@ -48,6 +49,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
         this.passwordEncoder = passwordEncoder;
         UmConfig.adminSuccessUrl = adminSuccessUrl;
         UmConfig.successUrl = successUrl;
+        umConfig.updateAuthorizedPermissions();
     }
 
     @Override

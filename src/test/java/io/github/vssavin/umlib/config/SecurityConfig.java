@@ -20,9 +20,9 @@ public class SecurityConfig extends DefaultSecurityConfig {
     }
 
     @Autowired
-    public SecurityConfig(DataSource dataSource, AuthenticationSuccessHandler authSuccessHandler,
+    public SecurityConfig(UmConfig umConfig, DataSource dataSource, AuthenticationSuccessHandler authSuccessHandler,
                           AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
                           PasswordEncoder passwordEncoder) {
-        super(dataSource, authSuccessHandler, authFailureHandler, authProvider, passwordEncoder);
+        super(umConfig, dataSource, authSuccessHandler, authFailureHandler, authProvider, passwordEncoder);
     }
 }
