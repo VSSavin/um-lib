@@ -3,17 +3,22 @@ package io.github.vssavin.umlib.service.impl;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
+import io.github.vssavin.umlib.exception.RecoveryExpiredException;
 import io.github.vssavin.umlib.exception.UserConfirmFailedException;
 import io.github.vssavin.umlib.exception.UserExistsException;
 import io.github.vssavin.umlib.repository.UserRepository;
 import io.github.vssavin.umlib.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author vssavin on 18.12.2021
@@ -21,11 +26,15 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
+
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -133,6 +142,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String generateNewUserPassword(String recoveryId) {
+        UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
+        if (userRecoveryParams.getExpirationTime().isAfter(LocalDateTime.now())) {
+            String newPassword = generateRandomPassword(15);
+            userRecoveryParams.getUser().setPassword(newPassword);
+            return passwordEncoder.encode(newPassword);
+        } else {
+            throw new RecoveryExpiredException("Recovery id " + "[" + recoveryId + "] is expired");
+        }
+    }
+
+    @Override
+    public String getUserRecoveryId(String loginOrEmail) {
+        List<User> users = userRepository.findByEmail(loginOrEmail);
+        if (users.size() == 0) {
+            users = userRepository.findByLogin(loginOrEmail);
+        }
+        if (users.size() == 0) {
+            throw new UsernameNotFoundException("Such user not found");
+        }
+
+        UserRecoveryParams userRecoveryParams = new UserRecoveryParams(users.get(0));
+        passwordRecoveryIds.put(userRecoveryParams.getRecoveryId(), userRecoveryParams);
+        return userRecoveryParams.getRecoveryId();
+    }
+
+    @Override
     public boolean accessGrantedForRegistration(Role role, String authorizedName) {
         boolean granted = true;
 
@@ -153,5 +189,39 @@ public class UserServiceImpl implements UserService {
         }
 
         return granted;
+    }
+
+    private static String generateRandomPassword(int length)
+    {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        return IntStream.range(0, length)
+                .map(i -> random.nextInt(chars.length()))
+                .mapToObj(randomIndex -> String.valueOf(chars.charAt(randomIndex)))
+                .collect(Collectors.joining());
+    }
+
+    private static class UserRecoveryParams {
+        private final User user;
+        private final String recoveryId;
+        private final LocalDateTime expirationTime;
+
+        private UserRecoveryParams(User user) {
+            this.user = user;
+            this.recoveryId = UUID.randomUUID().toString();;
+            this.expirationTime = LocalDateTime.now().plusDays(1);
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public String getRecoveryId() {
+            return recoveryId;
+        }
+
+        public LocalDateTime getExpirationTime() {
+            return expirationTime;
+        }
     }
 }

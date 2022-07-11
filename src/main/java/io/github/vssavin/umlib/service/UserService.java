@@ -16,5 +16,7 @@ public interface UserService {
     void deleteUser(User user);
     User registerUser(String login, String username, String password, String email, Role role);
     void confirmUser(String login, String verificationId, boolean isAdminUser);
+    String generateNewUserPassword(String recoveryId);
+    String getUserRecoveryId(String loginOrEmail);
     boolean accessGrantedForRegistration(Role role, String authorizedName);
 }
