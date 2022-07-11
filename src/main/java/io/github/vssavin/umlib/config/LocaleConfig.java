@@ -132,6 +132,11 @@ public class LocaleConfig {
     }
 
     @Bean
+    public LocaleSpringMessageSource passwordRecoveryMessageSource() {
+        return createMessageSource("passwordRecovery");
+    }
+
+    @Bean
     public LocaleSpringMessageSource logoutMessageSource() {
         return createMessageSource("logout");
     }

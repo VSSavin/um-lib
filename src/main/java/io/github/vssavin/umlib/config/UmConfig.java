@@ -38,6 +38,8 @@ public class UmConfig extends StorableConfig{
     {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/passwordRecovery", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/perform-password-recovery", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/registration", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/perform-register", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/confirmUser", new String[0]));

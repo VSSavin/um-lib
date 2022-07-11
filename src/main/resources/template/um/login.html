@@ -108,6 +108,9 @@
             <input type="password" id="password" name="password" class="form-control" th:placeholder="${password}"
                    required>
         </p>
+        <p>
+            <a th:href="@{/user/passwordRecovery} + '?lang=' + ${urlLang}" th:text="${forgotPassword}">Забыли пароль?</a>
+        </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${signInButton}">Войти</button>
     </form>
 </div>
