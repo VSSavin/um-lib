@@ -5,6 +5,7 @@ import io.github.vssavin.umlib.config.UmTemplateResolverConfig;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.SecureService;
 import io.github.vssavin.umlib.utils.UmUtil;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.w3c.dom.DOMConfiguration;
 
 import javax.servlet.Filter;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -31,6 +33,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 @WebAppConfiguration
 @Sql(scripts = "classpath:init_test.sql", config = @SqlConfig(encoding = "UTF-8"))
 public abstract class AbstractTest {
+
+    static {
+        DOMConfigurator.configure("./log4j.xml");
+    }
 
     protected MockMvc mockMvc;
     protected SecureService secureService;
