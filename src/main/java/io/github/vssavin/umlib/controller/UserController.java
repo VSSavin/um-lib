@@ -353,9 +353,9 @@ public class UserController {
                 modelAndView.addObject("failedSend", true);
                 successSend = false;
             }
+            modelAndView.addObject("successSend", successSend);
         }
 
-        modelAndView.addObject("successSend", successSend);
         addObjectsToModelAndView(modelAndView, pagePasswordRecoveryParams, language,
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
