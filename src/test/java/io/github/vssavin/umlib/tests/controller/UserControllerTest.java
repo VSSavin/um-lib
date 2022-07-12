@@ -171,10 +171,8 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "admin");
         mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery")
                 .params(passwordRecoveryParams)
-                        .secure(false)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
 
@@ -190,16 +188,14 @@ public class UserControllerTest extends AbstractTest {
         mockedEmailService.getEmailMessages().clear();
         passwordRecoveryParams.clear();
         passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get("/user/passwordRecovery/")
+        resultActions = mockMvc.perform(get("/user/passwordRecovery")
                 .params(passwordRecoveryParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
 
         emailMessage = mockedEmailService.getLastEmailMessage();
         messageText = emailMessage.getText();
         Assertions.assertFalse(messageText.isEmpty());
-
     }
 
     @Test
@@ -207,18 +203,16 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "12345");
         mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery")
                 .params(passwordRecoveryParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true));
 
         passwordRecoveryParams.clear();
         passwordRecoveryParams.add("loginOrEmail", "admin");
         mockedEmailService.getEmailMessages().clear();
-        resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+        resultActions = mockMvc.perform(post("/user/perform-password-recovery")
                 .params(passwordRecoveryParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
 
@@ -234,9 +228,8 @@ public class UserControllerTest extends AbstractTest {
         mockedEmailService.getEmailMessages().clear();
         passwordRecoveryParams.clear();
         passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get("/user/passwordRecovery/")
+        resultActions = mockMvc.perform(get("/user/passwordRecovery")
                 .params(passwordRecoveryParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true))
                 .andExpect(model().attribute("successSend", false));
