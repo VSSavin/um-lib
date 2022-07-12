@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static io.github.vssavin.umlib.helper.MvcHelper.*;
 
@@ -43,6 +42,8 @@ public class UserController {
     private static final String PAGE_CONFIRM_USER = "confirmUser";
     private static final String PERFORM_CHANGE_PASSWORD = "/perform-change-password";
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
+    private static final String PAGE_RECOVERY_PASSWORD = "passwordRecovery";
+    private static final String PERFORM_PASSWORD_RECOVERY = "/perform-password-recovery";
 
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
@@ -55,6 +56,7 @@ public class UserController {
     private final Set<String> pageRegistrationParams;
     private final Set<String> pageChangePasswordParams;
     private final Set<String> pageConfirmUserParams;
+    private final Set<String> pagePasswordRecoveryParams;
 
     private final UserService userService;
     private final SecureService secureService;
@@ -67,7 +69,8 @@ public class UserController {
                           UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language,
                           LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource,
                           LocaleConfig.LocaleSpringMessageSource registrationMessageSource,
-                          LocaleConfig.LocaleSpringMessageSource confirmUserMessageSource) {
+                          LocaleConfig.LocaleSpringMessageSource confirmUserMessageSource,
+                          LocaleConfig.LocaleSpringMessageSource passwordRecoveryMessageSource) {
         this.userService = userService;
         this.secureService = umUtil.getAuthService();
         this.emailService = emailService;
@@ -77,6 +80,7 @@ public class UserController {
         pageRegistrationParams = registrationMessageSource.getKeys();
         pageChangePasswordParams = changePasswordMessageSource.getKeys();
         pageConfirmUserParams = confirmUserMessageSource.getKeys();
+        pagePasswordRecoveryParams = passwordRecoveryMessageSource.getKeys();
     }
 
 
@@ -322,6 +326,72 @@ public class UserController {
         modelAndView.addObject("confirmMessage", resultMessage);
 
         addObjectsToModelAndView(modelAndView, pageConfirmUserParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        return modelAndView;
+    }
+
+
+    @GetMapping(value = {"/" + PAGE_RECOVERY_PASSWORD, "/" + PAGE_RECOVERY_PASSWORD + ".html"})
+    public ModelAndView passwordRecovery(HttpServletRequest request,
+                                         @RequestParam(required = false, defaultValue = "") final String recoveryId,
+                                         @RequestParam(required = false) final String lang) {
+        ModelAndView modelAndView = new ModelAndView(PAGE_RECOVERY_PASSWORD);
+        boolean successSend = true;
+        if (!recoveryId.isEmpty()) {
+            try {
+                User user = userService.getUserByRecoveryId(recoveryId);
+                String newPassword = userService.generateNewUserPassword(recoveryId);
+                String message = "Your new password: " + newPassword;
+                emailService.sendSimpleMessage(user.getEmail(), "Your new password: ", message);
+            } catch (UsernameNotFoundException usernameNotFoundException) {
+                log.error("User not found! ", usernameNotFoundException);
+                modelAndView.addObject("userNotFound", true);
+                successSend = false;
+            } catch (MailException mailException) {
+                log.error("Failed to send an email!" , mailException);
+                modelAndView.addObject("failedSend", true);
+                successSend = false;
+            }
+        }
+
+        modelAndView.addObject("successSend", successSend);
+        addObjectsToModelAndView(modelAndView, pagePasswordRecoveryParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        return modelAndView;
+    }
+
+
+    @PostMapping(PERFORM_PASSWORD_RECOVERY)
+    public ModelAndView performPasswordRecovery(HttpServletRequest request,
+                                                @RequestParam String loginOrEmail,
+                                                @RequestParam(required = false) final String lang) {
+        ModelAndView modelAndView = new ModelAndView("redirect:" + PAGE_RECOVERY_PASSWORD);
+        boolean successSend = true;
+        try {
+            Map<String, User> map = userService.getUserRecoveryId(loginOrEmail);
+            Optional<String> optionalRecoveryId = map.keySet().stream().findFirst();
+
+            if (optionalRecoveryId.isPresent()) {
+                User user = map.get(optionalRecoveryId.get());
+                String message = mainConfig.getApplicationUrl() + USER_CONTROLLER_PATH + "/" +
+                        PAGE_RECOVERY_PASSWORD + "?recoveryId=" + optionalRecoveryId.get();
+                emailService.sendSimpleMessage(user.getEmail(), "Password recovery", message);
+            }
+        } catch (UsernameNotFoundException usernameNotFoundException) {
+            log.error("User not found: " + loginOrEmail + "! ", usernameNotFoundException);
+            modelAndView.addObject("userNotFound", true);
+            successSend = false;
+        } catch (MailException mailException) {
+            log.error("Failed to send an email!" , mailException);
+            modelAndView.addObject("failedSend", true);
+            successSend = false;
+        }
+
+        modelAndView.addObject("successSend", successSend);
+
+        addObjectsToModelAndView(modelAndView, pagePasswordRecoveryParams, language,
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;

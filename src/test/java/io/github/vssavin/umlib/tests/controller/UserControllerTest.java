@@ -1,14 +1,19 @@
 package io.github.vssavin.umlib.tests.controller;
 
+import io.github.vssavin.umlib.service.MockedEmailService;
 import io.github.vssavin.umlib.tests.AbstractTest;
 import io.github.vssavin.umlib.config.LocaleConfig;
 import io.github.vssavin.umlib.controller.MessageKeys;
 import io.github.vssavin.umlib.entity.User;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,6 +32,8 @@ public class UserControllerTest extends AbstractTest {
     private final User testUser = new User("user", "user", "user",
             "user@example.com", "USER");
 
+    private MockedEmailService mockedEmailService;
+
     @Autowired
     public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
         this.registrationMessageSource = registrationMessageSource;
@@ -35,6 +42,11 @@ public class UserControllerTest extends AbstractTest {
     @Autowired
     public void setChangePasswordMessageSource(LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource) {
         this.changePasswordMessageSource = changePasswordMessageSource;
+    }
+
+    @Autowired
+    public void setEmailService(MockedEmailService emailService) {
+        this.mockedEmailService = emailService;
     }
 
     @Test
@@ -152,5 +164,81 @@ public class UserControllerTest extends AbstractTest {
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", String.format(message, login)));
+    }
+
+    @Test
+    public void recoveryPasswordSuccessful() throws Exception {
+        MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
+        passwordRecoveryParams.add("loginOrEmail", "admin");
+        mockedEmailService.getEmailMessages().clear();
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+                .params(passwordRecoveryParams)
+                        .secure(false)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        resultActions.andExpect(model().attribute("successSend", true));
+
+        MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
+        String messageText = emailMessage.getText();
+        messageText = messageText.substring(messageText.indexOf("http"));
+        MultiValueMap<String, String> parameters =
+                UriComponentsBuilder.fromUriString(messageText).build().getQueryParams();
+        List<String> param = parameters.get("recoveryId");
+        Assertions.assertEquals(1, param.size());
+
+        String recoveryId = param.get(0);
+        mockedEmailService.getEmailMessages().clear();
+        passwordRecoveryParams.clear();
+        passwordRecoveryParams.add("recoveryId", recoveryId);
+        resultActions = mockMvc.perform(get("/user/passwordRecovery/")
+                .params(passwordRecoveryParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        resultActions.andExpect(model().attribute("successSend", true));
+
+        emailMessage = mockedEmailService.getLastEmailMessage();
+        messageText = emailMessage.getText();
+        Assertions.assertFalse(messageText.isEmpty());
+
+    }
+
+    @Test
+    public void recoveryPasswordFailed() throws Exception {
+        MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
+        passwordRecoveryParams.add("loginOrEmail", "12345");
+        mockedEmailService.getEmailMessages().clear();
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+                .params(passwordRecoveryParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        resultActions.andExpect(model().attribute("userNotFound", true));
+
+        passwordRecoveryParams.clear();
+        passwordRecoveryParams.add("loginOrEmail", "admin");
+        mockedEmailService.getEmailMessages().clear();
+        resultActions = mockMvc.perform(post("/user/perform-password-recovery/")
+                .params(passwordRecoveryParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        resultActions.andExpect(model().attribute("successSend", true));
+
+        MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
+        String messageText = emailMessage.getText();
+        messageText = messageText.substring(messageText.indexOf("http"));
+        MultiValueMap<String, String> parameters =
+                UriComponentsBuilder.fromUriString(messageText).build().getQueryParams();
+        List<String> param = parameters.get("recoveryId");
+        Assertions.assertEquals(1, param.size());
+
+        String recoveryId = "-----";
+        mockedEmailService.getEmailMessages().clear();
+        passwordRecoveryParams.clear();
+        passwordRecoveryParams.add("recoveryId", recoveryId);
+        resultActions = mockMvc.perform(get("/user/passwordRecovery/")
+                .params(passwordRecoveryParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        resultActions.andExpect(model().attribute("userNotFound", true))
+                .andExpect(model().attribute("successSend", false));
     }
 }
