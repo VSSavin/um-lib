@@ -38,25 +38,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User addUser(User user) throws Exception {
+    public User addUser(User user) {
         User savedUser;
         try {
             savedUser = userRepository.save(user);
         }
         catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         return savedUser;
     }
 
     @Override
-    public User updateUser(User user) throws Exception {
+    public User updateUser(User user) {
         User updatedUser;
         try {
             updatedUser = userRepository.save(user);
         }
         catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         return updatedUser;
     }
