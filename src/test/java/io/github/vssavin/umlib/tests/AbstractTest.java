@@ -19,10 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.w3c.dom.DOMConfiguration;
 
-import javax.servlet.Filter;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 /**
  * @author vssavin on 07.01.2022
@@ -41,16 +40,10 @@ public abstract class AbstractTest {
     protected MockMvc mockMvc;
     protected SecureService secureService;
     private WebApplicationContext context;
-    private Filter springSecurityFilterChain;
 
     @Autowired
     public void setContext(WebApplicationContext context) {
         this.context = context;
-    }
-
-    @Autowired
-    public void setSpringSecurityFilterChain(Filter springSecurityFilterChain) {
-        this.springSecurityFilterChain = springSecurityFilterChain;
     }
 
     @Autowired
@@ -62,11 +55,11 @@ public abstract class AbstractTest {
     public void setup() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
+                .apply(springSecurity())
                 .addFilter(((request, response, chain) -> {
                     response.setCharacterEncoding("UTF-8");
                     chain.doFilter(request, response);
                 }))
-                .addFilter(springSecurityFilterChain)
                 .build();
     }
 
