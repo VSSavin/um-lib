@@ -65,6 +65,10 @@ public class User {
         return verificationId;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
