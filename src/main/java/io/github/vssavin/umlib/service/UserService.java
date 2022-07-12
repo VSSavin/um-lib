@@ -4,6 +4,8 @@ import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 /**
  * @author vssavin on 18.12.2021
  */
@@ -17,6 +19,7 @@ public interface UserService {
     User registerUser(String login, String username, String password, String email, Role role);
     void confirmUser(String login, String verificationId, boolean isAdminUser);
     String generateNewUserPassword(String recoveryId);
-    String getUserRecoveryId(String loginOrEmail);
+    Map<String, User> getUserRecoveryId(String loginOrEmail);
+    User getUserByRecoveryId(String recoveryId);
     boolean accessGrantedForRegistration(Role role, String authorizedName);
 }

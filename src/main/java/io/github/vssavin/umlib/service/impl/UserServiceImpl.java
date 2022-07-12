@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 public class UserServiceImpl implements UserService {
 
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
+    private static final User EMPTY_USER = new User("", "", "", "", "");
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -146,15 +147,15 @@ public class UserServiceImpl implements UserService {
         UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
         if (userRecoveryParams.getExpirationTime().isAfter(LocalDateTime.now())) {
             String newPassword = generateRandomPassword(15);
-            userRecoveryParams.getUser().setPassword(newPassword);
-            return passwordEncoder.encode(newPassword);
+            userRecoveryParams.getUser().setPassword(passwordEncoder.encode(newPassword));
+            return newPassword;
         } else {
             throw new RecoveryExpiredException("Recovery id " + "[" + recoveryId + "] is expired");
         }
     }
 
     @Override
-    public String getUserRecoveryId(String loginOrEmail) {
+    public Map<String, User> getUserRecoveryId(String loginOrEmail) {
         List<User> users = userRepository.findByEmail(loginOrEmail);
         if (users.size() == 0) {
             users = userRepository.findByLogin(loginOrEmail);
@@ -165,7 +166,13 @@ public class UserServiceImpl implements UserService {
 
         UserRecoveryParams userRecoveryParams = new UserRecoveryParams(users.get(0));
         passwordRecoveryIds.put(userRecoveryParams.getRecoveryId(), userRecoveryParams);
-        return userRecoveryParams.getRecoveryId();
+        return Collections.singletonMap(userRecoveryParams.getRecoveryId(), userRecoveryParams.getUser());
+    }
+
+    @Override
+    public User getUserByRecoveryId(String recoveryId) {
+        UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
+        return userRecoveryParams == null ? EMPTY_USER : userRecoveryParams.getUser();
     }
 
     @Override
