@@ -172,7 +172,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByRecoveryId(String recoveryId) {
         UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
-        return userRecoveryParams == null ? EMPTY_USER : userRecoveryParams.getUser();
+        if (userRecoveryParams == null) {
+            throw new UsernameNotFoundException("User with recoveryId = " + recoveryId + " not found!");
+        }
+        return userRecoveryParams.getUser();
     }
 
     @Override
