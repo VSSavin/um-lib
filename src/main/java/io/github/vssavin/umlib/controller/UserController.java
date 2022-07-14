@@ -133,6 +133,7 @@ public class UserController {
             return modelAndView;
         }
 
+        boolean emailSendingFailed = false;
         try {
             if (!password.equals(confirmPassword)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
@@ -175,6 +176,7 @@ public class UserController {
                         String.format("Confirm user registration: %s", url));
             } catch (MailException mailException) {
                 log.error("Sending email error!", mailException);
+                emailSendingFailed = true;
             }
 
         } catch (UserExistsException e) {
@@ -196,6 +198,7 @@ public class UserController {
 
         modelAndView = getSuccessModelAndView(PAGE_REGISTRATION,
                 MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), lang, newUser.getLogin());
+        modelAndView.addObject("emailSendingFailed", emailSendingFailed);
 
         addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
                 secureService.getEncryptMethodNameForView(), lang);

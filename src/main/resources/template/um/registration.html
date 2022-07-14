@@ -76,6 +76,11 @@
                 <span th:text="${errorMsg}">Description</span>
             </p>
         </div>
+        <div class="alert alert-danger" th:if="${emailSendingFailed}" role="alert">
+            <p align="center">
+                <span th:text="${emailSendingFailedMessage}">Description</span>
+            </p>
+        </div>
         <div th:if="${param.success}" class="alert alert-success">
             <p align="center">
                 <span th:text="${successMsg}">Description</span>
