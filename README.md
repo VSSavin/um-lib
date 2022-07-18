@@ -1,1 +1,2 @@
-um-lib: user management library for some projects
+User management library for spring projects.
+See tests as examples
