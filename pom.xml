@@ -13,8 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <distribution.url>https://maven.pkg.github.com/vssavin/${project.artifactId}</distribution.url>
-        <!--suppress UnresolvedMavenProperty -->
-        <github.server.id>${env.GITHUB_SERVER_ID}</github.server.id>
+        <github.server.id>github-vssavin</github.server.id>
         <spring.version>5.2.13.RELEASE</spring.version>
         <spring.security.test.version>5.2.13.RELEASE</spring.security.test.version>
         <spring.boot.starter.test.version>2.3.9.RELEASE</spring.boot.starter.test.version>
