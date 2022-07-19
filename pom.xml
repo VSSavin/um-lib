@@ -31,21 +31,14 @@
 
     <repositories>
         <repository>
-            <id>${github.server.id}</id>
-            <name>Personal libs repository</name>
-            <url>https://maven.pkg.github.com/vssavin/*</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>io.github.vssavin</groupId>
+            <groupId>com.github.vssavin</groupId>
             <artifactId>secure-lib</artifactId>
             <version>1.0</version>
             <exclusions>
