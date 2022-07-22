@@ -6,7 +6,7 @@
 
     <groupId>io.github.vssavin</groupId>
     <artifactId>um-lib</artifactId>
-    <version>1.0</version>
+    <version>1.0.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
