@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
             savedUser = userRepository.save(user);
         }
         catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
         return savedUser;
     }
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
             updatedUser = userRepository.save(user);
         }
         catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         }
         return updatedUser;
     }
@@ -218,7 +218,7 @@ public class UserServiceImpl implements UserService {
 
         private UserRecoveryParams(User user) {
             this.user = user;
-            this.recoveryId = UUID.randomUUID().toString();;
+            this.recoveryId = UUID.randomUUID().toString();
             this.expirationTime = LocalDateTime.now().plusDays(1);
         }
 
