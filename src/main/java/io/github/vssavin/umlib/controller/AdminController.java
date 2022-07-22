@@ -10,6 +10,8 @@ import io.github.vssavin.umlib.language.UmLanguage;
 import io.github.vssavin.umlib.service.SecureService;
 import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.utils.UmUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +32,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     private static final String PAGE_ADMIN = "admin";
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_USER_PASSWORD = "changeUserPassword";
@@ -194,6 +197,7 @@ public class AdminController {
                             secureService.getSecureKey(request.getRemoteAddr()))), email, registerRole);
             userService.confirmUser(login, "", true);
         } catch (UserExistsException e) {
+            log.error("User exists! ", e);
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                     MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, username);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
@@ -201,6 +205,7 @@ public class AdminController {
             response.setStatus(400);
             return modelAndView;
         } catch (Exception e) {
+            log.error("User registration error! ", e);
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                     MessageKeys.CREATE_USER_ERROR_MESSAGE.getMessageKey(), lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
@@ -274,6 +279,7 @@ public class AdminController {
             }
 
         } catch (UsernameNotFoundException ex) {
+            log.error("User name not found!", ex);
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
@@ -281,6 +287,7 @@ public class AdminController {
             response.setStatus(404);
             return modelAndView;
         } catch (Exception ex) {
+            log.error("User password change error! ", ex);
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKeys.REQUEST_PROCESSING_ERROR.getMessageKey(), lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
