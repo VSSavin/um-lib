@@ -6,7 +6,7 @@
 
     <groupId>io.github.vssavin</groupId>
     <artifactId>um-lib</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,13 +40,7 @@
         <dependency>
             <groupId>com.github.vssavin</groupId>
             <artifactId>secure-lib</artifactId>
-            <version>1.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>

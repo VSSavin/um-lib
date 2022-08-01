@@ -7,7 +7,6 @@ import io.github.vssavin.umlib.utils.UmUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,7 +52,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                 if (passwordEncoder.matches(password, user.getPassword())) {
                     List<GrantedAuthority> authorities = new ArrayList<>();
                     authorities.add(new SimpleGrantedAuthority(user.getAuthority()));
-                    return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(),
+                    return new CustomUsernamePasswordAuthenticationToken(authentication.getPrincipal(),
                             password, authorities);
                 }
                 else {
@@ -72,6 +71,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        return authentication.isAssignableFrom(CustomUsernamePasswordAuthenticationToken.class);
     }
 }
