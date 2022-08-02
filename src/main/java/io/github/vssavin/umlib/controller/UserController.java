@@ -14,6 +14,7 @@ import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.utils.UmUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,11 +89,10 @@ public class UserController {
     public ModelAndView registration(HttpServletRequest request, Model model,
                                      @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = "";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            authorizedName = authentication.getName();
+        if (!mainConfig.getRegistrationAllowed()) {
+            return getRegistrationForbiddenModelAndView(request);
         }
+        String authorizedName = getAuthorizedUserName();
         modelAndView = new ModelAndView(PAGE_REGISTRATION, model.asMap());
         modelAndView.addObject("userName", authorizedName);
 
@@ -100,7 +100,6 @@ public class UserController {
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
-
     }
 
     @PostMapping(PERFORM_REGISTER_MAPPING)
@@ -113,12 +112,11 @@ public class UserController {
                                         @RequestParam(required = false) final String role,
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = "";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            authorizedName = authentication.getName();
+        if (!mainConfig.getRegistrationAllowed()) {
+            return getRegistrationForbiddenModelAndView(request);
         }
 
+        String authorizedName = getAuthorizedUserName();
         User newUser;
         Role registerRole;
         registerRole = Role.getRole(role);
@@ -398,6 +396,24 @@ public class UserController {
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
+    }
+
+    private ModelAndView getRegistrationForbiddenModelAndView(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        if (referer == null) referer = UmConfig.LOGIN_URL;
+        ModelAndView modelAndView = new ModelAndView("redirect:" + referer);
+        modelAndView.setStatus(HttpStatus.FORBIDDEN);
+        return modelAndView;
+    }
+
+
+    private String getAuthorizedUserName() {
+        String authorizedUserName = "";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            authorizedUserName = authentication.getName();
+        }
+        return authorizedUserName;
     }
 
     private boolean isAuthorizedUser(String userName) {
