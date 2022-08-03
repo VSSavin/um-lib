@@ -50,6 +50,29 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Test
+    public void registrationNotAllowedForAuthenticatedUser() throws Exception{
+        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+        String login = "user2";
+
+        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
+        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
+        String encodedPassword = secureService.encrypt("user2", secureKey);
+
+        registerParams.add("login", login);
+        registerParams.add("username", "user2");
+        registerParams.add("email", "user2@example.com");
+        registerParams.add("password", encodedPassword);
+        registerParams.add("confirmPassword", encodedPassword);
+
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
+                .params(registerParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        resultActions.andExpect(status().is(403));
+    }
+
+    @Test
     public void suchUserExists() throws Exception {
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         String login = testUser.getLogin();
@@ -58,10 +81,9 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("email", "test@test.com");
         registerParams.add("password", testUser.getPassword());
         registerParams.add("confirmPassword", testUser.getPassword());
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
                         .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
+                        .with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKeys.USER_EXISTS_PATTERN.getMessageKey(),
                 new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("error", true))
@@ -78,9 +100,8 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("email", "user@example.com");
         registerParams.add("password", testUser.getPassword());
         registerParams.add("confirmPassword", testUser.getPassword());
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
                 .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(),
                 new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
@@ -102,7 +123,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -129,7 +150,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -155,9 +176,8 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("password", encodedPassword);
         registerParams.add("confirmPassword", encodedPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register/")
+        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
                 .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String message = registrationMessageSource.getMessage(
                 MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), new Object[]{},
