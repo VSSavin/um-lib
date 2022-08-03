@@ -13,17 +13,22 @@ public class SecurityHelper {
     private SecurityHelper() {}
 
     public static String getAuthorizedUserName(UserService userService) {
+        String authorizedUserName = getAuthorizedUserLogin();
+        if (!authorizedUserName.isEmpty() && userService != null) {
+            try {
+                authorizedUserName = userService.getUserByName(authorizedUserName).getName();
+            } catch (UsernameNotFoundException e) {
+                authorizedUserName = "";
+            }
+        }
+        return authorizedUserName;
+    }
+
+    public static String getAuthorizedUserLogin() {
         String authorizedUserName = "";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             authorizedUserName = authentication.getName();
-            if (authorizedUserName != null && userService != null) {
-                try {
-                    authorizedUserName = userService.getUserByName(authorizedUserName).getName();
-                } catch (UsernameNotFoundException e) {
-                    authorizedUserName = "";
-                }
-            }
         }
         return authorizedUserName;
     }

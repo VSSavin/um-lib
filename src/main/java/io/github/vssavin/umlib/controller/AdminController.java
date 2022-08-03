@@ -5,6 +5,7 @@ import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
 import io.github.vssavin.umlib.exception.UserExistsException;
+import io.github.vssavin.umlib.helper.SecurityHelper;
 import io.github.vssavin.umlib.helper.ValidatingHelper;
 import io.github.vssavin.umlib.language.UmLanguage;
 import io.github.vssavin.umlib.service.SecureService;
@@ -77,7 +78,7 @@ public class AdminController {
     @GetMapping()
     public ModelAndView admin(HttpServletResponse response, @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_ADMIN);
             modelAndView.addObject("userName", authorizedName);
@@ -97,7 +98,7 @@ public class AdminController {
     public ModelAndView adminConfirmUser(HttpServletResponse response,
                                          @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_CONFIRM_USER);
             modelAndView.addObject("userName", authorizedName);
@@ -117,7 +118,7 @@ public class AdminController {
     public ModelAndView registration(HttpServletRequest request, Model model,
                                      @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_REGISTRATION, model.asMap());
             modelAndView.addObject("userName", authorizedName);
@@ -147,7 +148,7 @@ public class AdminController {
                                         @RequestParam(required = false) final String role,
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String authorizedName = SecurityHelper.getAuthorizedUserLogin();
 
         User newUser;
         Role registerRole;
@@ -227,7 +228,7 @@ public class AdminController {
     public ModelAndView changeUserPassword(HttpServletRequest request,
                                            @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView(PAGE_CHANGE_USER_PASSWORD);
-        String authorizedName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
         if (!isAuthorizedUser(authorizedName)) {
             modelAndView = getErrorModelAndView("errorPage",
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
@@ -245,16 +246,8 @@ public class AdminController {
                                                   @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         try {
-            String authorizedUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+            String authorizedUserName = SecurityHelper.getAuthorizedUserName(userService);
             if (isAuthorizedUser(authorizedUserName)) {
-                if (authorizedUserName.toLowerCase().contains("anonymoususer")) {
-                    modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                            MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-                    addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
-                            secureService.getEncryptMethodNameForView(), lang);
-                    response.setStatus(403);
-                    return modelAndView;
-                }
                 User user = userService.getUserByName(userName);
                 String realNewPassword = secureService.decrypt(newPassword,
                         secureService.getSecureKey(request.getRemoteAddr()));
@@ -271,10 +264,10 @@ public class AdminController {
                 }
             } else {
                 modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                        MessageKeys.REQUEST_PROCESSING_ERROR.getMessageKey(), lang);
+                        MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
                         secureService.getEncryptMethodNameForView(), lang);
-                response.setStatus(500);
+                response.setStatus(403);
                 return modelAndView;
             }
 
