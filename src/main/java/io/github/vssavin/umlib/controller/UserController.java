@@ -6,6 +6,7 @@ import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
 import io.github.vssavin.umlib.exception.UserExistsException;
+import io.github.vssavin.umlib.helper.SecurityHelper;
 import io.github.vssavin.umlib.helper.ValidatingHelper;
 import io.github.vssavin.umlib.language.UmLanguage;
 import io.github.vssavin.umlib.service.EmailService;
@@ -89,10 +90,16 @@ public class UserController {
     public ModelAndView registration(HttpServletRequest request, Model model,
                                      @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
+
         if (!mainConfig.getRegistrationAllowed()) {
-            return getRegistrationForbiddenModelAndView(request);
+            return getForbiddenModelAndView(request);
         }
-        String authorizedName = getAuthorizedUserName();
+
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
+        if (!authorizedName.isEmpty()) {
+            return getForbiddenModelAndView(request);
+        }
+
         modelAndView = new ModelAndView(PAGE_REGISTRATION, model.asMap());
         modelAndView.addObject("userName", authorizedName);
 
@@ -113,10 +120,14 @@ public class UserController {
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         if (!mainConfig.getRegistrationAllowed()) {
-            return getRegistrationForbiddenModelAndView(request);
+            return getForbiddenModelAndView(request);
         }
 
-        String authorizedName = getAuthorizedUserName();
+        String authorizedName = SecurityHelper.getAuthorizedUserName(userService);
+        if (!authorizedName.isEmpty()) {
+            return getForbiddenModelAndView(request);
+        }
+
         User newUser;
         Role registerRole;
         registerRole = Role.getRole(role);
@@ -398,22 +409,12 @@ public class UserController {
         return modelAndView;
     }
 
-    private ModelAndView getRegistrationForbiddenModelAndView(HttpServletRequest request) {
+    private ModelAndView getForbiddenModelAndView(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
-        if (referer == null) referer = UmConfig.LOGIN_URL;
+        if (referer == null) referer = UmConfig.successUrl;
         ModelAndView modelAndView = new ModelAndView("redirect:" + referer);
         modelAndView.setStatus(HttpStatus.FORBIDDEN);
         return modelAndView;
-    }
-
-
-    private String getAuthorizedUserName() {
-        String authorizedUserName = "";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            authorizedUserName = authentication.getName();
-        }
-        return authorizedUserName;
     }
 
     private boolean isAuthorizedUser(String userName) {
