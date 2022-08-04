@@ -9,6 +9,7 @@ public enum MessageKeys {
     PASSWORDS_MUST_BE_IDENTICAL_MESSAGE("passwordsMustBeIdenticalMessage"),
     CREATE_USER_ERROR_MESSAGE("createUserErrorMessage"),
     AUTHENTICATION_REQUIRED_MESSAGE("authenticationRequiredMessage"),
+    ADMIN_AUTHENTICATION_REQUIRED_MESSAGE("adminAuthenticationRequiredMessage"),
     EMAIL_EXISTS_MESSAGE("emailExistsMessage"),
     EMAIL_NOT_VALID_MESSAGE("emailNotValidMessage"),
     WRONG_PASSWORD_MESSAGE("wrongPasswordMessage"),

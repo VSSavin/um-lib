@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.controller;
 
 import io.github.vssavin.umlib.config.LocaleConfig;
+import io.github.vssavin.umlib.config.UmConfig;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
@@ -8,12 +9,12 @@ import io.github.vssavin.umlib.exception.UserExistsException;
 import io.github.vssavin.umlib.helper.SecurityHelper;
 import io.github.vssavin.umlib.helper.ValidatingHelper;
 import io.github.vssavin.umlib.language.UmLanguage;
+import io.github.vssavin.umlib.pagination.Paged;
 import io.github.vssavin.umlib.service.SecureService;
 import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.utils.UmUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.Model;
@@ -34,6 +35,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
 @RequestMapping("/admin")
 public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+    private static final String PAGE_USERS = "users";
     private static final String PAGE_ADMIN = "admin";
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_USER_PASSWORD = "changeUserPassword";
@@ -49,6 +51,8 @@ public class AdminController {
         IGNORED_PARAMS.add("newPassword");
     }
 
+    private final Set<String> pageUsersParams;
+    private final Set<String> pageLoginParams;
     private final Set<String> pageAdminParams;
     private final Set<String> pageRegistrationParams;
     private final Set<String> pageChangeUserPasswordParams;
@@ -60,6 +64,8 @@ public class AdminController {
     private final UmLanguage language;
 
     public AdminController(UserService userService, UmUtil applicationUtil, PasswordEncoder passwordEncoder,
+                           LocaleConfig.LocaleSpringMessageSource loginMessageSource,
+                           LocaleConfig.LocaleSpringMessageSource usersMessageSource,
                            LocaleConfig.LocaleSpringMessageSource adminMessageSource,
                            LocaleConfig.LocaleSpringMessageSource registrationMessageSource,
                            LocaleConfig.LocaleSpringMessageSource changeUserPasswordMessageSource,
@@ -68,6 +74,8 @@ public class AdminController {
         this.userService = userService;
         this.secureService = applicationUtil.getAuthService();
         this.passwordEncoder = passwordEncoder;
+        pageLoginParams = loginMessageSource.getKeys();
+        pageUsersParams = usersMessageSource.getKeys();
         pageAdminParams = adminMessageSource.getKeys();
         pageRegistrationParams = registrationMessageSource.getKeys();
         pageChangeUserPasswordParams = changeUserPasswordMessageSource.getKeys();
@@ -293,6 +301,31 @@ public class AdminController {
                 MessageKeys.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getMessageKey(), lang);
         response.setStatus(200);
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+
+        return modelAndView;
+    }
+
+    @GetMapping(value = {"/" + PAGE_USERS, "/" + PAGE_USERS + ".html"})
+    public ModelAndView users( HttpServletRequest request, HttpServletResponse response,
+                              @RequestParam(required = false, defaultValue = "1") final int page,
+                              @RequestParam(required = false, defaultValue = "5") final int size,
+                              @RequestParam(required = false) final String lang) {
+
+        ModelAndView modelAndView = new ModelAndView("users");
+        if (SecurityHelper.isAuthorizedAdmin(userService)) {
+            Paged<User> users = userService.getUsers(page, size);
+            modelAndView.addObject("users", users);
+        } else {
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, language,
+                    secureService.getEncryptMethodNameForView(), lang);
+            response.setStatus(403);
+        }
+
+        addObjectsToModelAndView(modelAndView, pageUsersParams, language,
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 

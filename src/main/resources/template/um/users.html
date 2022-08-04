@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${title}">Список пользователей</title>
+
+    <!-- JQuery -->
+
+    <script th:src="@{/js/jquery-1.10.0.min.js}"></script>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/flag-icon.css}" rel="stylesheet"/>
+
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--Bootstrap-select -->
+    <!-- Latest compiled and minified JavaScript -->
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap-select-1.14.0-beta2.min.css}">
+    <script th:src="@{/js/bootstrap-select-1.14.0-beta2.min.js}"></script>
+
+    <script th:src="@{/js/selectLanguage.js}"></script>
+
+    <style>
+        p.pStyle {
+        margin: auto 1em auto 1em
+        }
+
+    </style>
+</head>
+<body>
+    <h1 align="center" th:text="${title}">Список пользователей</h1>
+    <div align="right">
+        <label class="sr-only" th:text="${language}">Язык</label>
+        <select id="langPicker" class="selectpicker" data-width="fit">
+            <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
+                    th:text="${langObject.getLanguageText(lang.key)}">Language
+            </option>
+        </select>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mt-5 mb-5">
+                <table id="actions" class="table table-bordered table-responsive-sm">
+                    <thead>
+                    <tr>
+                        <th th:text="${userId}">Id</th>
+                        <th th:text="${login}">Логин</th>
+                        <th th:text="${userName}">Имя пользователя</th>
+                        <th th:text="${email}">Электронная почта</th>
+                        <th th:text="${role}">Роль</th>
+                        <th th:text="${expirationDate}">Дата окончания действия аккаунта</th>
+                        <th th:text="${virifyId}">ID для верификации</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users.page}">
+                        <td th:text="${user.id}">Id</td>
+                        <td th:text="${user.login}">login</td>
+                        <td th:text="${user.name}">name</td>
+                        <td th:text="${user.email}">email</td>
+                        <td th:text="${user.authority}">authority</td>
+                        <td th:text="${user.expirationDate}">expirationDate</td>
+                        <td th:text="${user.verificationId}">verificationId</td>
+                        <td>
+                            <a th:href="@{'users/edit/' + ${user.id} + '?lang=' + ${urlLang}}" target="_blank">
+                                <button th:text="${editUser}" type="button" class="btn btn-primary">edit user</button>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation" class="paging">
+                    <ul class="pagination" th:if="${users.page.totalPages > 1}">
+                        <li class="page-item" th:classappend="${!users.paging.isPrevEnabled()? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{users + '?page=' + ${users.paging.pageNumber - 1}  + '&lang=' + ${urlLang}}"
+                               tabindex="-1">Previous</a>
+                        </li>
+                        <th:block th:each="item : ${users.paging.getItems()}">
+                            <li class="page-item" th:classappend="${item.index == users.paging.pageNumber? 'active' : ''}"
+                                th:if="${item.pageItemType.name() == 'PAGE'}">
+                                <a class="page-link" th:href="@{users + '?page=' + ${item.index}  + '&lang=' + ${urlLang}}"
+                                   th:text="${item.index}"></a>
+                            </li>
+                            <li class="page-item disabled" th:if="${item.pageItemType.name() == 'DOTS'}">
+                                <a class="page-link" href="#">...</a>
+                            </li>
+                        </th:block>
+                        <li class="page-item" th:classappend="${!users.paging.isNextEnabled()? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{users + '?page=' + ${users.paging.pageNumber + 1}  + '&lang=' + ${urlLang}}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
