@@ -1,5 +1,7 @@
 package io.github.vssavin.umlib.helper;
 
+import io.github.vssavin.umlib.entity.Role;
+import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +33,21 @@ public class SecurityHelper {
             authorizedUserName = authentication.getName();
         }
         return authorizedUserName;
+    }
+
+    public static boolean isAuthorizedAdmin(UserService userService) {
+        String login = getAuthorizedUserLogin();
+        boolean isAdminUser = false;
+        if (!login.isEmpty() && userService != null) {
+            try {
+                User user = userService.getUserByName(login);
+                String authority = user.getAuthority();
+                Role role = Role.getRole(authority);
+                if (role.equals(Role.ROLE_ADMIN)) isAdminUser = true;
+            } catch (UsernameNotFoundException ignored) {
+            }
+        }
+        return isAdminUser;
     }
 
 }
