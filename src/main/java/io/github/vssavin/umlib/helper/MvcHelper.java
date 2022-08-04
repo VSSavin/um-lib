@@ -24,9 +24,9 @@ public class MvcHelper {
                 }
             }
 
-            if (elements != null) {
+            if (elements != null && page != null) {
                 for(String param : elements) {
-                    modelAndView.addObject(param, LocaleConfig.getMessage(page, param, requestedLang));
+                    modelAndView.addObject(param, LocaleConfig.getMessage(page.replaceFirst("/", ""), param, requestedLang));
                 }
             }
 
@@ -74,7 +74,7 @@ public class MvcHelper {
                                                       Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView("redirect:" + page);
         modelAndView.addObject("success", true);
-        String message = LocaleConfig.getMessage(page, messageKey, lang);
+        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
             if (formatValues != null) {
                 modelAndView.addObject("successMsg", String.format(message, formatValues));
@@ -91,7 +91,7 @@ public class MvcHelper {
                                                     Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView("redirect:" + page);
         modelAndView.addObject("error", true);
-        String message = LocaleConfig.getMessage(page, messageKey, lang);
+        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
             if (formatValues != null) {
                 modelAndView.addObject("errorMsg", String.format(message, formatValues));
