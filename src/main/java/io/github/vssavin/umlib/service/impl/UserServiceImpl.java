@@ -6,9 +6,14 @@ import io.github.vssavin.umlib.exception.EmailNotFoundException;
 import io.github.vssavin.umlib.exception.RecoveryExpiredException;
 import io.github.vssavin.umlib.exception.UserConfirmFailedException;
 import io.github.vssavin.umlib.exception.UserExistsException;
+import io.github.vssavin.umlib.pagination.Paged;
+import io.github.vssavin.umlib.pagination.Paging;
 import io.github.vssavin.umlib.repository.UserRepository;
 import io.github.vssavin.umlib.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +41,13 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public Paged<User> getUsers(int pageNumber, int size) {
+        Pageable pageable = PageRequest.of(pageNumber - 1, size);
+        Page<User> users = userRepository.findAll(pageable);
+        return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
     @Override
@@ -201,8 +213,7 @@ public class UserServiceImpl implements UserService {
         return granted;
     }
 
-    private static String generateRandomPassword(int length)
-    {
+    private static String generateRandomPassword(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
         return IntStream.range(0, length)

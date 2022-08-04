@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.service;
 
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
+import io.github.vssavin.umlib.pagination.Paged;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 @Service
 public interface UserService {
+    Paged<User> getUsers(int pageNumber, int size);
     User addUser(User user) throws Exception;
     User updateUser(User user) throws Exception;
     User getUserByName(String name);
