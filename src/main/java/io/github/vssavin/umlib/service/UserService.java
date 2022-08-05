@@ -14,8 +14,9 @@ import java.util.Map;
 @Service
 public interface UserService {
     Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size);
-    User addUser(User user) throws Exception;
-    User updateUser(User user) throws Exception;
+    User getUserById(Long id);
+    User addUser(User user);
+    User updateUser(User user);
     User getUserByName(String name);
     User getUserByEmail(String email);
     void deleteUser(User user);
