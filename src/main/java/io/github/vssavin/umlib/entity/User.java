@@ -53,8 +53,8 @@ public class User {
         return password;
     }
 
-    public String getId() {
-        return String.valueOf(id);
+    public Long getId() {
+        return id;
     }
 
     public String getAuthority() {
@@ -83,6 +83,76 @@ public class User {
 
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    public static final class UserBuilder {
+        private Long id;
+        private String login;
+        private String name;
+        private String password;
+        private String email;
+        private String authority;
+        private Date expirationDate;
+        private String verificationId;
+
+        private UserBuilder(){}
+
+        public UserBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserBuilder login(String login) {
+            this.login = login;
+            return this;
+        }
+
+        public UserBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder authority(String authority) {
+            this.authority = authority;
+            return this;
+        }
+
+        public UserBuilder expirationDate(Date expirationDate) {
+            this.expirationDate = expirationDate;
+            return this;
+        }
+
+        public UserBuilder verificationId(String verificationId) {
+            this.verificationId = verificationId;
+            return this;
+        }
+
+        public User build() {
+            User user = new User();
+            user.id = id;
+            user.login = login;
+            user.name = name;
+            user.password = password;
+            user.email = email;
+            user.authority = authority;
+            user.expirationDate = expirationDate;
+            user.verificationId = verificationId;
+            return user;
+        }
     }
 
     @Override

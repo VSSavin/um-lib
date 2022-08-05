@@ -11,7 +11,7 @@ import java.util.List;
  * @author vssavin on 18.12.2021
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByLogin(String login);
     List<User> findByEmail(String email);
     @Transactional
