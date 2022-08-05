@@ -43,6 +43,33 @@ public class MvcHelper {
         }
     }
 
+    public static void addObjectsToModelAndView(ModelAndView modelAndView, String viewName, Collection<String> elements,
+                                                UmLanguage language, String encryptMethodName,
+                                                String requestedLang) {
+
+        if (viewName == null) {
+            addObjectsToModelAndView(modelAndView, elements, language, encryptMethodName, requestedLang);
+        }
+
+        else {
+            if (elements != null) {
+                for(String param : elements) {
+                    modelAndView.addObject(param, LocaleConfig.getMessage(viewName, param, requestedLang));
+                }
+            }
+
+            if (requestedLang != null) {
+                modelAndView.addObject("lang", requestedLang);
+                modelAndView.addObject("urlLang", requestedLang);
+            }
+
+            modelAndView.addObject("encryptMethodName", encryptMethodName);
+
+            modelAndView.addObject("languages", LocaleConfig.AVAILABLE_LANGUAGES);
+            if (language != null) modelAndView.addObject("langObject", language);
+        }
+    }
+
     public static void addObjectsToModelAndView(ModelAndView modelAndView, Map<String, String[]> requestMap,
                                                 Collection<String> ignored) {
         boolean ignoredEmpty = false;
