@@ -45,7 +45,7 @@
     </div>
 
     <div class="container">
-        <form name="f" class="form-signin" method="get" th:action="@{users + '?lang=' + ${urlLang}}" mod onSubmit="return crypt()">
+        <form name="f" class="form-signin" method="get" th:action="@{users + '?lang=' + ${urlLang}}">
             <h2 class="form-signin-heading" align="center" th:text="${searchTitle}">Поиск</h2>
             <p>
                 <label for="userId" class="sr-only" th:text="${userIdTitle}">Логин</label>
