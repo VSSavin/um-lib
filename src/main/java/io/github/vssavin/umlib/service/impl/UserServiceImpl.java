@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         Page<User> users;
         Pageable pageable = PageRequest.of(pageNumber - 1, size);
 
-        if (userFilter.isEmpty()) {
+        if (userFilter == null || userFilter.isEmpty()) {
             users = userRepository.findAll(pageable);
         } else {
             EntityManager em = managerFactory.createEntityManager();

@@ -4,7 +4,12 @@ import io.github.vssavin.umlib.config.LocaleConfig;
 import io.github.vssavin.umlib.controller.MessageKeys;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.tests.AbstractTest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -84,5 +89,24 @@ public class AdminControllerTest extends AbstractTest {
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", message));
         testUser.setPassword(newPassword);
+    }
+
+    @Test
+    public void userFilteringTest() throws Exception {
+        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+        registerParams.add("login", testUser.getLogin());
+
+        ResultActions resultActions = mockMvc.perform(get("/admin/users/")
+                .params(registerParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        String html = resultActions.andReturn().getResponse().getContentAsString();
+        Document doc = Jsoup.parse(html);
+        Element usersTable = doc.getElementById("usersTable");
+        Elements trElements = usersTable.getElementsByTag("tbody")
+                .first().getElementsByTag("tr");
+        Assertions.assertEquals(1, trElements.size());
+
     }
 }
