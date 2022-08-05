@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.service.impl;
 
+import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
@@ -12,12 +13,20 @@ import io.github.vssavin.umlib.repository.UserRepository;
 import io.github.vssavin.umlib.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,17 +45,42 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManagerFactory managerFactory;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           EntityManagerFactory managerFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.managerFactory = managerFactory;
     }
 
     @Override
-    public Paged<User> getUsers(int pageNumber, int size) {
+    public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
+        Page<User> users;
         Pageable pageable = PageRequest.of(pageNumber - 1, size);
-        Page<User> users = userRepository.findAll(pageable);
+
+        if (userFilter.isEmpty()) {
+            users = userRepository.findAll(pageable);
+        } else {
+            EntityManager em = managerFactory.createEntityManager();
+            em.getTransaction().begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<User> playerCriteria = cb.createQuery(User.class);
+            Root<User> playerRoot = playerCriteria.from(User.class);
+            playerCriteria.select(playerRoot);
+            List<Predicate> predicates = new ArrayList<>();
+            addPredicate(cb, playerRoot, predicates, "id", userFilter.getUserId(), Operator.EQUAL);
+            addPredicate(cb, playerRoot, predicates, "login", userFilter.getLogin(), Operator.LIKE);
+            addPredicate(cb, playerRoot, predicates, "name", userFilter.getName(), Operator.LIKE);
+            addPredicate(cb, playerRoot, predicates, "email", userFilter.getEmail(), Operator.LIKE);
+            playerCriteria.where(predicates.toArray(new Predicate[]{}));
+            TypedQuery<User> query = em.createQuery(playerCriteria);
+            List<User> resultList = query.getResultList();
+            users = new PageImpl<>(resultList,
+                    pageable, resultList.size());
+        }
+
         return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
@@ -211,6 +245,50 @@ public class UserServiceImpl implements UserService {
         }
 
         return granted;
+    }
+
+    private void addPredicate(CriteriaBuilder cb, Root<User> userRoot,
+                              List<Predicate> predicates, String tableField, Object value, Operator operator) {
+        if (value != null) {
+            Predicate predicate = null;
+            switch (operator) {
+                case LIKE:
+                    predicate = cb.like(userRoot.get(tableField), "%" + value + "%");
+                    predicates.add(predicate);
+                    break;
+
+                case EQUAL:
+                    predicate = cb.equal(userRoot.get(tableField), value);
+                    predicates.add(predicate);
+                    break;
+
+                case GREATER_OR_EQUAL:
+                    if (value instanceof Number) {
+                        predicate = cb.greaterThanOrEqualTo(userRoot.get(tableField), ((Number) value).doubleValue());
+                    }
+                    else if (value instanceof Date) {
+                        predicate = cb.greaterThanOrEqualTo(userRoot.get(tableField), (Date)value);
+                    }
+                    break;
+
+                case LESS_OR_EQUAL:
+                    if (value instanceof Number) {
+                        predicate = cb.lessThanOrEqualTo(userRoot.get(tableField), ((Number) value).doubleValue());
+                    }
+                    else if (value instanceof Date) {
+                        predicate = cb.lessThanOrEqualTo(userRoot.get(tableField), (Date)value);
+                    }
+                    break;
+            }
+            if (predicate != null) predicates.add(predicate);
+        }
+    }
+
+    private enum Operator {
+        EQUAL,
+        LIKE,
+        GREATER_OR_EQUAL,
+        LESS_OR_EQUAL
     }
 
     private static String generateRandomPassword(int length) {

@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.controller;
 
 import io.github.vssavin.umlib.config.LocaleConfig;
 import io.github.vssavin.umlib.config.UmConfig;
+import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.exception.EmailNotFoundException;
@@ -308,14 +309,15 @@ public class AdminController {
     }
 
     @GetMapping(value = {"/" + PAGE_USERS, "/" + PAGE_USERS + ".html"})
-    public ModelAndView users( HttpServletRequest request, HttpServletResponse response,
+    public ModelAndView users(HttpServletRequest request, HttpServletResponse response,
+                              @ModelAttribute UserFilter userFilter,
                               @RequestParam(required = false, defaultValue = "1") final int page,
                               @RequestParam(required = false, defaultValue = "5") final int size,
                               @RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView("users");
         if (SecurityHelper.isAuthorizedAdmin(userService)) {
-            Paged<User> users = userService.getUsers(page, size);
+            Paged<User> users = userService.getUsers(userFilter, page, size);
             modelAndView.addObject("users", users);
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
