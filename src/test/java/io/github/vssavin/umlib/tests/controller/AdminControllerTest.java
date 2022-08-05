@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -108,5 +109,60 @@ public class AdminControllerTest extends AbstractTest {
                 .first().getElementsByTag("tr");
         Assertions.assertEquals(1, trElements.size());
 
+    }
+
+    @Test
+    public void editUserSuccessful() throws Exception {
+        String newUserEmail = "test@test.com";
+        String userLogin = "user";
+        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+        registerParams.add("login", "user");
+
+        ResultActions resultActions = mockMvc.perform(get("/admin/users/")
+                .params(registerParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        String html = resultActions.andReturn().getResponse().getContentAsString();
+        Document doc = Jsoup.parse(html);
+        Element usersTable = doc.getElementById("usersTable");
+        Elements trElements = usersTable.getElementsByTag("tbody")
+                .first().getElementsByTag("tr");
+        Element userElement = trElements.get(0);
+        String userId = userElement.getElementsByTag("td").get(0).text();
+
+        registerParams = new LinkedMultiValueMap<>();
+        registerParams.add("id", userId);
+        registerParams.add("login", userLogin);
+        registerParams.add("name", "name");
+        registerParams.add("email", newUserEmail);
+        resultActions = mockMvc.perform(post("/admin/users/edit/perform-user-edit")
+                .params(registerParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+        Assertions.assertNotNull(modelAndView);
+        boolean success = modelAndView.getModel().containsKey("success");
+        Assertions.assertTrue(success);
+
+        registerParams = new LinkedMultiValueMap<>();
+        registerParams.add("login", "user");
+
+        resultActions = mockMvc.perform(get("/admin/users/")
+                .params(registerParams)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        html = resultActions.andReturn().getResponse().getContentAsString();
+        doc = Jsoup.parse(html);
+        usersTable = doc.getElementById("usersTable");
+        trElements = usersTable.getElementsByTag("tbody")
+                .first().getElementsByTag("tr");
+        userElement = trElements.get(0);
+        String userEmail = userElement.getElementsByTag("td").get(3).text();
+
+        Assertions.assertEquals(newUserEmail, userEmail);
     }
 }
