@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.controller;
 
 import io.github.vssavin.umlib.config.LocaleConfig;
 import io.github.vssavin.umlib.config.UmConfig;
+import io.github.vssavin.umlib.dto.UserDto;
 import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
@@ -37,6 +38,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
 public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     private static final String PAGE_USERS = "users";
+    private static final String PAGE_USER_EDIT = "edit";
     private static final String PAGE_ADMIN = "admin";
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_USER_PASSWORD = "changeUserPassword";
@@ -44,6 +46,7 @@ public class AdminController {
 
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
     private static final String PERFORM_CHANGE_USER_PASSWORD = "/perform-change-user-password";
+    private static final String PERFORM_USER_EDIT = "/users/edit/perform-user-edit";
 
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
@@ -53,6 +56,7 @@ public class AdminController {
     }
 
     private final Set<String> pageUsersParams;
+    private final Set<String> pageUserEditParams;
     private final Set<String> pageLoginParams;
     private final Set<String> pageAdminParams;
     private final Set<String> pageRegistrationParams;
@@ -67,6 +71,7 @@ public class AdminController {
     public AdminController(UserService userService, UmUtil applicationUtil, PasswordEncoder passwordEncoder,
                            LocaleConfig.LocaleSpringMessageSource loginMessageSource,
                            LocaleConfig.LocaleSpringMessageSource usersMessageSource,
+                           LocaleConfig.LocaleSpringMessageSource userEditMessageSource,
                            LocaleConfig.LocaleSpringMessageSource adminMessageSource,
                            LocaleConfig.LocaleSpringMessageSource registrationMessageSource,
                            LocaleConfig.LocaleSpringMessageSource changeUserPasswordMessageSource,
@@ -77,6 +82,7 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
         pageLoginParams = loginMessageSource.getKeys();
         pageUsersParams = usersMessageSource.getKeys();
+        pageUserEditParams = userEditMessageSource.getKeys();
         pageAdminParams = adminMessageSource.getKeys();
         pageRegistrationParams = registrationMessageSource.getKeys();
         pageChangeUserPasswordParams = changeUserPasswordMessageSource.getKeys();
@@ -331,6 +337,98 @@ public class AdminController {
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
+        return modelAndView;
+    }
+
+    @GetMapping(value = {"/" + PAGE_USERS + "/" + PAGE_USER_EDIT + "/{id}",
+            "/" + PAGE_USERS + "/" + PAGE_USER_EDIT + ".html" + "/{id}"})
+    public ModelAndView userEdit(HttpServletRequest request, HttpServletResponse response,
+                                 @PathVariable Long id,
+                                 @RequestParam(required = false) final boolean success,
+                                 @RequestParam(required = false) final String successMsg,
+                                 @RequestParam(required = false) final boolean error,
+                                 @RequestParam(required = false) final String errorMsg,
+                                 @RequestParam(required = false) final String lang) {
+
+        ModelAndView modelAndView = new ModelAndView("userEdit");
+        if (SecurityHelper.isAuthorizedAdmin(userService)) {
+            User user = userService.getUserById(id);
+            modelAndView.addObject("user", user);
+        } else {
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, language,
+                    secureService.getEncryptMethodNameForView(), lang);
+            response.setStatus(403);
+            addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+            return modelAndView;
+        }
+
+        addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+
+        if (successMsg != null) {
+            modelAndView.addObject("success", success);
+            modelAndView.addObject("successMsg", successMsg);
+        }
+
+        if (errorMsg != null) {
+            modelAndView.addObject("error", error);
+            modelAndView.addObject("errorMsg", errorMsg);
+        }
+
+        return modelAndView;
+    }
+
+    @PostMapping(PERFORM_USER_EDIT)
+    public ModelAndView performUserEdit(HttpServletRequest request, HttpServletResponse response,
+                                        @ModelAttribute UserDto userDto,
+                                        @RequestParam(required = false) final String lang) {
+        ModelAndView modelAndView = new ModelAndView("userEdit");
+        try {
+            if (SecurityHelper.isAuthorizedAdmin(userService)) {
+                User userFromDatabase = userService.getUserById(userDto.getId());
+                User newUser = User.builder().id(userFromDatabase.getId()).login(userDto.getLogin())
+                        .name(userDto.getName()).password(userFromDatabase.getPassword())
+                        .email(userDto.getEmail()).authority(userFromDatabase.getAuthority())
+                        .expirationDate(userFromDatabase.getExpirationDate())
+                        .verificationId(userFromDatabase.getVerificationId())
+                        .build();
+                newUser = userService.updateUser(newUser);
+                modelAndView.addObject("user", newUser);
+                modelAndView.addObject("success", true);
+                String successMsg = LocaleConfig
+                        .getMessage("userEdit", MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
+                modelAndView.addObject("successMsg", successMsg);
+            } else {
+                modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+                        MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                addObjectsToModelAndView(modelAndView, pageLoginParams, language,
+                        secureService.getEncryptMethodNameForView(), lang);
+                response.setStatus(403);
+                return modelAndView;
+            }
+        } catch (Exception e) {
+            log.error("User update error! ", e);
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+                    MessageKeys.USER_EDIT_ERROR_MESSAGE.getMessageKey(), lang);
+            addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
+                    secureService.getEncryptMethodNameForView(), lang);
+            return modelAndView;
+        }
+
+        modelAndView = new ModelAndView("redirect:/" + PAGE_ADMIN + "/" + PAGE_USERS +
+                "/" + PAGE_USER_EDIT + "/" + userDto.getId());
+
+        addObjectsToModelAndView(modelAndView, "userEdit", pageUserEditParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+
+        String successMsg = LocaleConfig.getMessage("userEdit",
+                MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
+        modelAndView.addObject("success", true);
+        modelAndView.addObject("successMsg", successMsg);
         return modelAndView;
     }
 

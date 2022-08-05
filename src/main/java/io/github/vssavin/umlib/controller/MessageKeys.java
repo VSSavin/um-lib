@@ -7,6 +7,8 @@ public enum MessageKeys {
     USER_CREATED_SUCCESSFULLY_PATTERN("userCreatedSuccessfullyPattern"),
     USER_EXISTS_PATTERN("userExistsPattern"),
     PASSWORDS_MUST_BE_IDENTICAL_MESSAGE("passwordsMustBeIdenticalMessage"),
+    USER_EDIT_ERROR_MESSAGE("userEditErrorMessage"),
+    USER_EDIT_SUCCESS_MESSAGE("userEditSuccessMessage"),
     CREATE_USER_ERROR_MESSAGE("createUserErrorMessage"),
     AUTHENTICATION_REQUIRED_MESSAGE("authenticationRequiredMessage"),
     ADMIN_AUTHENTICATION_REQUIRED_MESSAGE("adminAuthenticationRequiredMessage"),

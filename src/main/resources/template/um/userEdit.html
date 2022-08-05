@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:form="http://www.w3.org/1999/html"
+      lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${title}">Список пользователей</title>
+
+    <!-- JQuery -->
+
+    <script th:src="@{/js/jquery-1.10.0.min.js}"></script>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/flag-icon.css}" rel="stylesheet"/>
+
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--Bootstrap-select -->
+    <!-- Latest compiled and minified JavaScript -->
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap-select-1.14.0-beta2.min.css}">
+    <script th:src="@{/js/bootstrap-select-1.14.0-beta2.min.js}"></script>
+
+    <script th:src="@{/js/selectLanguage.js}"></script>
+
+    <style>
+        p.pStyle {
+        margin: auto 1em auto 1em
+        }
+
+    </style>
+</head>
+<body>
+    <h1 align="center" th:text="${title}">Список пользователей</h1>
+    <div align="right">
+        <label class="sr-only" th:text="${language}">Язык</label>
+        <select id="langPicker" class="selectpicker" data-width="fit">
+            <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
+                    th:text="${langObject.getLanguageText(lang.key)}">Language
+            </option>
+        </select>
+    </div>
+
+    <div class="container">
+        <form name="f" class="form-signin" method="post" th:action="@{perform-user-edit + '?lang=' + ${urlLang}}">
+            <h2 class="form-signin-heading" align="center" th:text="${editTitle}">Редактирование пользователя</h2>
+            <div th:if="${success}" class="alert alert-success" th:text="${successMsg}">
+                Пользователь успешно сохранен!
+            </div>
+            <div th:if="${error}" class="alert alert-success" th:text="${errorMsg}">
+                Не удалось сохранить пользователя!
+            </div>
+            <input type="text" id="userId" name="id" class="form-control" hidden th:value="${user.id}">
+            <p>
+                <label for="login" class="sr-only" th:text="${loginTitle}">Логин</label>
+                <input type="text" id="login" name="login" class="form-control" th:placeholder="${loginTitle}" th:value="${user.login}"
+                       autofocus>
+            </p>
+            <p>
+                <label for="name" class="sr-only" th:text="${userNameTitle}">Имя пользователя</label>
+                <input type="text" id="name" name="name" class="form-control" th:placeholder="${userNameTitle}" th:value="${user.name}"
+                       autofocus>
+            </p>
+            <p>
+                <label for="email" class="sr-only" th:text="${emailTitle}">Электронная почта</label>
+                <input type="text" id="email" name="email" class="form-control" th:placeholder="${emailTitle}" th:value="${user.email}">
+            </p>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${saveUser}">Сохранить</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -107,6 +107,11 @@ public class LocaleConfig {
     }
 
     @Bean
+    public LocaleSpringMessageSource userEditMessageSource() {
+        return createMessageSource("userEdit");
+    }
+
+    @Bean
     public LocaleSpringMessageSource loginMessageSource() {
         return createMessageSource("login");
     }
