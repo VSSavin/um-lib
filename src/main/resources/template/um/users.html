@@ -35,6 +35,11 @@
 </head>
 <body>
     <h1 align="center" th:text="${title}">Список пользователей</h1>
+
+    <div class="alert alert-danger" th:if="${error}" role="alert" th:text="${errorMsg}">
+        Неправильные имя или пароль
+    </div>
+
     <div align="right">
         <label class="sr-only" th:text="${language}">Язык</label>
         <select id="langPicker" class="selectpicker" data-width="fit">
@@ -71,7 +76,7 @@
     </div>
 
 
-    <div class="container">
+    <div class="container form-signin">
         <div class="row">
             <div class="col-lg-10 mt-5 mb-5">
                 <table id="usersTable" class="table table-bordered table-responsive-sm">
@@ -84,6 +89,7 @@
                         <th th:text="${roleTitle}">Роль</th>
                         <th th:text="${expirationDateTitle}">Дата окончания действия аккаунта</th>
                         <th th:text="${verifyIdTitle}">ID для верификации</th>
+                        <th></th>
                         <th></th>
                     </tr>
                     </thead>
@@ -100,6 +106,14 @@
                             <a th:href="@{'users/edit/' + ${user.id} + '?lang=' + ${urlLang}}" target="_blank">
                                 <button th:text="${editUser}" type="button" class="btn btn-primary">edit user</button>
                             </a>
+                        </td>
+                        <td>
+                            <form method="post" th:action="@{'users/perform-delete'} + '?lang=' + ${urlLang}">
+                                <input id = "id" type="number" name="id" th:value="${user.id}" hidden>
+                                <input id = "pageSize" type="number" name="pageSize" th:value="${users.paging.pageSize}" hidden>
+                                <input id = "pageNumber" type="number" name="pageNumber" th:value="${users.paging.pageNumber}" hidden>
+                                <button th:text="${deleteUser}" type="submit" class="btn btn-primary">delete user</button>
+                            </form>
                         </td>
                     </tr>
                     </tbody>

@@ -47,6 +47,7 @@ public class AdminController {
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
     private static final String PERFORM_CHANGE_USER_PASSWORD = "/perform-change-user-password";
     private static final String PERFORM_USER_EDIT = "/users/edit/perform-user-edit";
+    private static final String PERFORM_USER_DELETE = "/users/perform-delete";
 
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
@@ -429,6 +430,44 @@ public class AdminController {
                 MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
         modelAndView.addObject("success", true);
         modelAndView.addObject("successMsg", successMsg);
+        return modelAndView;
+    }
+
+    @PostMapping(PERFORM_USER_DELETE)
+    public ModelAndView deleteUser(HttpServletRequest request,
+                                   HttpServletResponse response,
+                                   @RequestParam Long id,
+                                   @RequestParam(required = false, defaultValue = "1") final int page,
+                                   @RequestParam(required = false, defaultValue = "5") final int size,
+                                   @RequestParam(required = false) final String lang) {
+        ModelAndView modelAndView = new ModelAndView("users");
+        if (SecurityHelper.isAuthorizedAdmin(userService)) {
+            User user = userService.getUserById(id);
+            if (user.getLogin().isEmpty()) {
+                String errorMessage = LocaleConfig.getMessage("users",
+                        MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
+                modelAndView.addObject("error", true);
+                modelAndView.addObject("errorMsg", errorMessage);
+            }
+            else  {
+                userService.deleteUser(user);
+                Paged<User> users = userService.getUsers(UserFilter.emptyUserFilter(), page, size);
+                modelAndView.addObject("users", users);
+            }
+
+        } else {
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, language,
+                    secureService.getEncryptMethodNameForView(), lang);
+            response.setStatus(403);
+            return modelAndView;
+        }
+
+        addObjectsToModelAndView(modelAndView, pageUsersParams, language,
+                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+
         return modelAndView;
     }
 

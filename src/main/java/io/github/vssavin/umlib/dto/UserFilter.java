@@ -16,6 +16,10 @@ public class UserFilter {
         this.email = email;
     }
 
+    public static UserFilter emptyUserFilter() {
+        return new UserFilter(null, null, null, null);
+    }
+
     public boolean isEmpty() {
         return userId == null && login == null && name == null && email == null;
     }
