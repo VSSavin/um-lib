@@ -257,7 +257,7 @@ public class UserController {
                     response.setStatus(403);
                     return modelAndView;
                 }
-                User user = userService.getUserByName(authorizedUserName);
+                User user = userService.getUserByLogin(authorizedUserName);
                 String realNewPassword = secureService.decrypt(newPassword,
                         secureService.getSecureKey(request.getRemoteAddr()));
                 String realCurrentPassword = secureService.decrypt(currentPassword,

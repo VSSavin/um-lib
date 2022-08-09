@@ -115,11 +115,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByName(String name) {
-        List<User> users = userRepository.findByLogin(name);
+        List<User> users = userRepository.findUserByName(name);
         if (users != null && users.size() > 0) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User: %s not found!", name));
+    }
+
+    @Override
+    public User getUserByLogin(String login) {
+        List<User> users = userRepository.findByLogin(login);
+        if (users != null && users.size() > 0) {
+            return users.get(0);
+        }
+        throw new UsernameNotFoundException(String.format("User with login: %s not found!", login));
     }
 
     @Override
@@ -143,7 +152,7 @@ public class UserServiceImpl implements UserService {
     public User registerUser(String login, String username, String password, String email, Role role) {
         User user = null;
         try {
-            user = getUserByName(login);
+            user = getUserByLogin(login);
         } catch (UsernameNotFoundException e) {
             //ignore
         }
@@ -164,7 +173,7 @@ public class UserServiceImpl implements UserService {
     public void confirmUser(String login, String verificationId, boolean isAdminUser) {
         User user = null;
         try {
-            user = getUserByName(login);
+            user = getUserByLogin(login);
         } catch (UsernameNotFoundException e) {
             //ignore
         }
@@ -236,7 +245,7 @@ public class UserServiceImpl implements UserService {
         if (role.equals(Role.ROLE_ADMIN)) {
             if (authorizedName != null && !authorizedName.isEmpty()) {
                 try {
-                    User admin = getUserByName(authorizedName);
+                    User admin = getUserByLogin(authorizedName);
                     if (!Role.ROLE_ADMIN.name().equals(admin.getAuthority())) {
                         granted = false;
                     }

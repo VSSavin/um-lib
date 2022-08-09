@@ -30,7 +30,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         Authentication authentication) throws IOException {
         String successUrl = UmConfig.successUrl;
 
-        User user = userService.getUserByName(authentication.getPrincipal().toString());
+        User user = userService.getUserByLogin(authentication.getPrincipal().toString());
         if (user != null) {
             if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
             if (user.getExpirationDate().before(new Date())) {

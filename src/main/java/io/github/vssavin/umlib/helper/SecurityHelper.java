@@ -18,7 +18,7 @@ public class SecurityHelper {
         String authorizedUserName = getAuthorizedUserLogin();
         if (!authorizedUserName.isEmpty() && userService != null) {
             try {
-                authorizedUserName = userService.getUserByName(authorizedUserName).getName();
+                authorizedUserName = userService.getUserByLogin(authorizedUserName).getName();
             } catch (UsernameNotFoundException e) {
                 authorizedUserName = "";
             }
@@ -40,7 +40,7 @@ public class SecurityHelper {
         boolean isAdminUser = false;
         if (!login.isEmpty() && userService != null) {
             try {
-                User user = userService.getUserByName(login);
+                User user = userService.getUserByLogin(login);
                 String authority = user.getAuthority();
                 Role role = Role.getRole(authority);
                 if (role.equals(Role.ROLE_ADMIN)) isAdminUser = true;

@@ -18,6 +18,7 @@ public interface UserService {
     User addUser(User user);
     User updateUser(User user);
     User getUserByName(String name);
+    User getUserByLogin(String login);
     User getUserByEmail(String email);
     void deleteUser(User user);
     User registerUser(String login, String username, String password, String email, Role role);

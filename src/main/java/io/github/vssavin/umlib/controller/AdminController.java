@@ -263,7 +263,7 @@ public class AdminController {
         try {
             String authorizedUserName = SecurityHelper.getAuthorizedUserName(userService);
             if (isAuthorizedUser(authorizedUserName)) {
-                User user = userService.getUserByName(userName);
+                User user = userService.getUserByLogin(userName);
                 String realNewPassword = secureService.decrypt(newPassword,
                         secureService.getSecureKey(request.getRemoteAddr()));
                 if (user != null) {
