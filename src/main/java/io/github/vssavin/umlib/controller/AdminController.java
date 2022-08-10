@@ -451,8 +451,6 @@ public class AdminController {
             }
             else  {
                 userService.deleteUser(user);
-                Paged<User> users = userService.getUsers(UserFilter.emptyUserFilter(), page, size);
-                modelAndView.addObject("users", users);
             }
 
         } else {
@@ -463,6 +461,9 @@ public class AdminController {
             response.setStatus(403);
             return modelAndView;
         }
+
+        Paged<User> users = userService.getUsers(UserFilter.emptyUserFilter(), page, size);
+        modelAndView.addObject("users", users);
 
         addObjectsToModelAndView(modelAndView, pageUsersParams, language,
                 secureService.getEncryptMethodNameForView(), lang);
