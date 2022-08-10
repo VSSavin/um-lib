@@ -72,16 +72,16 @@ public class AdminControllerTest extends AbstractTest {
     @Test
     public void changeUserPasswordSuccessful() throws Exception {
         String newPassword = "admin2";
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         ResultActions secureAction = mockMvc.perform(get("/secure/key"));
         String secureKey = secureAction.andReturn().getResponse().getContentAsString();
         String encodedNewPassword = secureService.encrypt(newPassword, secureKey);
 
-        registerParams.add("userName", testUser.getLogin());
-        registerParams.add("newPassword", encodedNewPassword);
+        params.add("userName", testUser.getLogin());
+        params.add("newPassword", encodedNewPassword);
 
         ResultActions resultActions = mockMvc.perform(post("/admin/perform-change-user-password/")
-                .params(registerParams)
+                .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String message = changeUserPasswordMessageSource.getMessage(
@@ -94,11 +94,11 @@ public class AdminControllerTest extends AbstractTest {
 
     @Test
     public void userFilteringTest() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("login", testUser.getLogin());
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("login", testUser.getLogin());
 
         ResultActions resultActions = mockMvc.perform(get("/admin/users/")
-                .params(registerParams)
+                .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
 
@@ -115,11 +115,11 @@ public class AdminControllerTest extends AbstractTest {
     public void editUserSuccessful() throws Exception {
         String newUserEmail = "test@test.com";
         String userLogin = "user";
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("login", "user");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("login", "user");
 
         ResultActions resultActions = mockMvc.perform(get("/admin/users/")
-                .params(registerParams)
+                .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
 
@@ -131,13 +131,13 @@ public class AdminControllerTest extends AbstractTest {
         Element userElement = trElements.get(0);
         String userId = userElement.getElementsByTag("td").get(0).text();
 
-        registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("id", userId);
-        registerParams.add("login", userLogin);
-        registerParams.add("name", "name");
-        registerParams.add("email", newUserEmail);
+        params = new LinkedMultiValueMap<>();
+        params.add("id", userId);
+        params.add("login", userLogin);
+        params.add("name", "name");
+        params.add("email", newUserEmail);
         resultActions = mockMvc.perform(post("/admin/users/edit/perform-user-edit")
-                .params(registerParams)
+                .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
 
@@ -147,11 +147,11 @@ public class AdminControllerTest extends AbstractTest {
         boolean success = modelAndView.getModel().containsKey("success");
         Assertions.assertTrue(success);
 
-        registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("login", "user");
+        params = new LinkedMultiValueMap<>();
+        params.add("login", "user");
 
         resultActions = mockMvc.perform(get("/admin/users/")
-                .params(registerParams)
+                .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
 
@@ -164,5 +164,52 @@ public class AdminControllerTest extends AbstractTest {
         String userEmail = userElement.getElementsByTag("td").get(3).text();
 
         Assertions.assertEquals(newUserEmail, userEmail);
+    }
+
+    @Test
+    public void deleteUserSuccessful() throws Exception {
+        ResultActions resultActions = mockMvc.perform(get("/admin/users/")
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        String html = resultActions.andReturn().getResponse().getContentAsString();
+        Document doc = Jsoup.parse(html);
+        Element usersTable = doc.getElementById("usersTable");
+        Elements trElements = usersTable.getElementsByTag("tbody")
+                .last().getElementsByTag("tr");
+        if (trElements.size() > 0) {
+            Element userElement = trElements.get(0);
+            String userId = userElement.getElementsByTag("td").get(0).text();
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("id", userId);
+            resultActions = mockMvc.perform(post("/admin/users/perform-delete")
+                    .params(params)
+                    .with(getRequestPostProcessorForUser(testUser))
+                    .with(csrf()));
+
+            ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+            Assertions.assertNotNull(modelAndView);
+            boolean error = modelAndView.getModel().containsKey("error");
+            Assertions.assertFalse(error);
+        }
+    }
+
+    @Test
+    public void deleteUserFailed() throws Exception {
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", "-1");
+        ResultActions resultActions = mockMvc.perform(post("/admin/users/perform-delete")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertTrue(error);
     }
 }
