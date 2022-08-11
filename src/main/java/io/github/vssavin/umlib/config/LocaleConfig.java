@@ -112,6 +112,16 @@ public class LocaleConfig {
     }
 
     @Bean
+    public LocaleSpringMessageSource userControlPanelMessageSource() {
+        return createMessageSource("userControlPanel");
+    }
+
+    @Bean
+    public LocaleSpringMessageSource userEditYourselfMessageSource() {
+        return createMessageSource("userEditYourself");
+    }
+
+    @Bean
     public LocaleSpringMessageSource loginMessageSource() {
         return createMessageSource("login");
     }

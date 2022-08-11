@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:form="http://www.w3.org/1999/html"
+      lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${title}">Панель управления пользователем</title>
+
+    <!-- JQuery -->
+
+    <script th:src="@{/js/jquery-1.10.0.min.js}"></script>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/flag-icon.css}" rel="stylesheet"/>
+
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--Bootstrap-select -->
+    <!-- Latest compiled and minified JavaScript -->
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap-select-1.14.0-beta2.min.css}">
+    <script th:src="@{/js/bootstrap-select-1.14.0-beta2.min.js}"></script>
+
+    <script th:src="@{/js/selectLanguage.js}"></script>
+
+    <style>
+        p.pStyle {
+        margin: auto 1em auto 1em
+        }
+
+    </style>
+</head>
+<body>
+<h1 align="center" th:text="${title}">Панель управления пользователем</h1>
+<div align="right">
+    <label class="sr-only" th:text="${language}">Язык</label>
+    <select id="langPicker" class="selectpicker" data-width="fit">
+        <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
+                th:text="${langObject.getLanguageText(lang.key)}">Language
+        </option>
+    </select>
+</div>
+
+<div align="right" style="margin-top:1em">
+    <p align="right" class="pStyle" th:text="${greeting} + ${user.name}"></p>
+    <p align="right" class="pStyle">
+        <a th:href="@{/logout} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${logoutTitle}">Выйти</a>
+    </p>
+</div>
+
+<div>
+    <p align="left" class="pStyle">
+        <a th:href="@{/user/userEditYourself/} + ${user.login} + '?lang=' + ${urlLang}" class="btn-lg"
+           th:text="${editUserTitle}" target="_blank">Редактировать пользователя</a>
+    </p>
+    <p align="left" class="pStyle">
+        <a th:href="@{/user/changePassword} + '?lang=' + ${urlLang}" class="btn-lg"
+           th:text="${changePasswordTitle}" target="_blank">Изменить пароль</a>
+    </p>
+</div>
+</body>
+</html>

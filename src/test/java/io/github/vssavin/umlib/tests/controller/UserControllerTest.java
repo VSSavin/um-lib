@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -253,5 +254,52 @@ public class UserControllerTest extends AbstractTest {
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true))
                 .andExpect(model().attribute("successSend", false));
+    }
+
+    @Test
+    public void userEditWithWrongIdFailed() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", "12345");
+        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertTrue(error);
+    }
+
+    @Test
+    public void userEditWithWrongEmailFailed() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", "2");
+        params.add("name", "testName");
+        params.add("email", "testEmail.com");
+        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertTrue(error);
+    }
+
+    @Test
+    public void userEditSuccess() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", "2");
+        params.add("name", "testName");
+        params.add("email", "testEmail@mail.com");
+        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+        Assertions.assertNotNull(modelAndView);
+        boolean success = modelAndView.getModel().containsKey("success");
+        Assertions.assertTrue(success);
     }
 }
