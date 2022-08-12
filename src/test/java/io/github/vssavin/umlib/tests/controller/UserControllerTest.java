@@ -54,10 +54,7 @@ public class UserControllerTest extends AbstractTest {
     public void registrationNotAllowedForAuthenticatedUser() throws Exception{
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         String login = "user2";
-
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedPassword = secureService.encrypt("user2", secureKey);
+        String encodedPassword = encrypt("", "user2");
 
         registerParams.add("login", login);
         registerParams.add("username", "user2");
@@ -116,10 +113,9 @@ public class UserControllerTest extends AbstractTest {
         String currentPassword = testUser.getPassword();
         String newPassword = "user2";
 
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedCurrentPassword = secureService.encrypt(currentPassword, secureKey);
-        String encodedNewPassword = secureService.encrypt(newPassword, secureKey);
+        String encodedCurrentPassword = encrypt("", currentPassword);
+        String encodedNewPassword = encrypt("", newPassword);
+
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
@@ -142,10 +138,8 @@ public class UserControllerTest extends AbstractTest {
         String currentPassword = testUser.getPassword() + "1";
         String newPassword = "admin2";
 
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedCurrentPassword = secureService.encrypt(currentPassword, secureKey);
-        String encodedNewPassword = secureService.encrypt(newPassword, secureKey);
+        String encodedCurrentPassword = encrypt("", currentPassword);
+        String encodedNewPassword = encrypt("", newPassword);
 
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         registerParams.add("currentPassword", encodedCurrentPassword);
@@ -167,9 +161,7 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         String login = "user2";
 
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedPassword = secureService.encrypt("user2", secureKey);
+        String encodedPassword = encrypt("", "user2");
 
         registerParams.add("login", login);
         registerParams.add("username", "user2");
@@ -229,7 +221,7 @@ public class UserControllerTest extends AbstractTest {
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true));
 
-        passwordRecoveryParams.clear();
+        passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "admin");
         mockedEmailService.getEmailMessages().clear();
         resultActions = mockMvc.perform(post("/user/perform-password-recovery")
@@ -247,7 +239,7 @@ public class UserControllerTest extends AbstractTest {
 
         String recoveryId = "-----";
         mockedEmailService.getEmailMessages().clear();
-        passwordRecoveryParams.clear();
+        passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("recoveryId", recoveryId);
         resultActions = mockMvc.perform(get("/user/passwordRecovery")
                 .params(passwordRecoveryParams)

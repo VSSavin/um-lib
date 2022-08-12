@@ -47,9 +47,7 @@ public class AdminControllerTest extends AbstractTest {
     @Test
     public void registerUserSuccessful() throws Exception {
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedPassword = secureService.encrypt("user2", secureKey);
+        String encodedPassword = encrypt("", "user2");
 
         String login = "user2";
         registerParams.add("login", login);
@@ -73,9 +71,7 @@ public class AdminControllerTest extends AbstractTest {
     public void changeUserPasswordSuccessful() throws Exception {
         String newPassword = "admin2";
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        ResultActions secureAction = mockMvc.perform(get("/secure/key"));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        String encodedNewPassword = secureService.encrypt(newPassword, secureKey);
+        String encodedNewPassword = encrypt("", newPassword);
 
         params.add("userName", testUser.getLogin());
         params.add("newPassword", encodedNewPassword);
