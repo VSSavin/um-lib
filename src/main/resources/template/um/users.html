@@ -108,7 +108,7 @@
                             </a>
                         </td>
                         <td>
-                            <form method="post" th:action="@{'users/perform-delete'} + '?lang=' + ${urlLang}">
+                            <form th:method="delete" th:action="@{users} + '?lang=' + ${urlLang}">
                                 <input id = "id" type="number" name="id" th:value="${user.id}" hidden>
                                 <input id = "pageSize" type="number" name="pageSize" th:value="${users.paging.pageSize}" hidden>
                                 <input id = "pageNumber" type="number" name="pageNumber" th:value="${users.paging.pageNumber}" hidden>

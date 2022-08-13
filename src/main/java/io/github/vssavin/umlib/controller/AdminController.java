@@ -433,7 +433,7 @@ public class AdminController {
         return modelAndView;
     }
 
-    @PostMapping(PERFORM_USER_DELETE)
+    @DeleteMapping(PAGE_USERS)
     public ModelAndView deleteUser(HttpServletRequest request,
                                    HttpServletResponse response,
                                    @RequestParam Long id,

@@ -17,8 +17,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -173,23 +172,23 @@ public class AdminControllerTest extends AbstractTest {
         Element usersTable = doc.getElementById("usersTable");
         Elements trElements = usersTable.getElementsByTag("tbody")
                 .last().getElementsByTag("tr");
-        if (trElements.size() > 0) {
-            Element userElement = trElements.get(0);
-            String userId = userElement.getElementsByTag("td").get(0).text();
+        Assertions.assertTrue(trElements.size() > 0);
 
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("id", userId);
-            resultActions = mockMvc.perform(post("/admin/users/perform-delete")
-                    .params(params)
-                    .with(getRequestPostProcessorForUser(testUser))
-                    .with(csrf()));
+        Element userElement = trElements.get(0);
+        String userId = userElement.getElementsByTag("td").get(0).text();
 
-            ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", userId);
+        resultActions = mockMvc.perform(delete("/admin/users")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
 
-            Assertions.assertNotNull(modelAndView);
-            boolean error = modelAndView.getModel().containsKey("error");
-            Assertions.assertFalse(error);
-        }
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertFalse(error);
     }
 
     @Test
@@ -197,7 +196,7 @@ public class AdminControllerTest extends AbstractTest {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", "-1");
-        ResultActions resultActions = mockMvc.perform(post("/admin/users/perform-delete")
+        ResultActions resultActions = mockMvc.perform(delete("/admin/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
