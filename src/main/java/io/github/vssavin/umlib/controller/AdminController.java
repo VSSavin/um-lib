@@ -254,7 +254,7 @@ public class AdminController {
         return modelAndView;
     }
 
-    @PostMapping(PERFORM_CHANGE_USER_PASSWORD)
+    @PatchMapping(PAGE_CHANGE_USER_PASSWORD)
     public ModelAndView performChangeUserPassword(HttpServletRequest request, HttpServletResponse response,
                                                   @RequestParam String userName, @RequestParam String newPassword,
                                                   @RequestParam(required = false) final String lang) {

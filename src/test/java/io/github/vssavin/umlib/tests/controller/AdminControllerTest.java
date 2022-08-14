@@ -75,7 +75,7 @@ public class AdminControllerTest extends AbstractTest {
         params.add("userName", testUser.getLogin());
         params.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/admin/perform-change-user-password/")
+        ResultActions resultActions = mockMvc.perform(patch("/admin/changeUserPassword")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -85,6 +85,25 @@ public class AdminControllerTest extends AbstractTest {
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", message));
         testUser.setPassword(newPassword);
+    }
+
+    @Test
+    public void changeUserPasswordFailedUserNotFound() throws Exception {
+        String userName = "UserNotFoundName";
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("userName", userName);
+        params.add("newPassword", encrypt("", testUser.getPassword()));
+
+        ResultActions resultActions = mockMvc.perform(patch("/admin/changeUserPassword")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+        String message = changeUserPasswordMessageSource.getMessage(
+                MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), new Object[]{},
+                LocaleConfig.DEFAULT_LOCALE);
+        resultActions.andExpect(model().attribute("error", true))
+                .andExpect(model().attribute("errorMsg", message));
     }
 
     @Test
