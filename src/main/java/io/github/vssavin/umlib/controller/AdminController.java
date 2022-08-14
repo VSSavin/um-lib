@@ -34,7 +34,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
  * @author vssavin on 21.12.21
  */
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/um/admin")
 public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     private static final String PAGE_USERS = "users";

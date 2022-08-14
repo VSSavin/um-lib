@@ -29,7 +29,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String LOGOUT_URL = UmConfig.LOGOUT_URL;
 
     public static String successUrl = "/index.html";
-    public static String adminSuccessUrl = "/admin";
+    public static String adminSuccessUrl = "/um/admin";
 
     private final DataSource dataSource;
     private final AuthenticationSuccessHandler authSuccessHandler;

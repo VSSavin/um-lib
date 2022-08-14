@@ -18,7 +18,7 @@ public class UmConfig extends StorableConfig{
     @IgnoreField public static final String LOGIN_PROCESSING_URL = "/perform-login";
     @IgnoreField public static final String LOGOUT_URL = "/logout";
 
-    @IgnoreField public static String adminSuccessUrl = "/admin";
+    @IgnoreField public static String adminSuccessUrl = "/um/admin";
     @IgnoreField public static String successUrl = "/index.html";
 
     @IgnoreField private static final String NAME_PREFIX = "application";
@@ -74,21 +74,21 @@ public class UmConfig extends StorableConfig{
 
                 for(int i = 0; i < authorizedUrlPermissions.size(); i++) {
                     AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
-                    if (authorizedUrlPermission.getUrl().equals("/user/registration")) {
+                    if (authorizedUrlPermission.getUrl().equals("/users/registration")) {
                         registrationIndex = i;
-                    } else if (authorizedUrlPermission.getUrl().equals("/user/perform-register")) {
+                    } else if (authorizedUrlPermission.getUrl().equals("/users/perform-register")) {
                         performRegisterIndex = i;
                     }
                 }
 
                 if (registrationIndex != -1) {
                     authorizedUrlPermissions.set(registrationIndex,
-                            new AuthorizedUrlPermission("/user/registration", new String[]{"ADMIN"}));
+                            new AuthorizedUrlPermission("/users/registration", new String[]{"ADMIN"}));
                 }
 
                 if (performRegisterIndex != -1) {
                     authorizedUrlPermissions.set(performRegisterIndex,
-                            new AuthorizedUrlPermission("/user/perform-register", new String[]{"ADMIN"}));
+                            new AuthorizedUrlPermission("/users/perform-register", new String[]{"ADMIN"}));
                 }
 
                 permissionsUpdated = true;

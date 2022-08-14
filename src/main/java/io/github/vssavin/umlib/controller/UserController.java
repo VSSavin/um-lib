@@ -39,7 +39,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
 @RequestMapping(UserController.USER_CONTROLLER_PATH)
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    static final String USER_CONTROLLER_PATH = "/users";
+    static final String USER_CONTROLLER_PATH = "/um/users";
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_PASSWORD = "changePassword";
     private static final String PAGE_CONFIRM_USER = "confirmUser";
@@ -488,6 +488,7 @@ public class UserController {
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(403);
                 addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+                modelAndView.setViewName(modelAndView.getViewName() + "/" + userDto.getLogin());
                 return modelAndView;
             }
 
@@ -496,6 +497,7 @@ public class UserController {
                         MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
                         secureService.getEncryptMethodNameForView(), lang);
+                modelAndView.setViewName(modelAndView.getViewName() + "/" + userFromDatabase.getLogin());
                 response.setStatus(400);
                 return modelAndView;
             }

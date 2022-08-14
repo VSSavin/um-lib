@@ -50,7 +50,7 @@
             <div th:if="${success}" class="alert alert-success" th:text="${successMsg}">
                 Пользователь успешно сохранен!
             </div>
-            <div th:if="${error}" class="alert alert-success" th:text="${errorMsg}">
+            <div th:if="${error}" class="alert alert-danger" th:text="${errorMsg}">
                 Не удалось сохранить пользователя!
             </div>
             <input type="text" id="userId" name="id" class="form-control" hidden th:value="${user.id}">

@@ -53,11 +53,11 @@
 
 <div>
     <p align="left" class="pStyle">
-        <a th:href="@{/user/userEditYourself/} + ${user.login} + '?lang=' + ${urlLang}" class="btn-lg"
+        <a th:href="@{/um/users/userEditYourself/} + ${user.login} + '?lang=' + ${urlLang}" class="btn-lg"
            th:text="${editUserTitle}" target="_blank">Редактировать пользователя</a>
     </p>
     <p align="left" class="pStyle">
-        <a th:href="@{/user/changePassword} + '?lang=' + ${urlLang}" class="btn-lg"
+        <a th:href="@{/um/users/changePassword} + '?lang=' + ${urlLang}" class="btn-lg"
            th:text="${changePasswordTitle}" target="_blank">Изменить пароль</a>
     </p>
 </div>

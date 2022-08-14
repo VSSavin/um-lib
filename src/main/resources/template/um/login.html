@@ -109,7 +109,7 @@
                    required>
         </p>
         <p>
-            <a th:href="@{/user/passwordRecovery} + '?lang=' + ${urlLang}" th:text="${forgotPassword}">Забыли пароль?</a>
+            <a th:href="@{/um/user/passwordRecovery} + '?lang=' + ${urlLang}" th:text="${forgotPassword}">Забыли пароль?</a>
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${signInButton}">Войти</button>
     </form>
