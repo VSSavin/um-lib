@@ -45,11 +45,9 @@ public class UserController {
     private static final String PAGE_CONFIRM_USER = "confirmUser";
     private static final String PAGE_USER_EDIT = "userEditYourself";
     private static final String PAGE_USER_CONTROL_PANEL = "userControlPanel";
-    private static final String PERFORM_CHANGE_PASSWORD = "/perform-change-password";
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
     private static final String PAGE_RECOVERY_PASSWORD = "passwordRecovery";
     private static final String PERFORM_PASSWORD_RECOVERY = "/perform-password-recovery";
-    private static final String PERFORM_USER_EDIT = "/edit/perform-user-edit";
 
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
@@ -249,7 +247,7 @@ public class UserController {
         return modelAndView;
     }
 
-    @PostMapping(PERFORM_CHANGE_PASSWORD)
+    @PatchMapping(PAGE_CHANGE_PASSWORD)
     public ModelAndView performChangeUserPassword(HttpServletRequest request, HttpServletResponse response,
                                                   @RequestParam String currentPassword,
                                                   @RequestParam String newPassword,
@@ -473,7 +471,6 @@ public class UserController {
         return modelAndView;
     }
 
-    //@PostMapping(PERFORM_USER_EDIT)
     @PatchMapping
     public ModelAndView performUserEdit(HttpServletRequest request, HttpServletResponse response,
                                         @ModelAttribute UserDto userDto,

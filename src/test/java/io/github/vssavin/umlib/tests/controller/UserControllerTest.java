@@ -119,7 +119,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/users/perform-change-password")
+        ResultActions resultActions = mockMvc.perform(patch("/users/changePassword")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -144,7 +144,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/users/perform-change-password")
+        ResultActions resultActions = mockMvc.perform(patch("/users/changePassword")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
