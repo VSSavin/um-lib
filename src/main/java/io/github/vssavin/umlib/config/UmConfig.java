@@ -38,14 +38,14 @@ public class UmConfig extends StorableConfig{
     {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/passwordRecovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/perform-password-recovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/registration", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/perform-register", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/confirmUser", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/passwordRecovery", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/perform-password-recovery", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/registration", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/perform-register", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/confirmUser", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/admin**", new String[]{"ADMIN"}));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/admin/**", new String[]{"ADMIN"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/user/**", new String[]{"ADMIN", "USER"}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/**", new String[]{"ADMIN", "USER"}));
     }
 
     public UmConfig() {

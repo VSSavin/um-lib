@@ -45,14 +45,14 @@
 </div>
 
 <div align="right" style="margin-top:1em">
-    <p align="right" class="pStyle" th:text="${greeting} + ${userName}"></p>
+    <p align="right" class="pStyle" th:text="${greeting} + ${user.name}"></p>
     <p align="right" class="pStyle">
         <a th:href="@{/logout} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${logoutTitle}">Выйти</a>
     </p>
 </div>
 
 <div class="container">
-    <form name="f" class="form-signin" method="post" th:action="@{'/user/edit/perform-user-edit' + '?lang=' + ${urlLang}}">
+    <form name="f" class="form-signin" th:method="patch" th:action="@{../} + '?lang=' + ${urlLang}">
         <h2 class="form-signin-heading" align="center" th:text="${editTitle}">Редактирование пользователя</h2>
         <div th:if="${success}" class="alert alert-success" th:text="${successMsg}">
             Пользователь успешно сохранен!

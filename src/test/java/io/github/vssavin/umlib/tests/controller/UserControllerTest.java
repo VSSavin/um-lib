@@ -17,8 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,7 +61,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("password", encodedPassword);
         registerParams.add("confirmPassword", encodedPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-register")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -79,7 +78,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("email", "test@test.com");
         registerParams.add("password", testUser.getPassword());
         registerParams.add("confirmPassword", testUser.getPassword());
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-register")
                         .params(registerParams)
                         .with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKeys.USER_EXISTS_PATTERN.getMessageKey(),
@@ -98,7 +97,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("email", "user@example.com");
         registerParams.add("password", testUser.getPassword());
         registerParams.add("confirmPassword", testUser.getPassword());
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-register")
                 .params(registerParams)
                 .with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(),
@@ -120,7 +119,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-change-password")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -145,7 +144,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("currentPassword", encodedCurrentPassword);
         registerParams.add("newPassword", encodedNewPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-change-password")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-change-password")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -169,7 +168,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("password", encodedPassword);
         registerParams.add("confirmPassword", encodedPassword);
 
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-register")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-register")
                 .params(registerParams)
                 .with(csrf()));
         String message = registrationMessageSource.getMessage(
@@ -184,7 +183,7 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "admin");
         mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-password-recovery")
                 .params(passwordRecoveryParams)
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
@@ -201,7 +200,7 @@ public class UserControllerTest extends AbstractTest {
         mockedEmailService.getEmailMessages().clear();
         passwordRecoveryParams.clear();
         passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get("/user/passwordRecovery")
+        resultActions = mockMvc.perform(get("/users/passwordRecovery")
                 .params(passwordRecoveryParams)
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
@@ -216,7 +215,7 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "12345");
         mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post("/user/perform-password-recovery")
+        ResultActions resultActions = mockMvc.perform(post("/users/perform-password-recovery")
                 .params(passwordRecoveryParams)
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true));
@@ -224,7 +223,7 @@ public class UserControllerTest extends AbstractTest {
         passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("loginOrEmail", "admin");
         mockedEmailService.getEmailMessages().clear();
-        resultActions = mockMvc.perform(post("/user/perform-password-recovery")
+        resultActions = mockMvc.perform(post("/users/perform-password-recovery")
                 .params(passwordRecoveryParams)
                 .with(csrf()));
         resultActions.andExpect(model().attribute("successSend", true));
@@ -241,7 +240,7 @@ public class UserControllerTest extends AbstractTest {
         mockedEmailService.getEmailMessages().clear();
         passwordRecoveryParams = new LinkedMultiValueMap<>();
         passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get("/user/passwordRecovery")
+        resultActions = mockMvc.perform(get("/users/passwordRecovery")
                 .params(passwordRecoveryParams)
                 .with(csrf()));
         resultActions.andExpect(model().attribute("userNotFound", true))
@@ -252,7 +251,7 @@ public class UserControllerTest extends AbstractTest {
     public void userEditWithWrongIdFailed() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", "12345");
-        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+        ResultActions resultActions = mockMvc.perform(patch("/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -268,7 +267,7 @@ public class UserControllerTest extends AbstractTest {
         params.add("id", "2");
         params.add("name", "testName");
         params.add("email", "testEmail.com");
-        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+        ResultActions resultActions = mockMvc.perform(patch("/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -284,7 +283,7 @@ public class UserControllerTest extends AbstractTest {
         params.add("id", "2");
         params.add("name", "testName");
         params.add("email", "testEmail@mail.com");
-        ResultActions resultActions = mockMvc.perform(post("/user/edit/perform-user-edit")
+        ResultActions resultActions = mockMvc.perform(patch("/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));

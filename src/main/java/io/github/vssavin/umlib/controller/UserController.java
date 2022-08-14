@@ -39,7 +39,7 @@ import static io.github.vssavin.umlib.helper.MvcHelper.*;
 @RequestMapping(UserController.USER_CONTROLLER_PATH)
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    static final String USER_CONTROLLER_PATH = "/user";
+    static final String USER_CONTROLLER_PATH = "/users";
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_PASSWORD = "changePassword";
     private static final String PAGE_CONFIRM_USER = "confirmUser";
@@ -473,7 +473,8 @@ public class UserController {
         return modelAndView;
     }
 
-    @PostMapping(PERFORM_USER_EDIT)
+    //@PostMapping(PERFORM_USER_EDIT)
+    @PatchMapping
     public ModelAndView performUserEdit(HttpServletRequest request, HttpServletResponse response,
                                         @ModelAttribute UserDto userDto,
                                         @RequestParam(required = false) final String lang) {
