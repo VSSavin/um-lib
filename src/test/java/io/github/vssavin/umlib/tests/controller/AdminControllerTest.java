@@ -131,7 +131,7 @@ public class AdminControllerTest extends AbstractTest {
         params.add("login", userLogin);
         params.add("name", "name");
         params.add("email", newUserEmail);
-        resultActions = mockMvc.perform(post("/admin/users/edit/perform-user-edit")
+        resultActions = mockMvc.perform(patch("/admin/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
@@ -159,6 +159,75 @@ public class AdminControllerTest extends AbstractTest {
         String userEmail = userElement.getElementsByTag("td").get(3).text();
 
         Assertions.assertEquals(newUserEmail, userEmail);
+    }
+
+    @Test
+    public void editUserFailedWrongEmail() throws Exception {
+        String newUserEmail = "test";
+        String userLogin = "user";
+
+        ResultActions resultActions = mockMvc.perform(get("/admin/users/")
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        String html = resultActions.andReturn().getResponse().getContentAsString();
+        Document doc = Jsoup.parse(html);
+        Element usersTable = doc.getElementById("usersTable");
+        Elements trElements = usersTable.getElementsByTag("tbody")
+                .first().getElementsByTag("tr");
+        Element userElement = trElements.get(0);
+        String userId = userElement.getElementsByTag("td").get(0).text();
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", userId);
+        params.add("login", userLogin);
+        params.add("name", "name");
+        params.add("email", newUserEmail);
+        resultActions = mockMvc.perform(patch("/admin/users")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertTrue(error);
+    }
+
+    @Test
+    public void editUserFailedSuchLoginExists() throws Exception {
+        String newUserLogin = "user_new";
+
+        ResultActions resultActions = mockMvc.perform(get("/admin/users/")
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        String html = resultActions.andReturn().getResponse().getContentAsString();
+        Document doc = Jsoup.parse(html);
+        Element usersTable = doc.getElementById("usersTable");
+        Elements trElements = usersTable.getElementsByTag("tbody")
+                .first().getElementsByTag("tr");
+        Element userElement = trElements.get(1);
+        String userId = userElement.getElementsByTag("td").get(0).text();
+        String userEmail = userElement.getElementsByTag("td").get(3).text();
+        String userName = userElement.getElementsByTag("td").get(2).text();
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("id", userId);
+        params.add("login", newUserLogin);
+        params.add("name", userName);
+        params.add("email", userEmail);
+        resultActions = mockMvc.perform(patch("/admin/users")
+                .params(params)
+                .with(getRequestPostProcessorForUser(testUser))
+                .with(csrf()));
+
+        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+
+        Assertions.assertNotNull(modelAndView);
+        boolean error = modelAndView.getModel().containsKey("error");
+        Assertions.assertTrue(error);
     }
 
     @Test

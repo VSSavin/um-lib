@@ -46,8 +46,6 @@ public class AdminController {
 
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
     private static final String PERFORM_CHANGE_USER_PASSWORD = "/perform-change-user-password";
-    private static final String PERFORM_USER_EDIT = "/users/edit/perform-user-edit";
-    private static final String PERFORM_USER_DELETE = "/users/perform-delete";
 
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
@@ -322,7 +320,7 @@ public class AdminController {
                               @RequestParam(required = false, defaultValue = "5") final int size,
                               @RequestParam(required = false) final String lang) {
 
-        ModelAndView modelAndView = new ModelAndView("users");
+        ModelAndView modelAndView = new ModelAndView(PAGE_USERS);
         if (SecurityHelper.isAuthorizedAdmin(userService)) {
             Paged<User> users = userService.getUsers(userFilter, page, size);
             modelAndView.addObject("users", users);
@@ -382,13 +380,38 @@ public class AdminController {
         return modelAndView;
     }
 
-    @PostMapping(PERFORM_USER_EDIT)
+    @PatchMapping(PAGE_USERS)
     public ModelAndView performUserEdit(HttpServletRequest request, HttpServletResponse response,
                                         @ModelAttribute UserDto userDto,
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView("userEdit");
         try {
             if (SecurityHelper.isAuthorizedAdmin(userService)) {
+                if (!ValidatingHelper.isValidEmail(userDto.getEmail())) {
+                    modelAndView = getErrorModelAndView(PAGE_USERS,
+                            MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
+                    addObjectsToModelAndView(modelAndView, pageUsersParams, language,
+                            secureService.getEncryptMethodNameForView(), lang);
+                    response.setStatus(400);
+                    return modelAndView;
+                }
+
+                User userByLogin = null;
+                try {
+                    userByLogin = userService.getUserByLogin(userDto.getLogin());
+                } catch (UsernameNotFoundException e) {
+                    //ignore
+                }
+
+                if (userByLogin != null && !userByLogin.getId().equals(userDto.getId())) {
+                    modelAndView = getErrorModelAndView(PAGE_USERS,
+                            MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, userDto.getLogin());
+                    addObjectsToModelAndView(modelAndView, pageUsersParams, language,
+                            secureService.getEncryptMethodNameForView(), lang);
+                    response.setStatus(400);
+                    return modelAndView;
+                }
+
                 User userFromDatabase = userService.getUserById(userDto.getId());
                 User newUser = User.builder().id(userFromDatabase.getId()).login(userDto.getLogin())
                         .name(userDto.getName()).password(userFromDatabase.getPassword())

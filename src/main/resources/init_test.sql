@@ -18,3 +18,7 @@ insert into users(login, name, password, email, authority, expiration_date)
 SELECT 'user', 'user', E'$2a$10$9qZBmJnyyebU.UFGqGWZIuZ67kJlAQjrohDwqBGaiZ2xPRGHEeF1u', 'user@example.com',
 'ROLE_ADMIN', '2099-01-01 00:00:00'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE login = 'user');
+insert into users(login, name, password, email, authority, expiration_date)
+SELECT 'user_new', 'user_new', E'$2a$10$9qZBmJnyyebU.UFGqGWZIuZ67kJlAQjrohDwqBGaiZ2xPRGHEeF1u', 'user_new@example.com',
+'ROLE_ADMIN', '2099-01-01 00:00:00'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE login = 'user_new');

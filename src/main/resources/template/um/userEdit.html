@@ -45,7 +45,7 @@
     </div>
 
     <div class="container">
-        <form name="f" class="form-signin" method="post" th:action="@{perform-user-edit + '?lang=' + ${urlLang}}">
+        <form name="f" class="form-signin" th:method="patch" th:action="@{../} + '?lang=' + ${urlLang}">
             <h2 class="form-signin-heading" align="center" th:text="${editTitle}">Редактирование пользователя</h2>
             <div th:if="${success}" class="alert alert-success" th:text="${successMsg}">
                 Пользователь успешно сохранен!
