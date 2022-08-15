@@ -38,14 +38,15 @@ public class UmConfig extends StorableConfig{
     {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/passwordRecovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/perform-password-recovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/registration", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/perform-register", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/confirmUser", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/admin**", new String[]{"ADMIN"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/admin/**", new String[]{"ADMIN"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/users/**", new String[]{"ADMIN", "USER"}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/passwordRecovery", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-password-recovery", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/registration", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-register", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/confirmUser", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", new String[]{"ADMIN"}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", new String[]{"ADMIN"}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", new String[]{"ADMIN", "USER"}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/perform-logout", new String[0]));
     }
 
     public UmConfig() {
@@ -74,21 +75,21 @@ public class UmConfig extends StorableConfig{
 
                 for(int i = 0; i < authorizedUrlPermissions.size(); i++) {
                     AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
-                    if (authorizedUrlPermission.getUrl().equals("/users/registration")) {
+                    if (authorizedUrlPermission.getUrl().equals("/um/users/registration")) {
                         registrationIndex = i;
-                    } else if (authorizedUrlPermission.getUrl().equals("/users/perform-register")) {
+                    } else if (authorizedUrlPermission.getUrl().equals("/um/users/perform-register")) {
                         performRegisterIndex = i;
                     }
                 }
 
                 if (registrationIndex != -1) {
                     authorizedUrlPermissions.set(registrationIndex,
-                            new AuthorizedUrlPermission("/users/registration", new String[]{"ADMIN"}));
+                            new AuthorizedUrlPermission("/um/users/registration", new String[]{"ADMIN"}));
                 }
 
                 if (performRegisterIndex != -1) {
                     authorizedUrlPermissions.set(performRegisterIndex,
-                            new AuthorizedUrlPermission("/users/perform-register", new String[]{"ADMIN"}));
+                            new AuthorizedUrlPermission("/um/users/perform-register", new String[]{"ADMIN"}));
                 }
 
                 permissionsUpdated = true;

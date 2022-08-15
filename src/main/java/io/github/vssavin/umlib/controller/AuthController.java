@@ -5,13 +5,23 @@ import io.github.vssavin.umlib.config.UmConfig;
 import io.github.vssavin.umlib.helper.MvcHelper;
 import io.github.vssavin.umlib.language.UmLanguage;
 import io.github.vssavin.umlib.service.SecureService;
+import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.utils.UmUtil;
+import io.github.vssavin.umlib.utils.UserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -19,6 +29,7 @@ import java.util.Set;
  */
 @Controller
 public class AuthController {
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
     private static final String PAGE_LOGOUT = UmConfig.LOGOUT_URL.replaceAll("/", "");
 
@@ -30,43 +41,55 @@ public class AuthController {
     private final UmLanguage language;
     private final SecureService secureService;
     private final UmConfig umConfig;
+    private final UserService userService;
 
     public AuthController(LocaleConfig.LocaleSpringMessageSource loginMessageSource,
                           LocaleConfig.LocaleSpringMessageSource logoutMessageSource,
-                          UmLanguage language, UmUtil umUtil, UmConfig umConfig) {
+                          UmLanguage language, UmUtil umUtil, UmConfig umConfig, UserService userService) {
         this.language = language;
         this.secureService = umUtil.getAuthService();
         this.umConfig = umConfig;
         PAGE_LOGIN_PARAMS = loginMessageSource.getKeys();
         PAGE_LOGOUT_PARAMS = logoutMessageSource.getKeys();
+        this.userService = userService;
     }
 
     @GetMapping(value = {"/", UmConfig.LOGIN_URL, UmConfig.LOGIN_URL + ".html"})
-    public ModelAndView getLogin(@RequestParam(required = false) final Boolean error,
+    public ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response,
+                                 @RequestParam(required = false) final Boolean error,
                                  @RequestParam(required = false) final String lang) {
-        ModelAndView modelAndView = null;
-        if (error != null) {
-            if (error) {
-                modelAndView = new ModelAndView(PAGE_LOGIN);
+        try {
+            if (UserUtils.isAuthorizedAdmin(request, userService)) {
+                response.sendRedirect(UmConfig.adminSuccessUrl);
+            } else if (UserUtils.isAuthorizedUser(request, userService)) {
+                response.sendRedirect(UmConfig.successUrl);
             }
+        } catch (IOException e) {
+            log.error("Sending redirect i/o error: ", e);
         }
 
-        else {
-            modelAndView = new ModelAndView(PAGE_LOGIN);
-        }
-
+        ModelAndView modelAndView = new ModelAndView(PAGE_LOGIN);
         MvcHelper.addObjectsToModelAndView(modelAndView, PAGE_LOGIN_PARAMS, language,
                 secureService.getEncryptMethodNameForView(), lang);
-
-        if (modelAndView != null) {
-            modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
-        }
-
+        modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
         return modelAndView;
     }
 
     @GetMapping(value = {UmConfig.LOGOUT_URL, UmConfig.LOGOUT_URL + ".html"})
-    public ModelAndView getLogout(@RequestParam(required = false) final String lang) {
+    public ModelAndView getLogout(HttpServletRequest request, HttpServletResponse response,
+                                  @RequestParam(required = false) final String lang) {
+
+        @SuppressWarnings("UnusedAssignment")
+        HttpSession session = request.getSession(false);
+        SecurityContextHolder.clearContext();
+        session = request.getSession(false);
+        if(session != null) {
+            session.invalidate();
+        }
+        for(Cookie cookie : request.getCookies()) {
+            cookie.setMaxAge(0);
+        }
+
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGOUT);
         MvcHelper.addObjectsToModelAndView(modelAndView, PAGE_LOGOUT_PARAMS, language,
                 secureService.getEncryptMethodNameForView(), lang);

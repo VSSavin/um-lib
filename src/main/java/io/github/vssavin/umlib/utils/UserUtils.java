@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.utils;
 
+import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.UserService;
 import org.slf4j.Logger;
@@ -47,5 +48,25 @@ public class UserUtils {
             }
 
         }
+    }
+
+    public static boolean isAuthorizedAdmin(HttpServletRequest request, UserService userService) {
+        boolean authorized = false;
+        Principal principal = request.getUserPrincipal();
+        if (principal != null) {
+            User user = userService.getUserByLogin(principal.getName());
+            return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
+        }
+        return authorized;
+    }
+
+    public static boolean isAuthorizedUser(HttpServletRequest request, UserService userService) {
+        boolean authorized = false;
+        Principal principal = request.getUserPrincipal();
+        if (principal != null) {
+            User user = userService.getUserByLogin(principal.getName());
+            return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
+        }
+        return authorized;
     }
 }
