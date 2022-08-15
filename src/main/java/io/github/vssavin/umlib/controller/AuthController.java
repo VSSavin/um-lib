@@ -10,17 +10,14 @@ import io.github.vssavin.umlib.utils.UmUtil;
 import io.github.vssavin.umlib.utils.UserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 
@@ -76,19 +73,7 @@ public class AuthController {
     }
 
     @GetMapping(value = {UmConfig.LOGOUT_URL, UmConfig.LOGOUT_URL + ".html"})
-    public ModelAndView getLogout(HttpServletRequest request, HttpServletResponse response,
-                                  @RequestParam(required = false) final String lang) {
-
-        @SuppressWarnings("UnusedAssignment")
-        HttpSession session = request.getSession(false);
-        SecurityContextHolder.clearContext();
-        session = request.getSession(false);
-        if(session != null) {
-            session.invalidate();
-        }
-        for(Cookie cookie : request.getCookies()) {
-            cookie.setMaxAge(0);
-        }
+    public ModelAndView getLogout(@RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGOUT);
         MvcHelper.addObjectsToModelAndView(modelAndView, PAGE_LOGOUT_PARAMS, language,

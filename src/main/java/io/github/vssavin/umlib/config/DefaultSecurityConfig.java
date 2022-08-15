@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.sql.DataSource;
@@ -35,17 +37,22 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationSuccessHandler authSuccessHandler;
     private final AuthenticationFailureHandler authFailureHandler;
     private final AuthenticationProvider authProvider;
+    private final LogoutHandler logoutHandler;
+    private final LogoutSuccessHandler logoutSuccessHandler;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public DefaultSecurityConfig(UmConfig umConfig, DataSource dataSource,
                                  AuthenticationSuccessHandler authSuccessHandler,
                                  AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
-                                 PasswordEncoder passwordEncoder) {
+                                 LogoutHandler logoutHandler,
+                                 LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder) {
         this.dataSource = dataSource;
         this.authSuccessHandler = authSuccessHandler;
         this.authFailureHandler = authFailureHandler;
         this.authProvider = authProvider;
+        this.logoutHandler = logoutHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
         UmConfig.adminSuccessUrl = adminSuccessUrl;
         UmConfig.successUrl = successUrl;
@@ -96,10 +103,12 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl(LOGIN_PROCESSING_URL)
                 .usernameParameter("username")
                 .passwordParameter("password")
-                //.defaultSuccessUrl(SUCCESS_URL)
                 .and()
                 .logout()
+                .permitAll()
                 .logoutUrl(LOGOUT_URL)
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(logoutSuccessHandler)
                 .deleteCookies("JSESSIONID");
     }
 

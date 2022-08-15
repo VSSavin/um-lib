@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.sql.DataSource;
 
@@ -22,7 +24,9 @@ public class SecurityConfig extends DefaultSecurityConfig {
     @Autowired
     public SecurityConfig(UmConfig umConfig, DataSource dataSource, AuthenticationSuccessHandler authSuccessHandler,
                           AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
+                          LogoutHandler logoutHandler, LogoutSuccessHandler logoutSuccessHandler,
                           PasswordEncoder passwordEncoder) {
-        super(umConfig, dataSource, authSuccessHandler, authFailureHandler, authProvider, passwordEncoder);
+        super(umConfig, dataSource, authSuccessHandler, authFailureHandler, authProvider,
+                logoutHandler, logoutSuccessHandler, passwordEncoder);
     }
 }

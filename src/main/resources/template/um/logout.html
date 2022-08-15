@@ -44,7 +44,7 @@
 </div>
 
 <div class="container">
-    <form class="form-signin" method="post" th:action="@{perform-logout} + '?lang=' + ${urlLang}">
+    <form class="form-signin" method="post" th:action="@{logout} + '?lang=' + ${urlLang}">
         <h2 class="form-signin-heading" align="center" th:text="${logoutQuestionMessage}">Вы действительно хотите выйти?</h2>
         <button class="btn btn-lg btn-primary btn-block" style="width:100%" type="submit" th:text="${logoutButtonTitle}">Выйти</button>
     </form>
