@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -29,7 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author vssavin on 07.01.2022
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(args = {"authService=rsa"})
+@ActiveProfiles("um-test")
+@SpringBootTest(args = {"authService=rsa"}, properties = "spring.main.allow-bean-definition-overriding=true")
 @ContextConfiguration(classes = {ApplicationConfig.class, UmTemplateResolverConfig.class})
 @WebAppConfiguration
 @Sql(scripts = "classpath:init_test.sql", config = @SqlConfig(encoding = "UTF-8"))

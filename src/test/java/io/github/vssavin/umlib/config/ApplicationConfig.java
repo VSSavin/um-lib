@@ -3,9 +3,7 @@ package io.github.vssavin.umlib.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -64,8 +62,21 @@ public class ApplicationConfig {
         return em;
     }
 
-    @Bean(name = "dataSource")
+    @Bean
+    @Primary
     public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+                .generateUniqueName(true)
+                .setType(H2)
+                .setScriptEncoding("UTF-8")
+                .ignoreFailedDrops(true)
+                .addScript("init.sql")
+                .build();
+    }
+
+    @Bean
+    @Profile("um-test")
+    public DataSource umDataSource() {
         return new EmbeddedDatabaseBuilder()
                 .generateUniqueName(true)
                 .setType(H2)

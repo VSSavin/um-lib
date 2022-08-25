@@ -27,10 +27,10 @@ public class SqlScriptsConfig {
     private static final Logger log = LoggerFactory.getLogger(SqlScriptsConfig.class);
 
     @Autowired
-    public SqlScriptsConfig(DataSource dataSource) {
+    public SqlScriptsConfig(DataSource umDataSource) {
         ArrayList<String> sqlFiles = new ArrayList<>();
         sqlFiles.add("/init.sql");
-        executeSqlScripts(dataSource, SCRIPTS_DEFAULT_DIRECTORY, sqlFiles);
+        executeSqlScripts(umDataSource, SCRIPTS_DEFAULT_DIRECTORY, sqlFiles);
     }
 
     public void executeSqlScripts(DataSource dataSource, String scriptsDirectory, List<String> sourceFiles) {
