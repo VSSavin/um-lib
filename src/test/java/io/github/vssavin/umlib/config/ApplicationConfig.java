@@ -63,15 +63,16 @@ public class ApplicationConfig {
     }
 
     @Bean
-    @Primary
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
+        DataSource dataSource = new EmbeddedDatabaseBuilder()
                 .generateUniqueName(true)
                 .setType(H2)
                 .setScriptEncoding("UTF-8")
                 .ignoreFailedDrops(true)
                 .addScript("init.sql")
                 .build();
+        UmDataSourceConfig.setApplicationDataSource(dataSource);
+        return dataSource;
     }
 
     @Bean

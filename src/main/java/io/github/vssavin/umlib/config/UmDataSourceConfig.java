@@ -16,16 +16,23 @@ import static io.github.vssavin.umlib.config.RoutingDataSource.DATASOURCE_TYPE.U
  * Created by vssavin on 25.08.2022.
  */
 @Configuration
-class UmDataSourceConfig {
+public class UmDataSourceConfig {
     private static final Logger log = LoggerFactory.getLogger(UmDataSourceConfig.class);
 
     private final UmDatabaseConfig umDatabaseConfig;
-    private final DataSource applicationDataSource;
+    private static DataSource applicationDataSource;
     private DataSource umDataSource;
 
-    public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig, DataSource applicationDataSource) {
+    public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig) {
         this.umDatabaseConfig = umDatabaseConfig;
-        this.applicationDataSource = applicationDataSource;
+        if (applicationDataSource == null)
+            throw new IllegalStateException("Application dataSource not defined!\n" +
+                    "Please use UmDataSourceConfig.setApplicationDataSource(DataSource dataSource) " +
+                    "to define application datasource!");
+    }
+
+    public static void setApplicationDataSource(DataSource applicationDataSource) {
+        UmDataSourceConfig.applicationDataSource = applicationDataSource;
     }
 
     @Bean
