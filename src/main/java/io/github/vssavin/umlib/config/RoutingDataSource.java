@@ -23,6 +23,10 @@ class RoutingDataSource extends AbstractRoutingDataSource {
         this.datasourceKey = key;
     }
 
+    public DATASOURCE_TYPE getDatasourceKey() {
+        return datasourceKey;
+    }
+
     RoutingDataSource() {
         setTargetDataSources(dataSources);
     }
