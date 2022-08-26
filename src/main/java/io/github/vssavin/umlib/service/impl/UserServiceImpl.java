@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.service.impl;
 
+import io.github.vssavin.umlib.config.DataSourceSwitcher;
 import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
@@ -46,20 +47,22 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManagerFactory managerFactory;
+    private final DataSourceSwitcher dataSourceSwitcher;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           EntityManagerFactory managerFactory) {
+                           EntityManagerFactory managerFactory, DataSourceSwitcher dataSourceSwitcher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.managerFactory = managerFactory;
+        this.dataSourceSwitcher = dataSourceSwitcher;
     }
 
     @Override
     public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
         Page<User> users;
         Pageable pageable = PageRequest.of(pageNumber - 1, size);
-
+        dataSourceSwitcher.switchToUmDataSource();
         if (userFilter == null || userFilter.isEmpty()) {
             users = userRepository.findAll(pageable);
         } else {
@@ -80,20 +83,26 @@ public class UserServiceImpl implements UserService {
             users = new PageImpl<>(resultList,
                     pageable, resultList.size());
         }
+        dataSourceSwitcher.switchToPreviousDataSource();
 
         return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(EMPTY_USER);
+        dataSourceSwitcher.switchToUmDataSource();
+        User user = userRepository.findById(id).orElse(EMPTY_USER);
+        dataSourceSwitcher.switchToPreviousDataSource();
+        return user;
     }
 
     @Override
     public User addUser(User user) {
         User savedUser;
         try {
+            dataSourceSwitcher.switchToUmDataSource();
             savedUser = userRepository.save(user);
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -105,7 +114,9 @@ public class UserServiceImpl implements UserService {
     public User updateUser(User user) {
         User updatedUser;
         try {
+            dataSourceSwitcher.switchToUmDataSource();
             updatedUser = userRepository.save(user);
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -115,7 +126,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByName(String name) {
+        dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findUserByName(name);
+        dataSourceSwitcher.switchToPreviousDataSource();
         if (users != null && users.size() > 0) {
             return users.get(0);
         }
@@ -124,7 +137,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByLogin(String login) {
+        dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByLogin(login);
+        dataSourceSwitcher.switchToPreviousDataSource();
         if (users != null && users.size() > 0) {
             return users.get(0);
         }
@@ -133,7 +148,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+        dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByEmail(email);
+        dataSourceSwitcher.switchToPreviousDataSource();
         if (users != null && users.size() > 0) {
             return users.get(0);
         }
@@ -144,7 +161,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(User user) {
         if (user != null) {
+            dataSourceSwitcher.switchToUmDataSource();
             userRepository.deleteByLogin(user.getLogin());
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
     }
 
@@ -216,10 +235,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, User> getUserRecoveryId(String loginOrEmail) {
+        dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByEmail(loginOrEmail);
         if (users.size() == 0) {
             users = userRepository.findByLogin(loginOrEmail);
         }
+        dataSourceSwitcher.switchToPreviousDataSource();
         if (users.size() == 0) {
             throw new UsernameNotFoundException("Such user not found");
         }
