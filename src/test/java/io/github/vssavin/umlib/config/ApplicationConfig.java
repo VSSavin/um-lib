@@ -6,7 +6,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -19,8 +18,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.Properties;
-
-import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 
 /**
  * @author vssavin on 18.12.2021
@@ -41,11 +38,11 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 
         try {
-            em.setDataSource(dataSource());
+            em.setDataSource(routingDataSource);
             em.setPackagesToScan("io.github.vssavin.umlib.entity");
 
             JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -60,31 +57,6 @@ public class ApplicationConfig {
         }
 
         return em;
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        DataSource dataSource = new EmbeddedDatabaseBuilder()
-                .generateUniqueName(true)
-                .setType(H2)
-                .setScriptEncoding("UTF-8")
-                .ignoreFailedDrops(true)
-                .addScript("init.sql")
-                .build();
-        UmDataSourceConfig.setApplicationDataSource(dataSource);
-        return dataSource;
-    }
-
-    @Bean
-    @Profile("um-test")
-    public DataSource umDataSource() {
-        return new EmbeddedDatabaseBuilder()
-                .generateUniqueName(true)
-                .setType(H2)
-                .setScriptEncoding("UTF-8")
-                .ignoreFailedDrops(true)
-                .addScript("init.sql")
-                .build();
     }
 
     @Bean

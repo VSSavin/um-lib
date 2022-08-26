@@ -3,36 +3,23 @@ package io.github.vssavin.umlib.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 
-import static io.github.vssavin.umlib.config.RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE;
-import static io.github.vssavin.umlib.config.RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE;
 
 /**
  * Created by vssavin on 25.08.2022.
  */
-@Configuration
 public class UmDataSourceConfig {
     private static final Logger log = LoggerFactory.getLogger(UmDataSourceConfig.class);
 
     private final UmDatabaseConfig umDatabaseConfig;
-    private static DataSource applicationDataSource;
     private DataSource umDataSource;
 
     public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig) {
         this.umDatabaseConfig = umDatabaseConfig;
-        if (applicationDataSource == null)
-            throw new IllegalStateException("Application dataSource not defined!\n" +
-                    "Please use UmDataSourceConfig.setApplicationDataSource(DataSource dataSource) " +
-                    "to define application datasource!");
-    }
-
-    public static void setApplicationDataSource(DataSource applicationDataSource) {
-        UmDataSourceConfig.applicationDataSource = applicationDataSource;
     }
 
     @Bean
@@ -58,11 +45,11 @@ public class UmDataSourceConfig {
     }
 
     @Bean
-    AbstractRoutingDataSource routingDataSource(){
+    AbstractRoutingDataSource routingDataSource(DataSource appDataSource, DataSource umDataSource) {
         RoutingDataSource routingDataSource = new RoutingDataSource();
-        routingDataSource.addDataSource(UM_DATASOURCE, umDataSource());
-        routingDataSource.addDataSource(APPLICATION_DATASOURCE, applicationDataSource);
-        routingDataSource.setDefaultTargetDataSource(umDataSource);
+        routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
+        routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, appDataSource);
+        routingDataSource.setDefaultTargetDataSource(appDataSource);
         return routingDataSource;
     }
 }

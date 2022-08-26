@@ -34,7 +34,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(args = {"authService=rsa"}, properties = "spring.main.allow-bean-definition-overriding=true")
 @ContextConfiguration(classes = {ApplicationConfig.class, UmTemplateResolverConfig.class})
 @WebAppConfiguration
-@Sql(scripts = "classpath:init_test.sql", config = @SqlConfig(encoding = "UTF-8"))
+@Sql(scripts = "classpath:init_test.sql", config = @SqlConfig(
+        encoding = "UTF-8", transactionManager = "transactionManager", dataSource = "routingDataSource")
+)
 public abstract class AbstractTest {
     private static final String DEFAULT_SECURE_ENDPOINT = "/secure/key";
 
