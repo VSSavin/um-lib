@@ -4,6 +4,7 @@ import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.exception.UserExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import javax.annotation.PostConstruct;
  * Created by vssavin on 04.08.2022.
  */
 @Service
+@DependsOn("sqlScriptsConfig")
 public class UserGeneratorService {
     private final Logger log = LoggerFactory.getLogger(UserGeneratorService.class);
     private final UserService userService;
