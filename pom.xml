@@ -236,6 +236,7 @@
                 <configuration>
                     <excludes>
                         <exclude>init_test.sql</exclude>
+                        <exclude>oauth2.properties</exclude>
                     </excludes>
                     <archive>
                         <manifest>
