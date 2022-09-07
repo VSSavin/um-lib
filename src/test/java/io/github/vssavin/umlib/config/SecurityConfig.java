@@ -28,8 +28,9 @@ public class SecurityConfig extends DefaultSecurityConfig {
                           AuthenticationSuccessHandler authSuccessHandler,
                           AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
                           LogoutHandler logoutHandler, CustomOAuth2UserService customOAuth2UserService,
-                          LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder) {
+                          LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder,
+                          OAuth2Config oAuth2Config) {
         super(umConfig, dataSource, authSuccessHandler, authFailureHandler, authProvider,
-                logoutHandler, customOAuth2UserService, logoutSuccessHandler, passwordEncoder);
+                logoutHandler, customOAuth2UserService, logoutSuccessHandler, passwordEncoder, oAuth2Config);
     }
 }

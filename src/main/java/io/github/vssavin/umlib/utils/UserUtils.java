@@ -22,12 +22,8 @@ public class UserUtils {
     private UserUtils(){}
 
     public static Long getUserId(HttpServletRequest request, UserService userService) {
-        Principal principal = request.getUserPrincipal();
-        long userId = -1L;
-        if (principal != null) {
-            User user = userService.getUserByLogin(principal.getName());
-            userId = user.getId();
-        }
+        long userId;
+        userId = getAuthorizedUser(request, userService).getId();
         return userId;
     }
 
@@ -43,8 +39,8 @@ public class UserUtils {
         Principal principal = request.getUserPrincipal();
         if (principal != null) {
             try {
-                User user = userService.getUserByLogin(principal.getName());
-                modelAndView.addObject("username", user.getName());
+                User user = getAuthorizedUser(request, userService);
+                if (user != null) modelAndView.addObject("username", user.getName());
             } catch (Exception e) {
                 log.error("Adding username to model failed!", e);
                 throw new RuntimeException(e.getMessage(), e.getCause());

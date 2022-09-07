@@ -102,7 +102,7 @@
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${signInButton}">Войти</button>
 
         <p>
-            <a class="btn-lg btn-google btn-block text-uppercase btn-outline" style="padding:0" th:href="@{/oauth2/authorization/google}"><img src="/img/google-logo.png">Google</a>
+            <a th:if="${googleAuthAllowed}" class="btn-lg btn-google btn-block text-uppercase btn-outline" style="padding:0" th:href="@{/oauth2/authorization/google}"><img src="/img/google-logo.png">Google</a>
         </p>
     </form>
 </div>

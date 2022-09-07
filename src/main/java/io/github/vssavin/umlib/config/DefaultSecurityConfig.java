@@ -42,13 +42,15 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LogoutSuccessHandler logoutSuccessHandler;
     private final PasswordEncoder passwordEncoder;
+    private final OAuth2Config oAuth2Config;
 
     @Autowired
     public DefaultSecurityConfig(UmConfig umConfig, DataSource dataSource,
                                  AuthenticationSuccessHandler authSuccessHandler,
                                  AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
                                  LogoutHandler logoutHandler, CustomOAuth2UserService customOAuth2UserService,
-                                 LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder) {
+                                 LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder,
+                                 OAuth2Config oAuth2Config) {
         this.dataSource = dataSource;
         this.authSuccessHandler = authSuccessHandler;
         this.authFailureHandler = authFailureHandler;
@@ -57,6 +59,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
         this.customOAuth2UserService = customOAuth2UserService;
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
+        this.oAuth2Config = oAuth2Config;
         UmConfig.adminSuccessUrl = adminSuccessUrl;
         UmConfig.successUrl = successUrl;
         umConfig.updateAuthorizedPermissions();
@@ -114,15 +117,17 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl(LOGOUT_URL)
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID")
-                .and()
-                .oauth2Login()
-                .successHandler(authSuccessHandler)
-                .failureHandler(authFailureHandler)
-                .loginPage(LOGIN_URL)
-                .userInfoEndpoint()
-                .userService(customOAuth2UserService);
+                .deleteCookies("JSESSIONID");
 
+        if (!"".equals(oAuth2Config.getGoogleClientId())) {
+            registry.and()
+                    .oauth2Login()
+                    .successHandler(authSuccessHandler)
+                    .failureHandler(authFailureHandler)
+                    .loginPage(LOGIN_URL)
+                    .userInfoEndpoint()
+                    .userService(customOAuth2UserService);
+        }
     }
 
     public static void setSuccessUrl(String successUrl) {

@@ -296,6 +296,7 @@ public class UserServiceImpl implements UserService {
 
         if (user == null) {
             user = registerUser(email, email, "", email, Role.ROLE_USER);
+            confirmUser(user.getLogin(), user.getVerificationId(), true);
         }
 
         return user;

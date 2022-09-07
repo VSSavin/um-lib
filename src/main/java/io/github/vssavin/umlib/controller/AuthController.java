@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.controller;
 
 import io.github.vssavin.umlib.config.LocaleConfig;
+import io.github.vssavin.umlib.config.OAuth2Config;
 import io.github.vssavin.umlib.config.UmConfig;
 import io.github.vssavin.umlib.helper.MvcHelper;
 import io.github.vssavin.umlib.language.UmLanguage;
@@ -39,16 +40,19 @@ public class AuthController {
     private final SecureService secureService;
     private final UmConfig umConfig;
     private final UserService userService;
+    private final OAuth2Config oAuth2Config;
 
     public AuthController(LocaleConfig.LocaleSpringMessageSource loginMessageSource,
                           LocaleConfig.LocaleSpringMessageSource logoutMessageSource,
-                          UmLanguage language, UmUtil umUtil, UmConfig umConfig, UserService userService) {
+                          UmLanguage language, UmUtil umUtil, UmConfig umConfig, UserService userService,
+                          OAuth2Config oAuth2Config) {
         this.language = language;
         this.secureService = umUtil.getAuthService();
         this.umConfig = umConfig;
         PAGE_LOGIN_PARAMS = loginMessageSource.getKeys();
         PAGE_LOGOUT_PARAMS = logoutMessageSource.getKeys();
         this.userService = userService;
+        this.oAuth2Config = oAuth2Config;
     }
 
     @GetMapping(value = {"/", UmConfig.LOGIN_URL, UmConfig.LOGIN_URL + ".html"})
@@ -69,6 +73,7 @@ public class AuthController {
         MvcHelper.addObjectsToModelAndView(modelAndView, PAGE_LOGIN_PARAMS, language,
                 secureService.getEncryptMethodNameForView(), lang);
         modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
+        modelAndView.addObject("googleAuthAllowed", !("".equals(oAuth2Config.getGoogleClientId())));
         return modelAndView;
     }
 
