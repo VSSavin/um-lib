@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.config;
 
 import io.github.vssavin.umlib.security.spring.BannedIpFilter;
+import io.github.vssavin.umlib.service.impl.CustomOAuth2UserService;
 import io.github.vssavin.umlib.utils.AuthorizedUrlPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationFailureHandler authFailureHandler;
     private final AuthenticationProvider authProvider;
     private final LogoutHandler logoutHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final LogoutSuccessHandler logoutSuccessHandler;
     private final PasswordEncoder passwordEncoder;
 
@@ -45,13 +47,14 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
     public DefaultSecurityConfig(UmConfig umConfig, DataSource dataSource,
                                  AuthenticationSuccessHandler authSuccessHandler,
                                  AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
-                                 LogoutHandler logoutHandler,
+                                 LogoutHandler logoutHandler, CustomOAuth2UserService customOAuth2UserService,
                                  LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder) {
         this.dataSource = dataSource;
         this.authSuccessHandler = authSuccessHandler;
         this.authFailureHandler = authFailureHandler;
         this.authProvider = authProvider;
         this.logoutHandler = logoutHandler;
+        this.customOAuth2UserService = customOAuth2UserService;
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
         UmConfig.adminSuccessUrl = adminSuccessUrl;
@@ -92,6 +95,8 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
         List<AuthorizedUrlPermission> urlPermissions = UmConfig.getAuthorizedUrlPermissions();
 
         urlPermissions.add(new AuthorizedUrlPermission("/games/**", new String[]{"ADMIN", "USER"}));
+        urlPermissions.add(new AuthorizedUrlPermission("/oauth/**", new String[]{}));
+        urlPermissions.add(new AuthorizedUrlPermission("/login/oauth2/code/google", new String[]{}));
 
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry =
                 registerUrls(http, urlPermissions);
@@ -109,7 +114,15 @@ public class DefaultSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl(LOGOUT_URL)
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID");
+                .deleteCookies("JSESSIONID")
+                .and()
+                .oauth2Login()
+                .successHandler(authSuccessHandler)
+                .failureHandler(authFailureHandler)
+                .loginPage(LOGIN_URL)
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService);
+
     }
 
     public static void setSuccessUrl(String successUrl) {

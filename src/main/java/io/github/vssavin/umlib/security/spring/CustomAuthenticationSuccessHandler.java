@@ -5,6 +5,8 @@ import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.UserService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -29,15 +31,26 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         String successUrl = UmConfig.successUrl;
-
-        User user = userService.getUserByLogin(authentication.getPrincipal().toString());
-        if (user != null) {
+        User user = null;
+        try {
+            OAuth2User oAuth2User = (DefaultOAuth2User)authentication.getPrincipal();
+            user = userService.processOAuthPostLogin(oAuth2User);
             if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
-            if (user.getExpirationDate().before(new Date())) {
-                userService.deleteUser(user);
-                successUrl = UmConfig.LOGIN_URL + "?error=true";
+        } catch (ClassCastException e) {
+            //ignore, it's ok
+        }
+
+        if (user == null) {
+            user = userService.getUserByLogin(authentication.getPrincipal().toString());
+            if (user != null) {
+                if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
+                if (user.getExpirationDate().before(new Date())) {
+                    userService.deleteUser(user);
+                    successUrl = UmConfig.LOGIN_URL + "?error=true";
+                }
             }
         }
+
 
         String lang = request.getParameter("lang");
         String delimiter = "?";

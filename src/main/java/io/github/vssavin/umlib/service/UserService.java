@@ -4,6 +4,8 @@ import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.pagination.Paged;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -27,4 +29,6 @@ public interface UserService {
     Map<String, User> getUserRecoveryId(String loginOrEmail);
     User getUserByRecoveryId(String recoveryId);
     boolean accessGrantedForRegistration(Role role, String authorizedName);
+    User processOAuthPostLogin(OAuth2User oAuth2User);
+    User getUserByOAuth2Token(OAuth2AuthenticationToken token);
 }

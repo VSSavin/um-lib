@@ -19,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -280,6 +282,34 @@ public class UserServiceImpl implements UserService {
         }
 
         return granted;
+    }
+
+    @Override
+    public User processOAuthPostLogin(OAuth2User oAuth2User) {
+        User user = null;
+        String email = oAuth2User.getAttribute("email");
+        try {
+            user = getUserByEmail(email);
+        } catch (EmailNotFoundException e) {
+            //ignore, it's ok
+        }
+
+        if (user == null) {
+            user = registerUser(email, email, "", email, Role.ROLE_USER);
+        }
+
+        return user;
+    }
+
+    @Override
+    public User getUserByOAuth2Token(OAuth2AuthenticationToken token) {
+        OAuth2User oAuth2User = token.getPrincipal();
+        String email = oAuth2User.getAttribute("email");
+        try {
+            return getUserByEmail(email);
+        } catch (EmailNotFoundException e) {
+            return null;
+        }
     }
 
     private void addPredicate(CriteriaBuilder cb, Root<User> userRoot,

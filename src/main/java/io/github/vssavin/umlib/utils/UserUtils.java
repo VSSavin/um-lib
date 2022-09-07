@@ -5,6 +5,9 @@ import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,22 +54,30 @@ public class UserUtils {
     }
 
     public static boolean isAuthorizedAdmin(HttpServletRequest request, UserService userService) {
-        boolean authorized = false;
-        Principal principal = request.getUserPrincipal();
-        if (principal != null) {
-            User user = userService.getUserByLogin(principal.getName());
-            return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
-        }
-        return authorized;
+        User user = getAuthorizedUser(request, userService);
+        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
     }
 
     public static boolean isAuthorizedUser(HttpServletRequest request, UserService userService) {
-        boolean authorized = false;
+        User user = getAuthorizedUser(request, userService);
+        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
+    }
+
+    public static User getAuthorizedUser(HttpServletRequest request, UserService userService) {
         Principal principal = request.getUserPrincipal();
+        User user = null;
         if (principal != null) {
-            User user = userService.getUserByLogin(principal.getName());
-            return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
+            try {
+                OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) principal;
+                user = userService.getUserByOAuth2Token(token);
+            } catch (ClassCastException e) {
+                //ignore, it's ok'
+            }
+            if (user == null) {
+                user = userService.getUserByLogin(principal.getName());
+            }
+
         }
-        return authorized;
+        return user;
     }
 }
