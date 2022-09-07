@@ -60,6 +60,8 @@ public class UmTemplateResolverConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/flags/**").addResourceLocations("classpath:/static/flags/");
 
+        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/static/img/");
+
         registry.addResourceHandler("/**").addResourceLocations("classpath:/template/um/");
     }
 
