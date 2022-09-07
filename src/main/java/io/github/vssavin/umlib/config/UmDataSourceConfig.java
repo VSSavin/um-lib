@@ -2,6 +2,8 @@ package io.github.vssavin.umlib.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
@@ -45,11 +47,22 @@ public class UmDataSourceConfig {
     }
 
     @Bean
-    AbstractRoutingDataSource routingDataSource(DataSource appDataSource, DataSource umDataSource) {
+    AbstractRoutingDataSource routingDataSource(@Autowired(required = false)
+                                                @Qualifier("appDataSource") DataSource appDataSource,
+                                                @Autowired(required = false)
+                                                @Qualifier("dataSource") DataSource dataSource,
+                                                @Autowired DataSource umDataSource) {
         RoutingDataSource routingDataSource = new RoutingDataSource();
+        DataSource ds = appDataSource != null ? appDataSource : dataSource;
         routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
-        routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, appDataSource);
-        routingDataSource.setDefaultTargetDataSource(appDataSource);
+        if (ds != null) {
+            routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
+            routingDataSource.setDefaultTargetDataSource(ds);
+        }
+        if (ds == null) {
+            routingDataSource.setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
+            routingDataSource.setDefaultTargetDataSource(umDataSource);
+        }
         return routingDataSource;
     }
 }
