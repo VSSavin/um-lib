@@ -28,15 +28,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
 
+import static io.github.vssavin.umlib.controller.AdminController.ADMIN_CONTROLLER_PATH;
 import static io.github.vssavin.umlib.helper.MvcHelper.*;
 
 /**
  * @author vssavin on 21.12.21
  */
 @RestController
-@RequestMapping("/um/admin")
+@RequestMapping(ADMIN_CONTROLLER_PATH)
 public class AdminController {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
+    static final String ADMIN_CONTROLLER_PATH = "/um/admin";
     private static final String PAGE_USERS = "users";
     private static final String PAGE_USER_EDIT = "edit";
     private static final String PAGE_ADMIN = "admin";
@@ -442,7 +444,7 @@ public class AdminController {
             return modelAndView;
         }
 
-        modelAndView = new ModelAndView("redirect:/" + PAGE_ADMIN + "/" + PAGE_USERS +
+        modelAndView = new ModelAndView("redirect:" + ADMIN_CONTROLLER_PATH + "/" + PAGE_USERS +
                 "/" + PAGE_USER_EDIT + "/" + userDto.getId());
 
         addObjectsToModelAndView(modelAndView, "userEdit", pageUserEditParams, language,
