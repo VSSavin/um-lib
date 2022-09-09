@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.controller;
 
+import io.github.vssavin.securelib.Utils;
 import io.github.vssavin.umlib.config.LocaleConfig;
 import io.github.vssavin.umlib.config.UmConfig;
 import io.github.vssavin.umlib.dto.UserDto;
@@ -180,7 +181,11 @@ public class AdminController {
         }
 
         try {
-            if (!password.equals(confirmPassword)) {
+            String key = secureService.getSecureKey(request.getRemoteAddr());
+            String decodedPassword = secureService.decrypt(password, key);
+            String decodedConfirmPassword = secureService.decrypt(confirmPassword, key);
+            Utils.clearString(key);
+            if (!decodedPassword.equals(decodedConfirmPassword)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
