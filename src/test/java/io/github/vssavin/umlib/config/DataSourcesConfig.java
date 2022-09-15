@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
@@ -13,12 +14,9 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
  * Created by vssavin on 25.08.2022.
  */
 @Configuration
-public class DataSourcesConfig extends UmDataSourceConfig{
+@Import(UmDataSourceConfig.class)
+public class DataSourcesConfig {
     private DataSource appDataSource;
-
-    public DataSourcesConfig(UmDatabaseConfig umDatabaseConfig) {
-        super(umDatabaseConfig);
-    }
 
     @Bean
     public DataSource dataSource() {
