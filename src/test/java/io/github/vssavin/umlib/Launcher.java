@@ -17,7 +17,7 @@ public class Launcher {
 
     public static void main(String[] args) {
         DOMConfigurator.configure("./log4j.xml");
-        UmUtil.setApplicationArguments(args);
+        //UmUtil.setApplicationArguments(args);     //now used only if spring boot not used
         SpringApplication.run(Launcher.class, args);
     }
 }
