@@ -155,7 +155,8 @@ public class UserController {
 
         boolean emailSendingFailed = false;
         try {
-            if (!password.equals(confirmPassword)) {
+            if (!secureService.decrypt(password, secureService.getSecureKey(request.getRemoteAddr())).equals(
+                    secureService.decrypt(confirmPassword, secureService.getSecureKey(request.getRemoteAddr())))) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
