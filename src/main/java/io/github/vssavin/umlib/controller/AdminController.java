@@ -184,7 +184,6 @@ public class AdminController {
             String key = secureService.getSecureKey(request.getRemoteAddr());
             String decodedPassword = secureService.decrypt(password, key);
             String decodedConfirmPassword = secureService.decrypt(confirmPassword, key);
-            Utils.clearString(key);
             if (!decodedPassword.equals(decodedConfirmPassword)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE.getMessageKey(), lang);
@@ -215,8 +214,9 @@ public class AdminController {
             }
 
             newUser = userService.registerUser(login, username,
-                    passwordEncoder.encode(secureService.decrypt(password,
-                            secureService.getSecureKey(request.getRemoteAddr()))), email, registerRole);
+                    passwordEncoder.encode(decodedPassword), email, registerRole);
+            Utils.clearString(decodedPassword);
+            Utils.clearString(decodedConfirmPassword);
             userService.confirmUser(login, "", true);
         } catch (UserExistsException e) {
             log.error("User exists! ", e);
@@ -274,6 +274,7 @@ public class AdminController {
                         secureService.getSecureKey(request.getRemoteAddr()));
                 if (user != null) {
                     user.setPassword(passwordEncoder.encode(realNewPassword));
+                    Utils.clearString(realNewPassword);
                     userService.updateUser(user);
                 } else {
                     modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
