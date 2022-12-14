@@ -1,13 +1,17 @@
 package io.github.vssavin.umlib.utils;
 
+import io.github.vssavin.securelib.Utils;
 import io.github.vssavin.securelib.platformSecure.PlatformSpecificSecure;
 import io.github.vssavin.umlib.service.SecureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +34,10 @@ public class UmUtil {
         this.defaultSecureService = secureService;
         this.authService = defaultSecureService;
         this.encryptPropertiesPasswordService = applicationSecureService;
+        if (applicationArgs == null || applicationArgs.length == 0) {
+            String[] args = getApplicationArgsFromSpringContext(context);
+            if (args.length > 0) applicationArgs = args;
+        }
         processArgs(applicationArgs);
     }
 
@@ -41,14 +49,31 @@ public class UmUtil {
         return authService;
     }
 
+    private String[] getApplicationArgsFromSpringContext(ApplicationContext context) {
+        try {
+            Object appArgsBean = context.getBean("springApplicationArguments");
+            Method sourceArgesMethod = appArgsBean.getClass().getMethod("getSourceArgs");
+            String[] args = (String[]) sourceArgesMethod.invoke(appArgsBean);
+            if (args != null && args.length > 0) return args;
+        } catch (NoSuchBeanDefinitionException ignore) {
+        } catch (NoSuchMethodException e) {
+            log.error("Method \"getSourceArgs\" not found!", e);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error("Method invocation error", e);
+        }
+        return new String[]{};
+    }
+
     private void processArgs(String[] args) {
-        if (args != null) {
+        if (args != null && args.length > 0) {
             System.out.println("Application started with arguments: " + Arrays.toString(args));
             Map<String, String> mappedArgs = getMappedArgs(args);
-            String value = mappedArgs.get("ep");
-            if (value != null) {
-                System.out.printf("Encrypt for value [%s] : %s%n", value,
-                        encryptPropertiesPasswordService.encrypt(value, ""));
+            String password = mappedArgs.get("ep");
+            if (password != null) {
+                String encrypted = encryptPropertiesPasswordService.encrypt(password, "");
+                Utils.clearString(password);
+                System.out.printf("Encryption for password [%s] : %s%n", password, encrypted);
+                Utils.clearString(password);
             }
             String authServiceName = mappedArgs.get("authService");
             if (authServiceName == null) authServiceName = System.getProperty("authService");
