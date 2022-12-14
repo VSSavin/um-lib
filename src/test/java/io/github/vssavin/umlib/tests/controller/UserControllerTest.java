@@ -77,8 +77,8 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("login", login);
         registerParams.add("username", login);
         registerParams.add("email", "test@test.com");
-        registerParams.add("password", testUser.getPassword());
-        registerParams.add("confirmPassword", testUser.getPassword());
+        registerParams.add("password", encrypt("", testUser.getPassword()));
+        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
         ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
                         .params(registerParams)
                         .with(csrf()));
@@ -96,8 +96,8 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("login", login);
         registerParams.add("username", login);
         registerParams.add("email", "user@example.com");
-        registerParams.add("password", testUser.getPassword());
-        registerParams.add("confirmPassword", testUser.getPassword());
+        registerParams.add("password", encrypt("", testUser.getPassword()));
+        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
         ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
                 .params(registerParams)
                 .with(csrf()));
