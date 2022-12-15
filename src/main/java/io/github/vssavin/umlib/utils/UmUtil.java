@@ -38,7 +38,9 @@ public class UmUtil {
             String[] args = getApplicationArgsFromSpringContext(context);
             if (args.length > 0) applicationArgs = args;
         }
+        initSecureService("");
         processArgs(applicationArgs);
+        log.debug("Using auth service: " + authService);
     }
 
     public static void setApplicationArguments(String[] args) {
@@ -64,6 +66,40 @@ public class UmUtil {
         return new String[]{};
     }
 
+    private void initSecureService(String secureServiceName) {
+        if (context == null || defaultSecureService == null) {
+            throw new RuntimeException("Not initialized application context or default secure service!");
+        }
+
+        if (secureServiceName != null && !secureServiceName.isEmpty()) {
+            authService = getSecureServiceByName(secureServiceName);
+        }
+
+        else {
+            String authServiceName = System.getProperty("authService");
+            if (authServiceName != null && !authServiceName.isEmpty()) {
+                authService = getSecureServiceByName(authServiceName);
+            }
+        }
+    }
+
+    private SecureService getSecureServiceByName(String serviceName) {
+        SecureService secureService = null;
+        boolean beanFound = true;
+        try {
+            secureService = (SecureService) context.getBean(serviceName + "SecureService");
+        } catch (NoSuchBeanDefinitionException ignore) {
+            try {
+                secureService = (SecureService) context.getBean(serviceName.toUpperCase() + "SecureService");
+            } catch (NoSuchBeanDefinitionException e) {
+                beanFound = false;
+            }
+        }
+        if (!beanFound)
+            throw new NoSuchSecureServiceException(String.format("Service with name %s not found!", serviceName));
+        return secureService;
+    }
+
     private void processArgs(String[] args) {
         if (args != null && args.length > 0) {
             System.out.println("Application started with arguments: " + Arrays.toString(args));
@@ -76,20 +112,7 @@ public class UmUtil {
                 Utils.clearString(password);
             }
             String authServiceName = mappedArgs.get("authService");
-            if (authServiceName == null) authServiceName = System.getProperty("authService");
-            if (authServiceName != null) {
-                if (context == null || defaultSecureService == null) {
-                    throw new RuntimeException("Not initialized application context or default secure service!");
-                }
-                if (!authServiceName.isEmpty()) {
-                    if (authServiceName.equalsIgnoreCase("aes")) {
-                        authService = (SecureService) context.getBean("AESSecureService");
-                    }
-                    else if (authServiceName.equalsIgnoreCase("rsa")) {
-                        authService = (SecureService) context.getBean("RSASecureService");
-                    }
-                }
-            }
+            if (authServiceName != null) initSecureService(authServiceName);
         }
         else {
             log.warn("Unknown application arguments!");
@@ -108,5 +131,12 @@ public class UmUtil {
             }
         }
         return resultMap;
+    }
+
+    private static class NoSuchSecureServiceException extends RuntimeException {
+
+        NoSuchSecureServiceException(String message) {
+            super(message);
+        }
     }
 }
