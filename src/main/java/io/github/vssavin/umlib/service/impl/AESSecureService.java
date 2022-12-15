@@ -9,4 +9,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AESSecureService extends AESSecure implements SecureService {
+    @Override
+    public String toString() {
+        return "aes";
+    }
 }

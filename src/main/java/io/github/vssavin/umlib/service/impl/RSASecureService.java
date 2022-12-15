@@ -10,4 +10,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RSASecureService extends RSASecure implements SecureService {
+    @Override
+    public String toString() {
+        return "rsa";
+    }
 }
