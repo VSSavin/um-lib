@@ -13,6 +13,6 @@ import org.springframework.stereotype.Service;
 public class NoSecureService extends NoSecure implements SecureService {
     @Override
     public String toString() {
-        return "noSecure";
+        return "no";
     }
 }
