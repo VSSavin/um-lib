@@ -253,7 +253,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>io.github.vssavin.vssavin.Launcher</mainClass>
+                            <mainClass>io.github.vssavin.umlib.Launcher</mainClass>
                             <packageName>io.github.vssavin.um-lib</packageName>
                         </manifest>
                         <manifestEntries>
