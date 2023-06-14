@@ -1,5 +1,11 @@
 package io.github.vssavin.umlib.utils;
 
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.SimpleExpression;
+import com.querydsl.core.types.dsl.StringExpression;
+import io.github.vssavin.umlib.dto.UserFilter;
+import io.github.vssavin.umlib.entity.QUser;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.UserService;
@@ -75,5 +81,41 @@ public class UserUtils {
 
         }
         return user;
+    }
+
+    public static Predicate userFilterToPredicate(UserFilter userFilter) {
+        BooleanExpression expression = null;
+        QUser user = QUser.user;
+        expression = processAndEqualLong(expression, user.id, userFilter.getUserId());
+        expression = processAndLikeString(expression, user.email, userFilter.getEmail());
+        expression = processAndLikeString(expression, user.name, userFilter.getName());
+        expression = processAndLikeString(expression, user.login, userFilter.getLogin());
+        return expression;
+    }
+
+    private static BooleanExpression processAndEqualLong(BooleanExpression expression,
+                                                         SimpleExpression<Long> simpleExpression, Long value) {
+        if (value != null) {
+            if (expression != null) {
+                expression = expression.and(simpleExpression.eq(value));
+            } else {
+                expression = simpleExpression.eq(value);
+            }
+        }
+
+        return expression;
+    }
+
+    private static BooleanExpression processAndLikeString(BooleanExpression expression,
+                                                          StringExpression stringExpression, String value) {
+        if (value != null && !value.isEmpty()) {
+            if (expression != null) {
+                expression = expression.and(stringExpression.like(value));
+            } else {
+                expression = stringExpression.like(value);
+            }
+        }
+
+        return expression;
     }
 }
