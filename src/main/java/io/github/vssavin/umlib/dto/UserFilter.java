@@ -21,7 +21,10 @@ public class UserFilter {
     }
 
     public boolean isEmpty() {
-        return userId == null && login == null && name == null && email == null;
+        return userId == null &&
+                (login == null || login.isEmpty()) &&
+                (name == null || name.isEmpty()) &&
+                (email == null || email.isEmpty());
     }
 
     public Long getUserId() {
