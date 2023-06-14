@@ -12,7 +12,7 @@ import java.util.List;
  * @author vssavin on 15.05.2022
  */
 @Component
-@PropertySource("file:./conf.properties")
+@PropertySource(value = "file:./conf.properties", encoding = "UTF-8")
 public class UmConfig extends StorableConfig{
     @IgnoreField public static final String LOGIN_URL = "/login";
     @IgnoreField public static final String LOGIN_PROCESSING_URL = "/perform-login";
@@ -29,6 +29,9 @@ public class UmConfig extends StorableConfig{
 
     @Value("${um.registration.allowed:true}")
     private Boolean registrationAllowed;
+
+    @Value("${um.login.title:}")
+    private String loginTitle;
 
     private static final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
@@ -66,6 +69,10 @@ public class UmConfig extends StorableConfig{
 
     public Boolean getRegistrationAllowed() {
         return registrationAllowed;
+    }
+
+    public String getLoginTitle() {
+        return loginTitle;
     }
 
     public void updateAuthorizedPermissions() {

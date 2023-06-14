@@ -79,6 +79,7 @@
 
     <form name="f" class="form-signin" method="post" th:action="@{perform-login} + '?lang=' + ${urlLang}"
           onSubmit="return crypt()">
+        <h2 th:if="${!loginTitle.isEmpty()}" th:text="${loginTitle}" class="form-signin-heading" align="center"></h2>
         <h2 class="form-signin-heading" align="center" th:text="${signInLabel}">Вход</h2>
         <div class="alert alert-danger" th:if="${param.error}" role="alert" th:text="${badCredentialsMessage}">
             Неправильные имя или пароль
@@ -97,7 +98,7 @@
                    required>
         </p>
         <p>
-            <a th:href="@{/um/user/passwordRecovery} + '?lang=' + ${urlLang}" th:text="${forgotPassword}">Забыли пароль?</a>
+            <a th:href="@{/um/users/passwordRecovery} + '?lang=' + ${urlLang}" th:text="${forgotPassword}">Забыли пароль?</a>
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${signInButton}">Войти</button>
 

@@ -74,6 +74,7 @@ public class AuthController {
                 secureService.getEncryptMethodNameForView(), lang);
         modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
         modelAndView.addObject("googleAuthAllowed", !("".equals(oAuth2Config.getGoogleClientId())));
+        modelAndView.addObject("loginTitle", umConfig.getLoginTitle());
         return modelAndView;
     }
 
