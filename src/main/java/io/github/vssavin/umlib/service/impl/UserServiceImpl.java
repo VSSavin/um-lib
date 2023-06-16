@@ -44,15 +44,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EntityManagerFactory managerFactory;
     private final DataSourceSwitcher dataSourceSwitcher;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           EntityManagerFactory managerFactory, DataSourceSwitcher dataSourceSwitcher) {
+                           DataSourceSwitcher dataSourceSwitcher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.managerFactory = managerFactory;
         this.dataSourceSwitcher = dataSourceSwitcher;
     }
 
