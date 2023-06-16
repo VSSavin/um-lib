@@ -1,26 +1,55 @@
 package io.github.vssavin.umlib.repository;
 
+import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.QBean;
+import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLQueryFactory;
+import io.github.vssavin.umlib.config.DataSourceSwitcher;
+import io.github.vssavin.umlib.entity.QUser;
 import io.github.vssavin.umlib.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import static com.querydsl.core.types.Projections.bean;
+import static com.querydsl.core.types.Projections.constructor;
 
 /**
  * @author vssavin on 16.06.2023
  */
 @Repository
 public class SimpleUserRepository implements UserRepository{
+
+    private final DataSourceSwitcher dataSourceSwitcher;
+    private final Configuration queryDslConfiguration;
+    private final QUser users = new QUser("users");
+
+    private final QBean<User> userBean = bean(User.class, users.id, users.login, users.name, users.password, users.email,
+            users.authority, users.expiration_date, users.verification_id);
+
+    @Autowired
+    public SimpleUserRepository(DataSourceSwitcher dataSourceSwitcher, Configuration queryDslConfiguration) {
+        this.dataSourceSwitcher = dataSourceSwitcher;
+        this.queryDslConfiguration = queryDslConfiguration;
+    }
+
     @Override
     public List<User> findByLogin(String login) {
-        return null;//TODO: implement this
+        DataSource dataSource = dataSourceSwitcher.getCurrentDataSource();
+        SQLQueryFactory queryFactory =
+                new SQLQueryFactory(queryDslConfiguration, dataSource);
+        return queryFactory.select(userBean).from(users).where(users.login.eq(login)).fetch();
     }
 
     @Override

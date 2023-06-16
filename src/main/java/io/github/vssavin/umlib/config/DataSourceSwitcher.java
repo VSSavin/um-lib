@@ -41,4 +41,8 @@ public class DataSourceSwitcher {
         DataSource ds = ((RoutingDataSource)routingDataSource).determineTargetDataSource();
         if (ds == null) ((RoutingDataSource)routingDataSource).setKey(currentKey);
     }
+
+    public DataSource getCurrentDataSource() {
+        return ((RoutingDataSource) routingDataSource).determineTargetDataSource();
+    }
 }

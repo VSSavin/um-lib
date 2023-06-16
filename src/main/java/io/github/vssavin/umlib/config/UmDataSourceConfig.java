@@ -1,5 +1,9 @@
 package io.github.vssavin.umlib.config;
 
+import com.querydsl.sql.Configuration;
+import com.querydsl.sql.H2Templates;
+import com.querydsl.sql.PostgreSQLTemplates;
+import com.querydsl.sql.SQLTemplates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +29,7 @@ public class UmDataSourceConfig {
     }
 
     @Bean
-    protected DataSource umDataSource(){
+    protected DataSource umDataSource() {
         if (this.umDataSource != null) return this.umDataSource;
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         try {
@@ -44,6 +48,19 @@ public class UmDataSourceConfig {
         this.umDataSource = dataSource;
 
         return dataSource;
+    }
+
+    @Bean
+    protected Configuration queryDslConfiguration() {
+        String driverClass = umDatabaseConfig.getDriverClass();
+
+        if (driverClass.contains("h2")) {
+            return new Configuration(new H2Templates());
+            //return new Configuration(new H2Templates(true));
+        } else if (driverClass.contains("postgres")) {
+            return new Configuration(new PostgreSQLTemplates());
+        }
+        throw new IllegalArgumentException("Database driver: " + driverClass + " unsupported yet!");
     }
 
     @Bean
