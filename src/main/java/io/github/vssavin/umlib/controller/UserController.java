@@ -517,7 +517,7 @@ public class UserController {
             modelAndView.addObject("successMsg", successMsg);
         } catch (Exception e) {
             log.error("User update error! ", e);
-            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
+            modelAndView = getErrorModelAndView(PAGE_USER_EDIT,
                     MessageKeys.USER_EDIT_ERROR_MESSAGE.getMessageKey(), lang);
             addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
                     secureService.getEncryptMethodNameForView(), lang);
