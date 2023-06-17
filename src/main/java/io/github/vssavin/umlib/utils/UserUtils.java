@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.utils;
 
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
@@ -12,18 +13,22 @@ import io.github.vssavin.umlib.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+
+import static com.querydsl.core.types.Projections.bean;
 
 /**
  * @author vssavin on 09.08.2022
  */
 public class UserUtils {
     private static final Logger log = LoggerFactory.getLogger(UserUtils.class);
+
+    private static final QUser users = new QUser("users");
+    private static final QBean<User> userBean = bean(User.class, users.id, users.login, users.name,
+            users.password, users.email, users.authority, users.expiration_date, users.verification_id);
 
     private UserUtils(){}
 
@@ -85,11 +90,10 @@ public class UserUtils {
 
     public static Predicate userFilterToPredicate(UserFilter userFilter) {
         BooleanExpression expression = null;
-        QUser user = QUser.user;
-        expression = processAndEqualLong(expression, user.id, userFilter.getUserId());
-        expression = processAndLikeString(expression, user.email, userFilter.getEmail());
-        expression = processAndLikeString(expression, user.name, userFilter.getName());
-        expression = processAndLikeString(expression, user.login, userFilter.getLogin());
+        expression = processAndEqualLong(expression, users.id, userFilter.getUserId());
+        expression = processAndLikeString(expression, users.email, userFilter.getEmail());
+        expression = processAndLikeString(expression, users.name, userFilter.getName());
+        expression = processAndLikeString(expression, users.login, userFilter.getLogin());
         return expression;
     }
 
