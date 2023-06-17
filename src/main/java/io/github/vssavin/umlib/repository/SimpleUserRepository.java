@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.*;
 import com.querydsl.sql.*;
 import com.querydsl.sql.postgresql.PostgreSQLQueryFactory;
@@ -18,7 +19,6 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -53,12 +53,12 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public List<User> findUserByName(String name) {
-        return new ArrayList<>();//TODO: implement this
+        return prepareQuery(false).where(users.name.eq(name)).fetch();
     }
 
     @Override
     public List<User> findByEmail(String email) {
-        return new ArrayList<>();//TODO: implement this
+        return prepareQuery(false).where(users.email.eq(email)).fetch();
     }
 
     @Override
@@ -68,12 +68,12 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findOne(Predicate predicate) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return Optional.of(prepareQuery(false).where(predicate).fetchOne());
     }
 
     @Override
     public Iterable<User> findAll(Predicate predicate) {
-        return new ArrayList<>();//TODO: implement this
+        return prepareQuery(false).where(predicate).fetch();
     }
 
     @Override
@@ -108,12 +108,12 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public long count(Predicate predicate) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return prepareQuery(false).where(predicate).fetchCount();
     }
 
     @Override
     public boolean exists(Predicate predicate) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return prepareQuery(false).where(predicate).fetchCount() > 0;
     }
 
 
@@ -141,27 +141,29 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(Long id) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return Optional.of(prepareQuery(false).where(users.id.eq(id)).fetchOne());
     }
 
     @Override
     public boolean existsById(Long id) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return prepareQuery(false).where(users.id.eq(id)).fetchCount() > 0;
     }
 
     @Override
     public Iterable<User> findAll() {
-        return new ArrayList<>();//TODO: implement this
+        return prepareQuery(false).fetch();
     }
 
     @Override
     public Iterable<User> findAllById(Iterable<Long> ids) {
-        return new ArrayList<>();//TODO: implement this
+        BooleanBuilder builder = new BooleanBuilder();
+        ids.forEach(id -> builder.or(users.id.eq(id)));
+        return prepareQuery(false).where(builder).fetch();
     }
 
     @Override
     public long count() {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        return prepareQuery(false).fetchCount();
     }
 
     @Override
