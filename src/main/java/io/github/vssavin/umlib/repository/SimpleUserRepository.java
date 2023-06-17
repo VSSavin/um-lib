@@ -3,6 +3,7 @@ package io.github.vssavin.umlib.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.*;
 import com.querydsl.sql.*;
+import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.postgresql.PostgreSQLQueryFactory;
 import io.github.vssavin.umlib.config.DataSourceSwitcher;
 import io.github.vssavin.umlib.entity.QUser;
@@ -48,32 +49,32 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public List<User> findByLogin(String login) {
-        return prepareQuery(false).where(users.login.eq(login)).fetch();
+        return prepareSelectQuery(false).where(users.login.eq(login)).fetch();
     }
 
     @Override
     public List<User> findUserByName(String name) {
-        return prepareQuery(false).where(users.name.eq(name)).fetch();
+        return prepareSelectQuery(false).where(users.name.eq(name)).fetch();
     }
 
     @Override
     public List<User> findByEmail(String email) {
-        return prepareQuery(false).where(users.email.eq(email)).fetch();
+        return prepareSelectQuery(false).where(users.email.eq(email)).fetch();
     }
 
     @Override
     public void deleteByLogin(String login) {
-        //TODO: implement this
+        prepareDeleteQuery().where(users.login.eq(login)).execute();
     }
 
     @Override
     public Optional<User> findOne(Predicate predicate) {
-        return Optional.of(prepareQuery(false).where(predicate).fetchOne());
+        return Optional.of(prepareSelectQuery(false).where(predicate).fetchOne());
     }
 
     @Override
     public Iterable<User> findAll(Predicate predicate) {
-        return prepareQuery(false).where(predicate).fetch();
+        return prepareSelectQuery(false).where(predicate).fetch();
     }
 
     @Override
@@ -93,29 +94,28 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public Page<User> findAll(Pageable pageable) {
-        long totalCount = prepareQuery(false).fetchCount();
-        return new PageImpl<>(prepareQuery(true)
+        long totalCount = prepareSelectQuery(false).fetchCount();
+        return new PageImpl<>(prepareSelectQuery(true)
                 .limit(pageable.getPageSize()).offset(pageable.getOffset()).fetch(), pageable,
                 totalCount);
     }
 
     @Override
     public Page<User> findAll(Predicate predicate, Pageable pageable) {
-        long totalCount = prepareQuery(false).where(predicate).fetchCount();
-        return new PageImpl<>(prepareQuery(true).where(predicate)
+        long totalCount = prepareSelectQuery(false).where(predicate).fetchCount();
+        return new PageImpl<>(prepareSelectQuery(true).where(predicate)
                 .limit(pageable.getPageSize()).offset(pageable.getOffset()).fetch(), pageable, totalCount);
     }
 
     @Override
     public long count(Predicate predicate) {
-        return prepareQuery(false).where(predicate).fetchCount();
+        return prepareSelectQuery(false).where(predicate).fetchCount();
     }
 
     @Override
     public boolean exists(Predicate predicate) {
-        return prepareQuery(false).where(predicate).fetchCount() > 0;
+        return prepareSelectQuery(false).where(predicate).fetchCount() > 0;
     }
-
 
     @Override
     public <S extends User, R> R findBy(Predicate predicate,
@@ -141,44 +141,53 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(Long id) {
-        return Optional.of(prepareQuery(false).where(users.id.eq(id)).fetchOne());
+        return Optional.ofNullable(prepareSelectQuery(false).where(users.id.eq(id)).fetchOne());
     }
 
     @Override
     public boolean existsById(Long id) {
-        return prepareQuery(false).where(users.id.eq(id)).fetchCount() > 0;
+        return prepareSelectQuery(false).where(users.id.eq(id)).fetchCount() > 0;
     }
 
     @Override
     public Iterable<User> findAll() {
-        return prepareQuery(false).fetch();
+        return prepareSelectQuery(false).fetch();
     }
 
     @Override
     public Iterable<User> findAllById(Iterable<Long> ids) {
         BooleanBuilder builder = new BooleanBuilder();
         ids.forEach(id -> builder.or(users.id.eq(id)));
-        return prepareQuery(false).where(builder).fetch();
+        return prepareSelectQuery(false).where(builder).fetch();
     }
 
     @Override
     public long count() {
-        return prepareQuery(false).fetchCount();
+        return prepareSelectQuery(false).fetchCount();
     }
 
     @Override
-    public void deleteById(Long aLong) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    public void deleteById(Long id) {
+        prepareDeleteQuery().where(users.id.eq(id)).execute();
     }
 
     @Override
     public void delete(User entity) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        if (entity.getId() == null) {
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(users.login.eq(entity.getLogin())).and(users.name.eq(entity.getName()))
+                    .and(users.password.eq(entity.getPassword())).and(users.email.eq(entity.getEmail()));
+            prepareDeleteQuery().where(builder).execute();
+        } else {
+            prepareDeleteQuery().where(users.id.eq(entity.getId())).execute();
+        }
     }
 
     @Override
-    public void deleteAllById(Iterable<? extends Long> longs) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    public void deleteAllById(Iterable<? extends Long> ids) {
+        BooleanBuilder builder = new BooleanBuilder();
+        ids.forEach(id -> builder.or(users.id.eq(id)));
+        prepareDeleteQuery().where(builder).execute();
     }
 
     @Override
@@ -188,10 +197,10 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        prepareDeleteQuery().execute();
     }
 
-    private AbstractSQLQuery<User,?> prepareQuery(boolean useLastQueryFactory) {
+    private AbstractSQLQuery<User,?> prepareSelectQuery(boolean useLastQueryFactory) {
         if (useLastQueryFactory && queryFactory != null) {
             return queryFactory.select(userBean).from(users);
         }
@@ -201,6 +210,17 @@ public class SimpleUserRepository implements UserRepository {
         }
         else queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
         return queryFactory.select(userBean).from(users);
+    }
+
+    private SQLDeleteClause prepareDeleteQuery() {
+        DataSource dataSource = dataSourceSwitcher.getCurrentDataSource();
+        if (queryDslConfiguration.getTemplates() instanceof PostgreSQLTemplates) {
+            queryFactory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
+        }
+        else queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
+
+        return queryFactory.delete(new RelationalPathBase<User>(users.getType(), users.getMetadata(),
+                "","users"));
     }
 
     private static class DataSourceProvider implements Provider<Connection> {
@@ -219,6 +239,5 @@ public class SimpleUserRepository implements UserRepository {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
-
     }
 }
