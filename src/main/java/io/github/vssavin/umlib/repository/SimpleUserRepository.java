@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.*;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.*;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.postgresql.PostgreSQLQueryFactory;
@@ -20,6 +21,8 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -33,8 +36,23 @@ import static com.querydsl.core.types.Projections.bean;
 public class SimpleUserRepository implements UserRepository {
 
     private static final QUser users = new QUser("users");
+
     private static final QBean<User> userBean = bean(User.class, users.id, users.login, users.name, users.password, users.email,
             users.authority, users.expiration_date, users.verification_id);
+
+
+    /*
+    private static final QBean<User> userBean = bean(User.class,
+            new RelationalPathBase<Long>(users.id.getType(), users.id.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.login.getType(), users.login.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.name.getType(), users.name.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.password.getType(), users.password.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.email.getType(), users.email.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.authority.getType(), users.authority.getMetadata(), "","users"),
+            new RelationalPathBase<Date>(users.expiration_date.getType(), users.expiration_date.getMetadata(), "","users"),
+            new RelationalPathBase<String>(users.verification_id.getType(), users.verification_id.getMetadata(), "","users")
+            );
+    */
 
     private final DataSourceSwitcher dataSourceSwitcher;
     private final Configuration queryDslConfiguration;
@@ -131,6 +149,70 @@ public class SimpleUserRepository implements UserRepository {
     @Override
     public <S extends User> S save(S entity) {
         //Check if entity exists or not exists
+        User entityFromDatabase = null;
+        if (entity.getId() != null) {
+            entityFromDatabase = prepareSelectQuery(false).where(users.id.eq(entity.getId())).fetchOne();
+        } else {
+            BooleanBuilder builder = new BooleanBuilder();
+            builder.and(users.login.eq(entity.getLogin())).and(users.email.eq(entity.getEmail()))
+                    .and(users.name.eq(entity.getName())).and(users.password.eq(entity.getPassword()));
+            entityFromDatabase = prepareSelectQuery(false).where(builder).fetchOne();
+        }
+        if (entityFromDatabase != null) {
+            List<Path<?>> updateListFields = new ArrayList<>();
+            List<Path<?>> updateListValues = new ArrayList<>();
+            updateListFields.add(users.login);
+            updateListFields.add(users.name);
+            updateListFields.add(users.password);
+            updateListFields.add(users.email);
+            updateListFields.add(users.authority);
+            updateListFields.add(users.expiration_date);
+            if (entity.getVerificationId() != null) updateListFields.add(users.verification_id);
+
+            String loginValue = entity.getLogin();
+            String nameValue = entity.getName();
+            String passwordValue = entity.getPassword();
+            String emailValue = entity.getEmail();
+            String authorityValue = entity.getAuthority();
+            String verificationIdValue = entity.getVerificationId();
+
+            /*
+            if (queryDslConfiguration.getTemplates() instanceof CustomH2Templates ||
+                    queryDslConfiguration.getTemplates() instanceof H2Templates) {
+                loginValue = "'" + loginValue + "'";
+                nameValue = "'" + nameValue + "'";
+                passwordValue = "'" + passwordValue + "'";
+                emailValue = "'" + emailValue + "'";
+                authorityValue = "'" + authorityValue + "'";
+                if (verificationIdValue != null) verificationIdValue = "'" + verificationIdValue + "'";
+            }
+            */
+
+            updateListValues.add(Expressions.stringPath(loginValue));
+            updateListValues.add(Expressions.stringPath(nameValue));
+            updateListValues.add(Expressions.stringPath(passwordValue));
+            updateListValues.add(Expressions.stringPath(emailValue));
+            updateListValues.add(Expressions.stringPath(authorityValue));
+            updateListValues.add(Expressions.dateTimePath(Date.class, entity.getExpirationDate().toString()));  //TODO: test this!!!
+            if (verificationIdValue!= null)
+                updateListValues.add(Expressions.stringPath(verificationIdValue));
+
+            queryFactory.update(new RelationalPathBase<User>(users.getType(), users.getMetadata(), "", "users"))
+                    .where(users.id.eq(entityFromDatabase.getId()))
+                    .set(updateListFields, updateListValues)
+                    .execute();
+        } else {
+
+            queryFactory
+                    .insert(new RelationalPathBase<User>(users.getType(), users.getMetadata(), "", "users"))
+                    .columns(users.login, users.name, users.password, users.email, users.authority,
+                            users.expiration_date, users.verification_id)
+                    .values(entity.getLogin(), entity.getName(), entity.getPassword(), entity.getEmail(),
+                            entity.getAuthority(), entity.getExpirationDate(), entity.getVerificationId())
+                    .execute();
+        }
+
+
         return entity;  //TODO: implement this
     }
 
