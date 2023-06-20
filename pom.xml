@@ -30,6 +30,13 @@
         </repository>
     </distributionManagement>
 
+    <scm>
+        <connection>scm:git:https://github.com/vssavin/um-lib.git</connection>
+        <developerConnection>scm:git:https://github.com/vssavin/um-lib.git</developerConnection>
+        <tag>um-lib</tag>
+        <url>https://github.com/vssavin/um-lib.git</url>
+    </scm>
+
     <repositories>
         <repository>
             <id>jitpack.io</id>
