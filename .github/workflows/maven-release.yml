@@ -62,5 +62,5 @@ jobs:
         with:
           draft: false
           prerelease: false
-          tag_name: ${{ env.RELEASE_VERSION }}
+          tag_name: ${{ steps.previoustag.outputs.tag }}
           release_name: ${{ env.RELEASE_NAME }}
