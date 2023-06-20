@@ -16,7 +16,6 @@ import java.util.Collections;
 @Configuration
 @EnableTransactionManagement
 @ComponentScan({"io.github.vssavin.umlib"})
-//@EnableJpaRepositories(basePackages = "io.github.vssavin.umlib.repository")
 public class ApplicationConfig {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationConfig.class);
 
@@ -27,40 +26,6 @@ public class ApplicationConfig {
         filterBean.setUrlPatterns(Collections.singletonList("/*"));
         return filterBean;
     }
-
-    /*
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource) {
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-
-        try {
-            em.setDataSource(routingDataSource);
-            em.setPackagesToScan("io.github.vssavin.umlib.entity");
-
-            JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-            em.setJpaVendorAdapter(vendorAdapter);
-            String hibernateDialect = "org.hibernate.dialect.H2Dialect";
-
-            Properties additionalProperties = new Properties();
-            additionalProperties.put("hibernate.dialect", hibernateDialect);
-            em.setJpaProperties(additionalProperties);
-        } catch (Exception e) {
-            LOG.error("Creating LocalContainerEntityManagerFactoryBean error: ", e);
-        }
-
-        return em;
-    }
-    */
-
-    /*
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf);
-
-        return transactionManager;
-    }
-    */
 
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {

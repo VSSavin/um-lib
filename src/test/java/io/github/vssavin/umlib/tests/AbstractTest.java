@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.tests;
 
 import io.github.vssavin.umlib.config.ApplicationConfig;
+import io.github.vssavin.umlib.config.SqlScriptsConfig;
 import io.github.vssavin.umlib.config.UmTemplateResolverConfig;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.service.SecureService;
@@ -12,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +20,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.sql.DataSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
@@ -34,9 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(args = {"authService=rsa"}, properties = "spring.main.allow-bean-definition-overriding=true")
 @ContextConfiguration(classes = {ApplicationConfig.class, UmTemplateResolverConfig.class})
 @WebAppConfiguration
-@Sql(scripts = "classpath:init_test.sql", config = @SqlConfig(
-        encoding = "UTF-8", transactionManager = "transactionManager", dataSource = "routingDataSource")
-)
 public abstract class AbstractTest {
     private static final String DEFAULT_SECURE_ENDPOINT = "/secure/key";
 
@@ -57,6 +58,14 @@ public abstract class AbstractTest {
     public void setApplicationUtil(UmUtil umUtil) {
         secureService = umUtil.getAuthService();
     }
+
+    @Autowired
+    public void initScripts(SqlScriptsConfig scriptsConfig, DataSource umDataSource) {
+        List<String> sourceFiles = new ArrayList<>();
+        sourceFiles.add("/init_test.sql");
+        scriptsConfig.executeSqlScripts(umDataSource, "", sourceFiles);
+    }
+
 
     @Before
     public void setup() {
