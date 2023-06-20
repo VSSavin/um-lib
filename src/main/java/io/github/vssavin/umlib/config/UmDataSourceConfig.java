@@ -56,20 +56,7 @@ public class UmDataSourceConfig {
         String driverClass = umDatabaseConfig.getDriverClass();
 
         if (driverClass.contains("h2")) {
-            //SQLTemplates h2templates = H2Templates.builder().quote().build();
-            SQLTemplates h2templates = CustomH2Templates.builder().quote().build();
-            //SQLTemplates h2templates = H2Templates.builder()
-                    //.printSchema() // to include the schema in the output
-                    //.quote()       // to quote names
-                    //.newLineToSingleSpace() // to replace new lines with single space in the output
-                    //.build();
-            //SQLTemplates h2templates = CustomH2Templates.builder().quote().build();
-            //SQLTemplates h2templates = H2Templates.builder().build();
-            Configuration configuration = new Configuration(h2templates);
-            configuration.setDynamicNameMapping(new ChangeLetterCaseNameMapping(ChangeLetterCaseNameMapping.LetterCase.LOWER, LocaleConfig.DEFAULT_LOCALE));
-            return configuration;
-
-            //return new Configuration(new H2Templates(true));
+            return new Configuration(H2Templates.DEFAULT);
         } else if (driverClass.contains("postgres")) {
             return new Configuration(new PostgreSQLTemplates());
         }

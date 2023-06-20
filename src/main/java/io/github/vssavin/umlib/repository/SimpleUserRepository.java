@@ -1,30 +1,33 @@
 package io.github.vssavin.umlib.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryFactory;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.*;
 import com.querydsl.sql.dml.SQLDeleteClause;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import com.querydsl.sql.postgresql.PostgreSQLQueryFactory;
 import io.github.vssavin.umlib.config.DataSourceSwitcher;
 import io.github.vssavin.umlib.entity.QUser;
 import io.github.vssavin.umlib.entity.User;
+import io.github.vssavin.umlib.querydsl.CustomH2QueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nonnull;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.querydsl.core.types.Projections.bean;
@@ -40,19 +43,8 @@ public class SimpleUserRepository implements UserRepository {
     private static final QBean<User> userBean = bean(User.class, users.id, users.login, users.name, users.password, users.email,
             users.authority, users.expiration_date, users.verification_id);
 
-
-    /*
-    private static final QBean<User> userBean = bean(User.class,
-            new RelationalPathBase<Long>(users.id.getType(), users.id.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.login.getType(), users.login.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.name.getType(), users.name.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.password.getType(), users.password.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.email.getType(), users.email.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.authority.getType(), users.authority.getMetadata(), "","users"),
-            new RelationalPathBase<Date>(users.expiration_date.getType(), users.expiration_date.getMetadata(), "","users"),
-            new RelationalPathBase<String>(users.verification_id.getType(), users.verification_id.getMetadata(), "","users")
-            );
-    */
+    private static final RelationalPathBase<User> usersRelationalPath =
+            new RelationalPathBase<>(users.getType(), users.getMetadata(), "", "users");
 
     private final DataSourceSwitcher dataSourceSwitcher;
     private final Configuration queryDslConfiguration;
@@ -148,8 +140,7 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public <S extends User> S save(S entity) {
-        //Check if entity exists or not exists
-        User entityFromDatabase = null;
+        User entityFromDatabase;
         if (entity.getId() != null) {
             entityFromDatabase = prepareSelectQuery(false).where(users.id.eq(entity.getId())).fetchOne();
         } else {
@@ -158,53 +149,17 @@ public class SimpleUserRepository implements UserRepository {
                     .and(users.name.eq(entity.getName())).and(users.password.eq(entity.getPassword()));
             entityFromDatabase = prepareSelectQuery(false).where(builder).fetchOne();
         }
+
         if (entityFromDatabase != null) {
-            List<Path<?>> updateListFields = new ArrayList<>();
-            List<Path<?>> updateListValues = new ArrayList<>();
-            updateListFields.add(users.login);
-            updateListFields.add(users.name);
-            updateListFields.add(users.password);
-            updateListFields.add(users.email);
-            updateListFields.add(users.authority);
-            updateListFields.add(users.expiration_date);
-            if (entity.getVerificationId() != null) updateListFields.add(users.verification_id);
-
-            String loginValue = entity.getLogin();
-            String nameValue = entity.getName();
-            String passwordValue = entity.getPassword();
-            String emailValue = entity.getEmail();
-            String authorityValue = entity.getAuthority();
-            String verificationIdValue = entity.getVerificationId();
-
-            /*
-            if (queryDslConfiguration.getTemplates() instanceof CustomH2Templates ||
-                    queryDslConfiguration.getTemplates() instanceof H2Templates) {
-                loginValue = "'" + loginValue + "'";
-                nameValue = "'" + nameValue + "'";
-                passwordValue = "'" + passwordValue + "'";
-                emailValue = "'" + emailValue + "'";
-                authorityValue = "'" + authorityValue + "'";
-                if (verificationIdValue != null) verificationIdValue = "'" + verificationIdValue + "'";
-            }
-            */
-
-            updateListValues.add(Expressions.stringPath(loginValue));
-            updateListValues.add(Expressions.stringPath(nameValue));
-            updateListValues.add(Expressions.stringPath(passwordValue));
-            updateListValues.add(Expressions.stringPath(emailValue));
-            updateListValues.add(Expressions.stringPath(authorityValue));
-            updateListValues.add(Expressions.dateTimePath(Date.class, entity.getExpirationDate().toString()));  //TODO: test this!!!
-            if (verificationIdValue!= null)
-                updateListValues.add(Expressions.stringPath(verificationIdValue));
-
-            queryFactory.update(new RelationalPathBase<User>(users.getType(), users.getMetadata(), "", "users"))
+            Map<Path<?>, Path<?>> updateMap = prepareUpdateMap(entity);
+            List<Path<?>> updateListFields = new ArrayList<>(updateMap.keySet());
+            List<Path<?>> updateListValues = new ArrayList<>(updateMap.values());
+            prepareUpdateQuery(true)
                     .where(users.id.eq(entityFromDatabase.getId()))
-                    .set(updateListFields, updateListValues)
-                    .execute();
+                    .set(updateListFields, updateListValues).execute();
         } else {
-
             queryFactory
-                    .insert(new RelationalPathBase<User>(users.getType(), users.getMetadata(), "", "users"))
+                    .insert(usersRelationalPath)
                     .columns(users.login, users.name, users.password, users.email, users.authority,
                             users.expiration_date, users.verification_id)
                     .values(entity.getLogin(), entity.getName(), entity.getPassword(), entity.getEmail(),
@@ -212,8 +167,7 @@ public class SimpleUserRepository implements UserRepository {
                     .execute();
         }
 
-
-        return entity;  //TODO: implement this
+        return entity;
     }
 
     @Override
@@ -282,27 +236,63 @@ public class SimpleUserRepository implements UserRepository {
         prepareDeleteQuery().execute();
     }
 
+    private Map<Path<?>,Path<?>> prepareUpdateMap(User entity) {
+        Map<Path<?>, Path<?>> map = new HashMap<>();
+        map.put(users.login, Expressions.stringPath(entity.getLogin()));
+        map.put(users.name, Expressions.stringPath(entity.getName()));
+        map.put(users.password, Expressions.stringPath(entity.getPassword()));
+        map.put(users.email, Expressions.stringPath(entity.getEmail()));
+        map.put(users.authority, Expressions.stringPath(entity.getAuthority()));
+        map.put(users.expiration_date, Expressions.dateTimePath(Date.class, dateToTimestamp(entity.getExpirationDate())));
+        if (entity.getVerificationId() != null) {
+            map.put(users.verification_id, Expressions.stringPath(entity.getVerificationId()));
+        }
+
+        return map;
+    }
+
+    private SQLUpdateClause prepareUpdateQuery(boolean useLastQueryFactory) {
+        if (!useLastQueryFactory) {
+            queryFactory = initNewQueryFactory();
+        }
+
+        if (queryFactory instanceof CustomH2QueryFactory) {
+            return ((CustomH2QueryFactory) queryFactory).h2Update(usersRelationalPath);
+
+        } else {
+            return queryFactory.update(usersRelationalPath);
+        }
+    }
+
     private AbstractSQLQuery<User,?> prepareSelectQuery(boolean useLastQueryFactory) {
         if (useLastQueryFactory && queryFactory != null) {
             return queryFactory.select(userBean).from(users);
         }
-        DataSource dataSource = dataSourceSwitcher.getCurrentDataSource();
-        if (queryDslConfiguration.getTemplates() instanceof PostgreSQLTemplates) {
-            queryFactory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
-        }
-        else queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
+        queryFactory = initNewQueryFactory();
         return queryFactory.select(userBean).from(users);
     }
 
     private SQLDeleteClause prepareDeleteQuery() {
+        AbstractSQLQueryFactory<?> queryFactory = initNewQueryFactory();
+        return queryFactory.delete(new RelationalPathBase<User>(users.getType(), users.getMetadata(),
+                "","users"));
+    }
+
+    private AbstractSQLQueryFactory<?> initNewQueryFactory() {
         DataSource dataSource = dataSourceSwitcher.getCurrentDataSource();
+        AbstractSQLQueryFactory<?> queryFactory;
         if (queryDslConfiguration.getTemplates() instanceof PostgreSQLTemplates) {
             queryFactory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
+        } else if (queryDslConfiguration.getTemplates() instanceof H2Templates) {
+            queryFactory = new CustomH2QueryFactory(queryDslConfiguration, dataSource);
         }
         else queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
 
-        return queryFactory.delete(new RelationalPathBase<User>(users.getType(), users.getMetadata(),
-                "","users"));
+        return queryFactory;
+    }
+
+    private String dateToTimestamp(Date date) {
+        return new Timestamp(date.getTime()).toString();
     }
 
     private static class DataSourceProvider implements Provider<Connection> {
