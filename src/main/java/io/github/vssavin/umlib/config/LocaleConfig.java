@@ -1,39 +1,44 @@
 package io.github.vssavin.umlib.config;
 
-import org.springframework.context.annotation.Bean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.stereotype.Component;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author vssavin on 27.12.21
  */
 @Configuration
 public class LocaleConfig {
+    private static final Logger log = LoggerFactory.getLogger(LocaleConfig.class);
     private static final String DEFAULT_LANGUAGE = "ru";
     public static final Locale DEFAULT_LOCALE = Locale.forLanguageTag(DEFAULT_LANGUAGE);
-    public static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
-    private static final Map<String, String> LANGUAGE_NAMES = new HashMap<>();
+    private static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
     private static final Map<String, String> FLAGS_MAP = new HashMap<>();
 
 
     private static final Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
 
     static {
-        LANGUAGE_NAMES.put("en", "English");
-        LANGUAGE_NAMES.put("ru", "Русский");
-
-        AVAILABLE_LANGUAGES.put(DEFAULT_LANGUAGE, LANGUAGE_NAMES.get(DEFAULT_LANGUAGE));
-    }
-
-    static {
         initFlagsMap();
         initAvailableLanguagesMap();
     }
 
-    @Component
+    private final ConfigurableBeanFactory beanFactory;
+    private final Map<String, LocaleSpringMessageSource> languageBeans = new HashMap<>();
+
+    public LocaleConfig(ConfigurableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+        createLanguageBeans();
+    }
+
     public static class LocaleSpringMessageSource extends ReloadableResourceBundleMessageSource {
 
         public Set<String> getKeys() {
@@ -96,69 +101,37 @@ public class LocaleConfig {
         return messageSource.getMessage(key, new Object[]{}, Locale.forLanguageTag(locale));
     }
 
-    @Bean
-    public LocaleSpringMessageSource adminMessageSource() {
-        return createMessageSource("admin");
+    public static Map<String, String> getAvailableLanguages() {
+        return AVAILABLE_LANGUAGES;
     }
 
-    @Bean
-    public LocaleSpringMessageSource usersMessageSource() {
-        return createMessageSource("users");
+    public Map<String, LocaleSpringMessageSource> getLanguageBeans() {
+        return languageBeans;
     }
 
-    @Bean
-    public LocaleSpringMessageSource userEditMessageSource() {
-        return createMessageSource("userEdit");
+    private void createLanguageBeans() {
+        List<String> sources = getLanguageSources();
+        sources.forEach(source -> {
+            String sourceName = source + "MessageSource";
+            LocaleSpringMessageSource languageMessageSource = createMessageSource(source);
+            beanFactory.registerSingleton(sourceName, languageMessageSource);
+            languageBeans.put(sourceName, languageMessageSource);
+        });
     }
 
-    @Bean
-    public LocaleSpringMessageSource userControlPanelMessageSource() {
-        return createMessageSource("userControlPanel");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource userEditYourselfMessageSource() {
-        return createMessageSource("userEditYourself");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource loginMessageSource() {
-        return createMessageSource("login");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource registrationMessageSource() {
-        return createMessageSource("registration");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource changeUserPasswordMessageSource() {
-        return createMessageSource("changeUserPassword");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource confirmUserMessageSource() {
-        return createMessageSource("confirmUser");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource adminConfirmUserMessageSource() {
-        return createMessageSource("adminConfirmUser");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource changePasswordMessageSource() {
-        return createMessageSource("changePassword");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource passwordRecoveryMessageSource() {
-        return createMessageSource("passwordRecovery");
-    }
-
-    @Bean
-    public LocaleSpringMessageSource logoutMessageSource() {
-        return createMessageSource("logout");
+    private List<String> getLanguageSources() {
+        try {
+            Resource[] resources =
+                    new PathMatchingResourcePatternResolver().getResources("classpath:language/*");
+            if (resources.length > 0) {
+                return Arrays.stream(resources).map(Resource::getFilename)
+                        .filter(filename -> !Objects.requireNonNull(filename).endsWith(".properties"))
+                        .collect(Collectors.toList());
+            }
+        } catch (IOException e) {
+            log.error("Error getting language resource: ", e);
+        }
+        return new ArrayList<>();
     }
 
     private static void initFlagsMap() {
@@ -181,14 +154,14 @@ public class LocaleConfig {
 
     private static void initAvailableLanguagesMap() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasename("classpath:language/index/language");
+        messageSource.setBasename("classpath:language/config");
         messageSource.setDefaultEncoding("UTF-8");
-        String defaultMessage = "Язык";
-        for(Locale locale : Locale.getAvailableLocales()) {
-            String message = messageSource.getMessage("language", new Object[]{}, locale);
-            if (!defaultMessage.equals(message)) {
-                String lang = locale.getLanguage();
-                AVAILABLE_LANGUAGES.put(lang, LANGUAGE_NAMES.get(lang));
+        String messageLanguages = messageSource.getMessage("languages", new Object[]{}, Locale.getDefault());
+        String[] languagesArray = messageLanguages.split(";");
+        for(String flagParams : languagesArray) {
+            String[] language = flagParams.split(":");
+            if (language.length > 1) {
+                AVAILABLE_LANGUAGES.put(language[0].trim(), language[1].trim());
             }
         }
     }

@@ -26,7 +26,8 @@ public class MvcHelper {
 
             if (elements != null && page != null) {
                 for(String param : elements) {
-                    modelAndView.addObject(param, LocaleConfig.getMessage(page.replaceFirst("/", ""), param, requestedLang));
+                    modelAndView.addObject(param,
+                            LocaleConfig.getMessage(page.replaceFirst("/", ""), param, requestedLang));
                 }
             }
 
@@ -37,7 +38,7 @@ public class MvcHelper {
 
             modelAndView.addObject("encryptMethodName", encryptMethodName);
 
-            modelAndView.addObject("languages", LocaleConfig.AVAILABLE_LANGUAGES);
+            modelAndView.addObject("languages", LocaleConfig.getAvailableLanguages());
             if (language != null) modelAndView.addObject("langObject", language);
 
         }
@@ -65,15 +66,14 @@ public class MvcHelper {
 
             modelAndView.addObject("encryptMethodName", encryptMethodName);
 
-            modelAndView.addObject("languages", LocaleConfig.AVAILABLE_LANGUAGES);
+            modelAndView.addObject("languages", LocaleConfig.getAvailableLanguages());
             if (language != null) modelAndView.addObject("langObject", language);
         }
     }
 
     public static void addObjectsToModelAndView(ModelAndView modelAndView, Map<String, String[]> requestMap,
                                                 Collection<String> ignored) {
-        boolean ignoredEmpty = false;
-        if (ignored == null) ignoredEmpty = true;
+        boolean ignoredEmpty = ignored == null;
         for(Map.Entry<String, String[]> entry : requestMap.entrySet()) {
             String[] values = entry.getValue();
             if (ignoredEmpty) {

@@ -14,6 +14,6 @@ public class LanguageController {
 
     @GetMapping("/um/languages")
     public ResponseEntity<?> getLanguage() {
-        return new ResponseEntity<>(LocaleConfig.AVAILABLE_LANGUAGES, HttpStatus.OK);
+        return new ResponseEntity<>(LocaleConfig.getAvailableLanguages(), HttpStatus.OK);
     }
 }
