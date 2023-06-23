@@ -1,10 +1,11 @@
 package io.github.vssavin.umlib.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author vssavin on 18.12.2021
@@ -12,7 +13,7 @@ import java.util.UUID;
 //TODO: refactor this later!!!
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     public static final int EXPIRATION_DAYS = 1;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,8 +55,41 @@ public class User {
         return name;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(authority));
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return expiration_date.before(new Date(System.currentTimeMillis()));
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        //TODO implement this later
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        //TODO implement this later
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        //TODO implement this later
+        return true;
     }
 
     public String getEmail() {
@@ -121,53 +155,6 @@ public class User {
     public void setVerificationId(String verification_id) {
         this.verification_id = verification_id;
     }
-
-    /*
-    public String getLogin() {
-        return login;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getAuthority() {
-        return authority;
-    }
-
-    public Date getExpirationDate() {
-        return expiration_date;
-    }
-
-    public String getVerificationId() {
-        return verification_id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setAuthority(String authority) {
-        this.authority = authority;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expiration_date = expirationDate;
-    }
-
-    */
 
     public static UserBuilder builder() {
         return new UserBuilder();

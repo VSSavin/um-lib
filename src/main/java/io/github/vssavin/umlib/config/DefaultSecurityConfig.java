@@ -1,6 +1,7 @@
 package io.github.vssavin.umlib.config;
 
 import io.github.vssavin.umlib.security.spring.BannedIpFilter;
+import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.service.impl.CustomOAuth2UserService;
 import io.github.vssavin.umlib.utils.AuthorizedUrlPermission;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ public class DefaultSecurityConfig {
     public static String successUrl = "/index.html";
     public static String adminSuccessUrl = "/um/admin";
 
-    private final DataSource dataSource;
+    private final UserService userService;
     private final AuthenticationSuccessHandler authSuccessHandler;
     private final AuthenticationFailureHandler authFailureHandler;
     private final AuthenticationProvider authProvider;
@@ -48,19 +47,20 @@ public class DefaultSecurityConfig {
     private final OAuth2Config oAuth2Config;
 
     @Autowired
-    public DefaultSecurityConfig(UmConfig umConfig, DataSource dataSource,
-                                 AuthenticationSuccessHandler authSuccessHandler,
-                                 AuthenticationFailureHandler authFailureHandler, AuthenticationProvider authProvider,
-                                 LogoutHandler logoutHandler, CustomOAuth2UserService customOAuth2UserService,
-                                 LogoutSuccessHandler logoutSuccessHandler, PasswordEncoder passwordEncoder,
+    public DefaultSecurityConfig(UmConfig umConfig, UserService userService,
+                                 AuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                                 AuthenticationFailureHandler customAuthenticationFailureHandler,
+                                 AuthenticationProvider customAuthenticationProvider,
+                                 LogoutHandler customLogoutHandler, CustomOAuth2UserService customOAuth2UserService,
+                                 LogoutSuccessHandler customLogoutSuccessHandler, PasswordEncoder passwordEncoder,
                                  OAuth2Config oAuth2Config) {
-        this.dataSource = dataSource;
-        this.authSuccessHandler = authSuccessHandler;
-        this.authFailureHandler = authFailureHandler;
-        this.authProvider = authProvider;
-        this.logoutHandler = logoutHandler;
+        this.userService = userService;
+        this.authSuccessHandler = customAuthenticationSuccessHandler;
+        this.authFailureHandler = customAuthenticationFailureHandler;
+        this.authProvider = customAuthenticationProvider;
+        this.logoutHandler = customLogoutHandler;
         this.customOAuth2UserService = customOAuth2UserService;
-        this.logoutSuccessHandler = logoutSuccessHandler;
+        this.logoutSuccessHandler = customLogoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
         this.oAuth2Config = oAuth2Config;
         UmConfig.adminSuccessUrl = adminSuccessUrl;
@@ -81,7 +81,7 @@ public class DefaultSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new JdbcUserDetailsManager(dataSource);
+        return userService;
     }
 
     @Bean

@@ -4,6 +4,7 @@ import io.github.vssavin.umlib.dto.UserFilter;
 import io.github.vssavin.umlib.entity.Role;
 import io.github.vssavin.umlib.entity.User;
 import io.github.vssavin.umlib.pagination.Paged;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ import java.util.Map;
  * @author vssavin on 18.12.2021
  */
 @Service
-public interface UserService {
+public interface UserService extends UserDetailsService {
     Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size);
     User getUserById(Long id);
     User addUser(User user);

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -300,6 +301,11 @@ public class UserServiceImpl implements UserService {
                 .map(i -> random.nextInt(chars.length()))
                 .mapToObj(randomIndex -> String.valueOf(chars.charAt(randomIndex)))
                 .collect(Collectors.joining());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return getUserByLogin(username);
     }
 
     private static class UserRecoveryParams {
