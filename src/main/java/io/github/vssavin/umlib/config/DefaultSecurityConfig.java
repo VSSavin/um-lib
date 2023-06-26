@@ -4,6 +4,10 @@ import io.github.vssavin.umlib.security.spring.BannedIpFilter;
 import io.github.vssavin.umlib.service.UserService;
 import io.github.vssavin.umlib.service.impl.CustomOAuth2UserService;
 import io.github.vssavin.umlib.utils.AuthorizedUrlPermission;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,20 +26,16 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
  * Created by vssavin on 17.05.2022.
  */
 public class DefaultSecurityConfig {
+    private static final Logger log = LoggerFactory.getLogger(DefaultSecurityConfig.class);
 
-    public static final String LOGIN_URL = UmConfig.LOGIN_URL;
-    public static final String LOGIN_PROCESSING_URL = UmConfig.LOGIN_PROCESSING_URL;
-    public static final String LOGOUT_URL = UmConfig.LOGOUT_URL;
-
-    public static String successUrl = "/index.html";
-    public static String adminSuccessUrl = "/um/admin";
-
+    private final BeanFactory beanFactory;
     private final UserService userService;
     private final AuthenticationSuccessHandler authSuccessHandler;
     private final AuthenticationFailureHandler authFailureHandler;
@@ -46,14 +46,17 @@ public class DefaultSecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final OAuth2Config oAuth2Config;
 
+    private UmConfigurer configurer;
+
     @Autowired
-    public DefaultSecurityConfig(UmConfig umConfig, UserService userService,
+    public DefaultSecurityConfig(UmConfig umConfig, BeanFactory beanFactory, UserService userService,
                                  AuthenticationSuccessHandler customAuthenticationSuccessHandler,
                                  AuthenticationFailureHandler customAuthenticationFailureHandler,
                                  AuthenticationProvider customAuthenticationProvider,
                                  LogoutHandler customLogoutHandler, CustomOAuth2UserService customOAuth2UserService,
                                  LogoutSuccessHandler customLogoutSuccessHandler, PasswordEncoder passwordEncoder,
                                  OAuth2Config oAuth2Config) {
+        this.beanFactory = beanFactory;
         this.userService = userService;
         this.authSuccessHandler = customAuthenticationSuccessHandler;
         this.authFailureHandler = customAuthenticationFailureHandler;
@@ -63,9 +66,21 @@ public class DefaultSecurityConfig {
         this.logoutSuccessHandler = customLogoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
         this.oAuth2Config = oAuth2Config;
-        UmConfig.adminSuccessUrl = adminSuccessUrl;
-        UmConfig.successUrl = successUrl;
         umConfig.updateAuthorizedPermissions();
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            configurer = beanFactory.getBean(UmConfigurer.class);
+            UmConfig.adminSuccessUrl = configurer.getAdminSuccessUrl();
+            UmConfig.successUrl = configurer.getSuccessUrl();
+        } catch(NoSuchBeanDefinitionException e) {
+            log.warn("User management configurer (UmConfigurer bean) not found! Using default configurer!");
+            configurer = new UmConfigurer();
+            UmConfig.adminSuccessUrl = configurer.getAdminSuccessUrl();
+            UmConfig.successUrl = configurer.getSuccessUrl();
+        }
     }
 
     @Bean
@@ -103,14 +118,14 @@ public class DefaultSecurityConfig {
         registry.and()
                 .formLogin().failureHandler(authFailureHandler)
                 .successHandler(authSuccessHandler)
-                .loginPage(LOGIN_URL)
-                .loginProcessingUrl(LOGIN_PROCESSING_URL)
+                .loginPage(configurer.getLoginUrl())
+                .loginProcessingUrl(configurer.getLoginProcessingUrl())
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .and()
                 .logout()
                 .permitAll()
-                .logoutUrl(LOGOUT_URL)
+                .logoutUrl(configurer.getLogoutUrl())
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .deleteCookies("JSESSIONID");
@@ -120,20 +135,12 @@ public class DefaultSecurityConfig {
                     .oauth2Login()
                     .successHandler(authSuccessHandler)
                     .failureHandler(authFailureHandler)
-                    .loginPage(LOGIN_URL)
+                    .loginPage(configurer.getLoginUrl())
                     .userInfoEndpoint()
                     .userService(customOAuth2UserService);
         }
 
         return http.build();
-    }
-
-    public static void setSuccessUrl(String successUrl) {
-        DefaultSecurityConfig.successUrl = successUrl;
-    }
-
-    public static void setAdminSuccessUrl(String adminSuccessUrl) {
-        DefaultSecurityConfig.adminSuccessUrl = adminSuccessUrl;
     }
 
     private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registerUrls(

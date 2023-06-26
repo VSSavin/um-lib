@@ -1,5 +1,6 @@
 package io.github.vssavin.umlib.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -10,7 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Import(DefaultSecurityConfig.class)
 public class SecurityConfig {
 
-    static {
-        DefaultSecurityConfig.setSuccessUrl("/games/index.html");
+    @Bean
+    public UmConfigurer umConfigurer() {
+        return new UmConfigurer().successUrl("/games/index.html");
     }
 }
