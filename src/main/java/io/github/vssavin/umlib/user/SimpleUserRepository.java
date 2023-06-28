@@ -8,7 +8,6 @@ import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import com.querydsl.sql.postgresql.PostgreSQLQueryFactory;
 import io.github.vssavin.umlib.config.DataSourceSwitcher;
-import io.github.vssavin.umlib.entity.QUser;
 import io.github.vssavin.umlib.data.querydsl.CustomH2QueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
