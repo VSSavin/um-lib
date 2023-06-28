@@ -13,6 +13,6 @@ public class SecurityConfig {
 
     @Bean
     public UmConfigurer umConfigurer() {
-        return new UmConfigurer().successUrl("/games/index.html");
+        return new UmConfigurer().successUrl("/testApplication/index.html");
     }
 }

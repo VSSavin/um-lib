@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author vssavin on 18.12.2021
  */
 @Component
-public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(CustomAuthenticationFailureHandler.class);
+class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
+    private static final Logger log = LoggerFactory.getLogger(CustomAuthenticationFailureHandler.class);
 
     private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
     private static final int MAX_FAILURE_COUNTS = 3;
@@ -26,7 +26,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
     private static final ConcurrentHashMap<String, Long> banExpireTimes = new ConcurrentHashMap<>(50);
 
-    public static boolean isBannedIp(String ipAddress) {
+    static boolean isBannedIp(String ipAddress) {
         Integer failureCounts = blackList.get(ipAddress);
         if (failureCounts == null) {
             return false;
@@ -69,7 +69,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
                 if (failureCounts >= MAX_FAILURE_COUNTS) {
                     banExpireTimes.put(userIp,
                             Calendar.getInstance().getTimeInMillis() + (BANNED_TIME_MINUTES * 60 * 1000));
-                    LOG.info("IP " + userIp + " has been banned!");
+                    log.info("IP " + userIp + " has been banned!");
                     response.sendError(HttpStatus.FORBIDDEN.value(), "Доступ запрещен");
                 } else {
                     response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);

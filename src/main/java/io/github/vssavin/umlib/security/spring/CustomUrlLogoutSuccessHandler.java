@@ -7,7 +7,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,12 +21,12 @@ import java.util.Map;
  * Created by vssavin on 15.08.2022.
  */
 @Component
-public class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
+class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
         implements LogoutSuccessHandler {
 
     private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
 
-    public CustomUrlLogoutSuccessHandler() {
+    CustomUrlLogoutSuccessHandler() {
         super.setRedirectStrategy(customRedirectStrategy);
     }
 
@@ -36,10 +35,6 @@ public class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetU
             throws IOException, ServletException {
         customRedirectStrategy.setParameterMap(request.getParameterMap());
         super.handle(request, response, authentication);
-    }
-
-    private void aaa(RedirectAttributes redirectAttributes) {
-
     }
 
     private static class CustomRedirectStrategy extends DefaultRedirectStrategy {
@@ -65,7 +60,7 @@ public class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetU
             return result;
         }
 
-        public void setParameterMap(Map<String, String[]> parameterMap) {
+        private void setParameterMap(Map<String, String[]> parameterMap) {
             this.parameterMap = parameterMap;
         }
     }

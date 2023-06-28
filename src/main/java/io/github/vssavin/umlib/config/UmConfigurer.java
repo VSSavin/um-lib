@@ -1,5 +1,7 @@
 package io.github.vssavin.umlib.config;
 
+import io.github.vssavin.umlib.security.SecureService;
+
 /**
  * @author vssavin on 26.06.2023
  */
@@ -9,6 +11,7 @@ public class UmConfigurer {
     private String logoutUrl = UmConfig.LOGOUT_URL;
     private String successUrl = "/index.html";
     private String adminSuccessUrl ="/um/admin";
+    private SecureService secureService = SecureService.defaultSecureService();
 
     public UmConfigurer loginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
@@ -35,6 +38,11 @@ public class UmConfigurer {
         return this;
     }
 
+    public UmConfigurer secureService(SecureService secureService) {
+        this.secureService = secureService;
+        return this;
+    }
+
     public String getLoginUrl() {
         return loginUrl;
     }
@@ -53,5 +61,21 @@ public class UmConfigurer {
 
     public String getAdminSuccessUrl() {
         return adminSuccessUrl;
+    }
+
+    public SecureService getSecureService() {
+        return secureService;
+    }
+
+    @Override
+    public String toString() {
+        return "UmConfigurer{" +
+                "loginUrl='" + loginUrl + '\'' +
+                ", loginProcessingUrl='" + loginProcessingUrl + '\'' +
+                ", logoutUrl='" + logoutUrl + '\'' +
+                ", successUrl='" + successUrl + '\'' +
+                ", adminSuccessUrl='" + adminSuccessUrl + '\'' +
+                ", secureService=" + secureService +
+                '}';
     }
 }

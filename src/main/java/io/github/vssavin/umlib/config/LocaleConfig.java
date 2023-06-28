@@ -2,6 +2,7 @@ package io.github.vssavin.umlib.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -18,11 +19,11 @@ import java.util.stream.Collectors;
 @Configuration
 public class LocaleConfig {
     private static final Logger log = LoggerFactory.getLogger(LocaleConfig.class);
+    private static final LocaleSpringMessageSource EMPTY = new LocaleSpringMessageSource();
     private static final String DEFAULT_LANGUAGE = "ru";
     public static final Locale DEFAULT_LOCALE = Locale.forLanguageTag(DEFAULT_LANGUAGE);
     private static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
     private static final Map<String, String> FLAGS_MAP = new HashMap<>();
-
 
     private static final Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
 
@@ -34,9 +35,14 @@ public class LocaleConfig {
     private final ConfigurableBeanFactory beanFactory;
     private final Map<String, LocaleSpringMessageSource> languageBeans = new HashMap<>();
 
+    @Autowired
     public LocaleConfig(ConfigurableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         createLanguageBeans();
+    }
+
+    public LocaleSpringMessageSource forPage(String page) {
+        return languageBeans.getOrDefault(page + "MessageSource", EMPTY);
     }
 
     public static class LocaleSpringMessageSource extends ReloadableResourceBundleMessageSource {

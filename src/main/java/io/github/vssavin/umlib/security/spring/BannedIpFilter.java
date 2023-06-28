@@ -18,12 +18,13 @@ import java.io.IOException;
  */
 @Component
 public class BannedIpFilter extends GenericFilterBean {
-    private static final Logger LOG = LoggerFactory.getLogger(BannedIpFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(BannedIpFilter.class);
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String userIp = request.getRemoteAddr();
         if (CustomAuthenticationFailureHandler.isBannedIp(userIp)) {
-            LOG.info("Trying to access from banned IP: " + userIp);
+            log.info("Trying to access from banned IP: " + userIp);
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Доступ запрещен");
             return;

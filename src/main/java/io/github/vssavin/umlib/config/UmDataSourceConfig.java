@@ -1,9 +1,6 @@
 package io.github.vssavin.umlib.config;
 
-import com.querydsl.core.types.Ops;
 import com.querydsl.sql.*;
-import com.querydsl.sql.namemapping.ChainedNameMapping;
-import com.querydsl.sql.namemapping.ChangeLetterCaseNameMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Types;
 
 
 /**

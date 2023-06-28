@@ -1,7 +1,5 @@
 package io.github.vssavin.umlib.security.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -16,8 +14,7 @@ import javax.servlet.http.HttpSession;
  * Created by vssavin on 15.08.2022.
  */
 @Component
-public class CustomLogoutHandler implements LogoutHandler {
-    private static final Logger log = LoggerFactory.getLogger(CustomLogoutHandler.class);
+class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

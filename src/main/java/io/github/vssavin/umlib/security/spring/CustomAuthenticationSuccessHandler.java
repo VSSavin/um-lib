@@ -1,9 +1,9 @@
 package io.github.vssavin.umlib.security.spring;
 
 import io.github.vssavin.umlib.config.UmConfig;
-import io.github.vssavin.umlib.entity.Role;
-import io.github.vssavin.umlib.entity.User;
-import io.github.vssavin.umlib.service.UserService;
+import io.github.vssavin.umlib.user.Role;
+import io.github.vssavin.umlib.user.User;
+import io.github.vssavin.umlib.user.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -50,7 +50,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 }
             }
         }
-
 
         String lang = request.getParameter("lang");
         String delimiter = "?";

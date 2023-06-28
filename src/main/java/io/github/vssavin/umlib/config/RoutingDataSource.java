@@ -1,7 +1,9 @@
 package io.github.vssavin.umlib.config;
 
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
+import org.springframework.lang.NonNull;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +42,7 @@ class RoutingDataSource extends AbstractRoutingDataSource {
         return datasourceKey;
     }
 
+    @NonNull
     @Override
     protected DataSource determineTargetDataSource() {
         return (DataSource) dataSources.get(datasourceKey);

@@ -1,9 +1,9 @@
 package io.github.vssavin.umlib.security.spring;
 
-import io.github.vssavin.umlib.entity.User;
-import io.github.vssavin.umlib.service.SecureService;
-import io.github.vssavin.umlib.service.UserService;
-import io.github.vssavin.umlib.utils.UmUtil;
+import io.github.vssavin.umlib.config.UmConfig;
+import io.github.vssavin.umlib.user.User;
+import io.github.vssavin.umlib.security.SecureService;
+import io.github.vssavin.umlib.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,8 +30,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     public CustomAuthenticationProvider(UserService userService, PasswordEncoder passwordEncoder,
-                                        UmUtil umUtil) {
-        this.secureService = umUtil.getAuthService();
+                                        UmConfig umConfig) {
+        this.secureService = umConfig.getAuthService();
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }

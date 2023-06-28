@@ -1,11 +1,13 @@
 package io.github.vssavin.umlib.service;
 
+import io.github.vssavin.umlib.email.EmailService;
+
 import java.util.List;
 
 /**
  * Created by vssavin on 12.07.2022.
  */
-public interface MockedEmailService extends EmailService{
+public interface MockedEmailService extends EmailService {
 
     List<EmailMessage> getEmailMessages();
     EmailMessage getLastEmailMessage();

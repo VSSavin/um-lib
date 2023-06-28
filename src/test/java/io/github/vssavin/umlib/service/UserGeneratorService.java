@@ -1,7 +1,8 @@
 package io.github.vssavin.umlib.service;
 
-import io.github.vssavin.umlib.entity.Role;
-import io.github.vssavin.umlib.exception.UserExistsException;
+import io.github.vssavin.umlib.user.Role;
+import io.github.vssavin.umlib.user.UserExistsException;
+import io.github.vssavin.umlib.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;

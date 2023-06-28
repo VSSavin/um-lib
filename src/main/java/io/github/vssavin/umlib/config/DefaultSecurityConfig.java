@@ -1,9 +1,8 @@
 package io.github.vssavin.umlib.config;
 
 import io.github.vssavin.umlib.security.spring.BannedIpFilter;
-import io.github.vssavin.umlib.service.UserService;
-import io.github.vssavin.umlib.service.impl.CustomOAuth2UserService;
-import io.github.vssavin.umlib.utils.AuthorizedUrlPermission;
+import io.github.vssavin.umlib.user.UserService;
+import io.github.vssavin.umlib.security.spring.CustomOAuth2UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
