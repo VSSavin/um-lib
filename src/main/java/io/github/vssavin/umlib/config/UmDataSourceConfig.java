@@ -10,6 +10,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 
 /**
@@ -54,7 +55,17 @@ public class UmDataSourceConfig {
         if (driverClass.contains("h2")) {
             return new Configuration(H2Templates.DEFAULT);
         } else if (driverClass.contains("postgres")) {
-            return new Configuration(new PostgreSQLTemplates());
+            return new Configuration(PostgreSQLTemplates.DEFAULT);
+        } else if (driverClass.contains("hsql")) {
+            return new Configuration(HSQLDBTemplates.DEFAULT);
+        } else if (driverClass.contains("mysql")) {
+            return new Configuration(MySQLTemplates.DEFAULT);
+        } else if (driverClass.contains("firebird")) {
+            return new Configuration(FirebirdTemplates.DEFAULT);
+        } else if (driverClass.contains("oracle")) {
+            return new Configuration(OracleTemplates.DEFAULT);
+        } else if (driverClass.contains("sqlite")) {
+            return new Configuration(SQLiteTemplates.DEFAULT);
         }
         throw new IllegalArgumentException("Database driver: " + driverClass + " unsupported yet!");
     }
