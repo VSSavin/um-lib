@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.service;
+package com.github.vssavin.umlib.email;
 
 import com.github.vssavin.umlib.email.EmailService;
 

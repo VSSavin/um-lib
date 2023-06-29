@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.service;
+package com.github.vssavin.umlib.email;
 
 import com.github.vssavin.umlib.user.UserExistsException;
 import com.github.vssavin.umlib.user.UserService;
@@ -16,7 +16,7 @@ import javax.annotation.PostConstruct;
  */
 @Service
 @DependsOn("sqlScriptsConfig")
-public class UserGeneratorService {
+class UserGeneratorService {
     private final Logger log = LoggerFactory.getLogger(UserGeneratorService.class);
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;

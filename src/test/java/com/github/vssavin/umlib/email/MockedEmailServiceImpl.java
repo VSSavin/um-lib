@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.service;
+package com.github.vssavin.umlib.email;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Service
 @Primary
-public class MockedEmailServiceImpl implements MockedEmailService{
+class MockedEmailServiceImpl implements MockedEmailService {
 
     private final List<EmailMessage> messages = new ArrayList<>();
 

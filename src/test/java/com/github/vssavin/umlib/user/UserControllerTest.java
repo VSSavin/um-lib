@@ -3,7 +3,7 @@ package com.github.vssavin.umlib.user;
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.language.MessageKeys;
-import com.github.vssavin.umlib.service.MockedEmailService;
+import com.github.vssavin.umlib.email.MockedEmailService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;

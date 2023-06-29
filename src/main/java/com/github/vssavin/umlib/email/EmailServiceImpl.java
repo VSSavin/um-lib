@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * @author vssavin on 13.01.22
  */
 @Service
-public class EmailServiceImpl implements EmailService {
+class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender emailSender;
     private final EmailConfig emailConfig;
