@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.vssavin</groupId>
+    <groupId>com.github.vssavin</groupId>
     <artifactId>um-lib</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
@@ -265,7 +265,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>io.github.vssavin.umlib.Launcher</mainClass>
+                            <mainClass>Launcher</mainClass>
                             <packageName>io.github.vssavin.um-lib</packageName>
                         </manifest>
                         <manifestEntries>
