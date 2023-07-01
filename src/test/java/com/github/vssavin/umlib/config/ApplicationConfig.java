@@ -1,11 +1,9 @@
 package com.github.vssavin.umlib.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import java.util.Collections;
@@ -14,9 +12,15 @@ import java.util.Collections;
  * @author vssavin on 18.12.2021
  */
 @Configuration
-@EnableTransactionManagement
 @ComponentScan({"com.github.vssavin.umlib"})
+@EnableWebSecurity
+@Import(DefaultSecurityConfig.class)
 public class ApplicationConfig {
+
+    @Bean
+    public UmConfigurer umConfigurer() {
+        return new UmConfigurer().successUrl("/testApplication/index.html");
+    }
 
     @Bean
     public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter(){
