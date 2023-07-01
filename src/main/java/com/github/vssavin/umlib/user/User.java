@@ -66,7 +66,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return expiration_date.before(new Date(System.currentTimeMillis()));
+        return expiration_date.after(new Date());
     }
 
     @Override
