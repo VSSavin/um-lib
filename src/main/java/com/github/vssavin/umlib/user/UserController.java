@@ -5,7 +5,7 @@ import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
 import com.github.vssavin.umlib.email.EmailService;
 import com.github.vssavin.umlib.helper.MvcHelper;
-import com.github.vssavin.umlib.helper.ValidatingHelper;
+import com.github.vssavin.umlib.helper.ValidationHelper;
 import com.github.vssavin.umlib.language.MessageKeys;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
@@ -155,7 +155,7 @@ class UserController {
                 return modelAndView;
             }
 
-            if (!ValidatingHelper.isValidEmail(email)) {
+            if (!ValidationHelper.isValidEmail(email)) {
                 modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
                 MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
@@ -483,7 +483,7 @@ class UserController {
                 return modelAndView;
             }
 
-            if (!ValidatingHelper.isValidEmail(userDto.getEmail())) {
+            if (!ValidationHelper.isValidEmail(userDto.getEmail())) {
                 modelAndView = MvcHelper.getErrorModelAndView(PAGE_USER_EDIT,
                         MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
                 MvcHelper.addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
