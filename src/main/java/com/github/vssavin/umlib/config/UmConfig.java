@@ -113,6 +113,10 @@ public class UmConfig extends StorableConfig{
         return umConfigurer.getPasswordPattern();
     }
 
+    public String getPasswordDoesntMatchPatternMessage() {
+        return umConfigurer.getPasswordDoesntMatchPatternMessage();
+    }
+
     public void updateAuthorizedPermissions() {
         if (!permissionsUpdated) {
             if (!registrationAllowed) {

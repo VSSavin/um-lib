@@ -16,6 +16,7 @@ public class UmConfigurer {
     private SecureService secureService = SecureService.defaultSecureService();
     private Pattern passwordPattern;
     private PasswordConfig passwordConfig;
+    private String passwordDoesntMatchPatternMessage = "";
 
     public UmConfigurer loginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
@@ -47,7 +48,8 @@ public class UmConfigurer {
         return this;
     }
 
-    public UmConfigurer minPasswordLength(int minPasswordLength) {
+    public UmConfigurer passwordDoesnotMatchPatternMessage(String passwordDoesntMatchPatternMessage) {
+        this.passwordDoesntMatchPatternMessage = passwordDoesntMatchPatternMessage;
         return this;
     }
 
@@ -81,6 +83,10 @@ public class UmConfigurer {
             passwordPattern = initPasswordPattern(passwordConfig);
         }
         return passwordPattern;
+    }
+
+    public String getPasswordDoesntMatchPatternMessage() {
+        return passwordDoesntMatchPatternMessage;
     }
 
     public PasswordConfig passwordConfig() {
