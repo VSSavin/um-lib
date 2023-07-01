@@ -10,10 +10,10 @@ public class ValidationHelper {
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public static boolean isValidEmail(String emailStr) {
-        return VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr).find();
+        return VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr).matches();
     }
 
     public static boolean isValidPassword(Pattern validRegexPattern, String passwordStr) {
-        return validRegexPattern.matcher(passwordStr).find();
+        return validRegexPattern.matcher(passwordStr).matches();
     }
 }
