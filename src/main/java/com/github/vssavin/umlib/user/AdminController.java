@@ -2,6 +2,7 @@ package com.github.vssavin.umlib.user;
 
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
+import com.github.vssavin.umlib.config.UmConfigurer;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
 import com.github.vssavin.umlib.helper.MvcHelper;
 import com.github.vssavin.umlib.helper.ValidationHelper;
@@ -63,6 +64,7 @@ class AdminController {
 
     private final UserService userService;
     private final SecureService secureService;
+    private final UmConfig umConfig;
     private final PasswordEncoder passwordEncoder;
     private final UmLanguage language;
 
@@ -71,6 +73,7 @@ class AdminController {
                     PasswordEncoder passwordEncoder, UmLanguage language) {
         this.userService = userService;
         this.secureService = umConfig.getAuthService();
+        this.umConfig = umConfig;
         this.passwordEncoder = passwordEncoder;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageUsersParams = localeConfig.forPage(PAGE_USERS).getKeys();
@@ -188,6 +191,14 @@ class AdminController {
                         MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
                 MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
                         secureService.getEncryptMethodNameForView(), lang);
+                response.setStatus(400);
+                return modelAndView;
+            }
+
+            if (!ValidationHelper.isValidPassword(umConfig.getPasswordPattern(), decodedPassword)) {
+                modelAndView = new ModelAndView("redirect:" + PAGE_REGISTRATION);
+                modelAndView.addObject("error", true);
+                modelAndView.addObject("errorMsg", umConfig.getPasswordDoesntMatchPatternMessage());
                 response.setStatus(400);
                 return modelAndView;
             }

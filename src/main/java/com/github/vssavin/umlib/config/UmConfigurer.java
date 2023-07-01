@@ -16,7 +16,7 @@ public class UmConfigurer {
     private SecureService secureService = SecureService.defaultSecureService();
     private Pattern passwordPattern;
     private PasswordConfig passwordConfig;
-    private String passwordDoesntMatchPatternMessage = "";
+    private String passwordDoesntMatchPatternMessage = "Wrong password!";
 
     public UmConfigurer loginUrl(String loginUrl) {
         this.loginUrl = loginUrl;

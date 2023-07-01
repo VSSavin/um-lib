@@ -9,6 +9,7 @@ import com.github.vssavin.umlib.helper.ValidationHelper;
 import com.github.vssavin.umlib.language.MessageKeys;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
+import io.github.vssavin.securelib.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,6 +165,17 @@ class UserController {
                 return modelAndView;
             }
 
+            String decodedPassword = secureService.decrypt(password,
+                    secureService.getSecureKey(request.getRemoteAddr()));
+
+            if (!ValidationHelper.isValidPassword(mainConfig.getPasswordPattern(), decodedPassword)) {
+                modelAndView = new ModelAndView("redirect:" + PAGE_REGISTRATION);
+                modelAndView.addObject("error", true);
+                modelAndView.addObject("errorMsg", mainConfig.getPasswordDoesntMatchPatternMessage());
+                response.setStatus(400);
+                return modelAndView;
+            }
+
             try {
                 userService.getUserByEmail(email);
                 modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
@@ -175,10 +187,9 @@ class UserController {
             } catch (EmailNotFoundException ignored) {
             }
 
-            newUser = userService.registerUser(login, username,
-                    passwordEncoder.encode(secureService.decrypt(password,
-                            secureService.getSecureKey(request.getRemoteAddr()))),
+            newUser = userService.registerUser(login, username, passwordEncoder.encode(decodedPassword),
                     email, registerRole);
+            Utils.clearString(decodedPassword);
             String url = String.format("%s%s/%s?login=%s&verificationId=%s&lang=%s", mainConfig.getApplicationUrl(),
                     USER_CONTROLLER_PATH, PAGE_CONFIRM_USER, login, newUser.getVerificationId(), lang);
             try {
