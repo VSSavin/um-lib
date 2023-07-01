@@ -15,6 +15,7 @@ import org.springframework.context.annotation.PropertySource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author vssavin on 15.05.2022
@@ -106,6 +107,10 @@ public class UmConfig extends StorableConfig{
 
     public String getLoginTitle() {
         return loginTitle;
+    }
+
+    public Pattern getPasswordPattern() {
+        return umConfigurer.getPasswordPattern();
     }
 
     public void updateAuthorizedPermissions() {
