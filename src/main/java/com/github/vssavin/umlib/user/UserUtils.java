@@ -18,14 +18,15 @@ import static com.querydsl.core.types.Projections.bean;
 /**
  * @author vssavin on 09.08.2022
  */
-public class UserUtils {
+public final class UserUtils {
     private static final Logger log = LoggerFactory.getLogger(UserUtils.class);
 
     private static final QUser users = new QUser("users");
     private static final QBean<User> userBean = bean(User.class, users.id, users.login, users.name,
             users.password, users.email, users.authority, users.expiration_date, users.verification_id);
 
-    private UserUtils(){}
+    private UserUtils() {
+    }
 
     public static Long getUserId(HttpServletRequest request, UserService userService) {
         long userId;
@@ -46,7 +47,9 @@ public class UserUtils {
         if (principal != null) {
             try {
                 User user = getAuthorizedUser(request, userService);
-                if (user != null) modelAndView.addObject("username", user.getName());
+                if (user != null) {
+                    modelAndView.addObject("username", user.getName());
+                }
             } catch (Exception e) {
                 log.error("Adding username to model failed!", e);
                 throw new RuntimeException(e.getMessage(), e.getCause());

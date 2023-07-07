@@ -53,7 +53,9 @@ class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlReque
             MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
             parameterMap.forEach((key, values) -> {
                 for (String value : values) {
-                    if (!key.equals("_csrf")) result.add(key, value);
+                    if (!key.equals("_csrf")) {
+                        result.add(key, value);
+                    }
                 }
             });
 

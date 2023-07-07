@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 @Configuration
 @PropertySource(value = "file:./conf.properties", encoding = "UTF-8")
-public class UmConfig extends StorableConfig{
+public class UmConfig extends StorableConfig {
     @IgnoreField public static final String LOGIN_URL = "/login";
     @IgnoreField public static final String LOGIN_PROCESSING_URL = "/perform-login";
     @IgnoreField public static final String LOGOUT_URL = "/logout";
@@ -54,8 +54,7 @@ public class UmConfig extends StorableConfig{
 
     private boolean permissionsUpdated = false;
 
-    static
-    {
+    static {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/passwordRecovery", new String[0]));
@@ -80,7 +79,9 @@ public class UmConfig extends StorableConfig{
         this.encryptPropertiesPasswordService = applicationSecureService;
         if (applicationArgs == null || applicationArgs.length == 0) {
             String[] args = getAppArgsFromContext(context);
-            if (args.length > 0) applicationArgs = args;
+            if (args.length > 0) {
+                applicationArgs = args;
+            }
         }
         initSecureService("");
         processArgs(applicationArgs);
@@ -91,7 +92,9 @@ public class UmConfig extends StorableConfig{
         return authService;
     }
 
-    public static List<AuthorizedUrlPermission> getAuthorizedUrlPermissions() {return authorizedUrlPermissions;}
+    public static List<AuthorizedUrlPermission> getAuthorizedUrlPermissions() {
+        return authorizedUrlPermissions;
+    }
 
     public String getApplicationUrl() {
         return applicationUrl;
@@ -122,7 +125,7 @@ public class UmConfig extends StorableConfig{
             if (!registrationAllowed) {
                 int registrationIndex = -1, performRegisterIndex = -1;
 
-                for(int i = 0; i < authorizedUrlPermissions.size(); i++) {
+                for (int i = 0; i < authorizedUrlPermissions.size(); i++) {
                     AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
                     if (authorizedUrlPermission.getUrl().equals("/um/users/registration")) {
                         registrationIndex = i;
@@ -151,7 +154,9 @@ public class UmConfig extends StorableConfig{
             Object appArgsBean = context.getBean("springApplicationArguments");
             Method sourceArgesMethod = appArgsBean.getClass().getMethod("getSourceArgs");
             String[] args = (String[]) sourceArgesMethod.invoke(appArgsBean);
-            if (args != null && args.length > 0) return args;
+            if (args != null && args.length > 0) {
+                return args;
+            }
         } catch (NoSuchBeanDefinitionException ignore) {
         } catch (NoSuchMethodException e) {
             log.error("Method \"getSourceArgs\" not found!", e);
@@ -168,14 +173,11 @@ public class UmConfig extends StorableConfig{
 
         if (secureServiceName != null && !secureServiceName.isEmpty()) {
             authService = getSecureServiceByName(secureServiceName);
-        }
-
-        else {
+        } else {
             String authServiceName = System.getProperty("authService");
             if (authServiceName != null && !authServiceName.isEmpty()) {
                 authService = getSecureServiceByName(authServiceName);
-            }
-            else {
+            } else {
                 authService = umConfigurer.getSecureService();
             }
         }
@@ -193,8 +195,9 @@ public class UmConfig extends StorableConfig{
                 beanFound = false;
             }
         }
-        if (!beanFound)
+        if (!beanFound) {
             throw new NoSuchSecureServiceException(String.format("Service with name %s not found!", serviceName));
+        }
         return secureService;
     }
 
@@ -210,9 +213,10 @@ public class UmConfig extends StorableConfig{
                 Utils.clearString(password);
             }
             String authServiceName = mappedArgs.get("authService");
-            if (authServiceName != null) initSecureService(authServiceName);
-        }
-        else {
+            if (authServiceName != null) {
+                initSecureService(authServiceName);
+            }
+        } else {
             log.warn("Unknown application arguments!");
         }
     }
@@ -220,7 +224,7 @@ public class UmConfig extends StorableConfig{
     private static Map<String, String> getMappedArgs(String[] args) {
         Map<String, String> resultMap = new HashMap<>();
         if (args.length > 0) {
-            for(String arg : args) {
+            for (String arg : args) {
                 String[] params = arg.replaceAll("--", "").split("=");
                 if (params.length > 0) {
                     String value = params.length > 1 ? params[1] : "";

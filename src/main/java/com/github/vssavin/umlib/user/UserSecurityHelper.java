@@ -10,9 +10,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 /**
  * Created by vssavin on 02.08.2022.
  */
-class UserSecurityHelper {
+final class UserSecurityHelper {
 
-    private UserSecurityHelper() {}
+    private UserSecurityHelper() {
+
+    }
 
     static String getAuthorizedUserName(UserService userService) {
         String authorizedUserName = getAuthorizedUserLogin();
@@ -38,7 +40,7 @@ class UserSecurityHelper {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             if (authentication instanceof OAuth2AuthenticationToken) {
-                OAuth2User oAuth2User = ((OAuth2AuthenticationToken)authentication).getPrincipal();
+                OAuth2User oAuth2User = ((OAuth2AuthenticationToken) authentication).getPrincipal();
                 authorizedUserName = oAuth2User.getAttribute("email");
             } else {
                 authorizedUserName = authentication.getName();
@@ -68,7 +70,9 @@ class UserSecurityHelper {
             if (user != null) {
                 String authority = user.getAuthority();
                 Role role = Role.getRole(authority);
-                if (role.equals(Role.ROLE_ADMIN)) isAdminUser = true;
+                if (role.equals(Role.ROLE_ADMIN)) {
+                    isAdminUser = true;
+                }
             }
 
         }

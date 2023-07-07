@@ -27,7 +27,9 @@ public class UmDataSourceConfig {
 
     @Bean
     protected DataSource umDataSource() {
-        if (this.umDataSource != null) return this.umDataSource;
+        if (this.umDataSource != null) {
+            return this.umDataSource;
+        }
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         try {
             dataSource.setDriverClassName(umDatabaseConfig.getDriverClass());

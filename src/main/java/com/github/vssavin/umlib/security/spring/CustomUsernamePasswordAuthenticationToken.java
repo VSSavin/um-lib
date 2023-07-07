@@ -24,7 +24,7 @@ class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenti
     public void eraseCredentials() {
         Object credentials = super.getCredentials();
         if (credentials instanceof String) {
-            Utils.clearString((String)credentials);
+            Utils.clearString((String) credentials);
         }
         super.eraseCredentials();
     }

@@ -74,7 +74,7 @@ public class DefaultSecurityConfig {
             configurer = beanFactory.getBean(UmConfigurer.class);
             UmConfig.adminSuccessUrl = configurer.getAdminSuccessUrl();
             UmConfig.successUrl = configurer.getSuccessUrl();
-        } catch(NoSuchBeanDefinitionException e) {
+        } catch (NoSuchBeanDefinitionException e) {
             log.warn("User management configurer (UmConfigurer bean) not found! Using default configurer!");
             configurer = new UmConfigurer();
             UmConfig.adminSuccessUrl = configurer.getAdminSuccessUrl();
@@ -148,7 +148,7 @@ public class DefaultSecurityConfig {
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
                 http.authorizeHttpRequests();
 
-        for(AuthorizedUrlPermission urlPermission : urlPermissions) {
+        for (AuthorizedUrlPermission urlPermission : urlPermissions) {
             String[] roles = urlPermission.getRoles();
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl =
                     registry.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), null));

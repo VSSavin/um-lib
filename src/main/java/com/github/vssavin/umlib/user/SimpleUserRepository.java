@@ -295,8 +295,9 @@ public class SimpleUserRepository implements UserRepository {
             queryFactory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
         } else if (queryDslConfiguration.getTemplates() instanceof H2Templates) {
             queryFactory = new CustomH2QueryFactory(queryDslConfiguration, dataSource);
+        } else {
+            queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
         }
-        else queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
 
         return queryFactory;
     }

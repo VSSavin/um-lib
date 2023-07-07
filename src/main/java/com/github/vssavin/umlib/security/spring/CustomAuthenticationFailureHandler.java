@@ -57,8 +57,11 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
         String userIp = request.getRemoteAddr();
         Integer failureCounts = blackList.get(userIp);
         String lang = request.getParameter("lang");
-        if (lang != null) lang = "&lang=" + lang;
-        else lang = "";
+        if (lang != null) {
+            lang = "&lang=" + lang;
+        } else {
+            lang = "";
+        }
         if (failureCounts == null) {
             blackList.put(userIp, 1);
             response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);

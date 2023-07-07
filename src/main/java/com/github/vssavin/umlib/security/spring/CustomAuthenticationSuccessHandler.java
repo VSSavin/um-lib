@@ -33,9 +33,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String successUrl = UmConfig.successUrl;
         User user = null;
         try {
-            OAuth2User oAuth2User = (DefaultOAuth2User)authentication.getPrincipal();
+            OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
             user = userService.processOAuthPostLogin(oAuth2User);
-            if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
+            if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) {
+                successUrl = UmConfig.adminSuccessUrl;
+            }
         } catch (ClassCastException e) {
             //ignore, it's ok
         }
@@ -43,7 +45,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         if (user == null) {
             user = userService.getUserByLogin(authentication.getPrincipal().toString());
             if (user != null) {
-                if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) successUrl = UmConfig.adminSuccessUrl;
+                if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) {
+                    successUrl = UmConfig.adminSuccessUrl;
+                }
                 if (user.getExpirationDate().before(new Date())) {
                     userService.deleteUser(user);
                     successUrl = UmConfig.LOGIN_URL + "?error=true";
@@ -53,9 +57,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         String lang = request.getParameter("lang");
         String delimiter = "?";
-        if (successUrl.contains("?")) delimiter = "&";
-        if (lang != null) lang = delimiter + "lang=" + lang;
-        else lang = "";
+        if (successUrl.contains("?")) {
+            delimiter = "&";
+        }
+        if (lang != null) {
+            lang = delimiter + "lang=" + lang;
+        } else {
+            lang = "";
+        }
+
         response.sendRedirect(successUrl + lang);
     }
 }

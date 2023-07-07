@@ -3,7 +3,7 @@ package com.github.vssavin.umlib.email;
 /**
  * @author vssavin on 08.01.2022
  */
-public class EmailNotFoundException extends RuntimeException{
+public class EmailNotFoundException extends RuntimeException {
 
     public EmailNotFoundException(String message) {
         super(message);

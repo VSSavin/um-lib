@@ -12,7 +12,7 @@ public class UmConfigurer {
     private String loginProcessingUrl = UmConfig.LOGIN_PROCESSING_URL;
     private String logoutUrl = UmConfig.LOGOUT_URL;
     private String successUrl = "/index.html";
-    private String adminSuccessUrl ="/um/admin";
+    private String adminSuccessUrl = "/um/admin";
     private SecureService secureService = SecureService.defaultSecureService();
     private Pattern passwordPattern;
     private PasswordConfig passwordConfig;
@@ -79,7 +79,9 @@ public class UmConfigurer {
 
     public Pattern getPasswordPattern() {
         if (passwordPattern == null) {
-            if (passwordConfig == null) passwordConfig = new PasswordConfig();
+            if (passwordConfig == null) {
+                passwordConfig = new PasswordConfig();
+            }
             passwordPattern = initPasswordPattern(passwordConfig);
         }
         return passwordPattern;
@@ -185,13 +187,28 @@ public class UmConfigurer {
 
     private Pattern initPasswordPattern(PasswordConfig passwordConfig) {
         StringBuilder stringPatternBuilder = new StringBuilder("^");
-        if (passwordConfig.isAtLeastOneDigit()) stringPatternBuilder.append("(?=.*[0-9])");
-        if (passwordConfig.isAtLeastOneLowerCaseLatin()) stringPatternBuilder.append("(?=.*[a-z])");
-        if (passwordConfig.isAtLeastOneUpperCaseLatin()) stringPatternBuilder.append("(?=.*[A-Z])");
-        if (passwordConfig.isAtLeastOneSpecialCharacter())
+        if (passwordConfig.isAtLeastOneDigit()) {
+            stringPatternBuilder.append("(?=.*[0-9])");
+        }
+
+        if (passwordConfig.isAtLeastOneLowerCaseLatin()) {
+            stringPatternBuilder.append("(?=.*[a-z])");
+        }
+
+        if (passwordConfig.isAtLeastOneUpperCaseLatin()) {
+            stringPatternBuilder.append("(?=.*[A-Z])");
+        }
+
+        if (passwordConfig.isAtLeastOneSpecialCharacter()) {
             stringPatternBuilder.append("(?=.*[!@#&()–[{}]:;',?/*~$^+=<>])");
+        }
+
         stringPatternBuilder.append(".").append("{").append(passwordConfig.getMinLength()).append(",");
-        if (passwordConfig.getMaxLength() != 0) stringPatternBuilder.append(passwordConfig.getMaxLength());
+
+        if (passwordConfig.getMaxLength() != 0) {
+            stringPatternBuilder.append(passwordConfig.getMaxLength());
+        }
+
         stringPatternBuilder.append("}$");
 
         return Pattern.compile(stringPatternBuilder.toString());

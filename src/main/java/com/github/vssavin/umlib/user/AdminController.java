@@ -2,7 +2,6 @@ package com.github.vssavin.umlib.user;
 
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
-import com.github.vssavin.umlib.config.UmConfigurer;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
 import com.github.vssavin.umlib.helper.MvcHelper;
 import com.github.vssavin.umlib.helper.ValidationHelper;
@@ -480,8 +479,7 @@ class AdminController {
                         MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
                 modelAndView.addObject("error", true);
                 modelAndView.addObject("errorMsg", errorMessage);
-            }
-            else  {
+            } else  {
                 userService.deleteUser(user);
             }
 

@@ -61,7 +61,7 @@ public class H2SqlSerializer extends SQLSerializer {
             }
 
             String value = "";
-            if (update.getValue() instanceof Path ) {
+            if (update.getValue() instanceof Path) {
                 if (((Path<?>) update.getValue()).getMetadata().getPathType() == PathType.VARIABLE ||
                         ((Path<?>) update.getValue()).getMetadata().getPathType() == PathType.PROPERTY) {
 

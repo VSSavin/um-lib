@@ -8,7 +8,9 @@ public enum Role {
     ROLE_ADMIN;
 
     public static Role getRole(String role) {
-        if (role == null) return Role.ROLE_USER;
+        if (role == null) {
+            return Role.ROLE_USER;
+        }
         return role.toLowerCase().contains("admin") ? Role.ROLE_ADMIN : Role.ROLE_USER;
     }
 }

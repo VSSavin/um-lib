@@ -20,22 +20,20 @@ public class DataSourceSwitcher {
     }
 
     public void switchToUmDataSource() {
-        previousDataSourceKey = ((RoutingDataSource)routingDataSource).getDatasourceKey();
-        ((RoutingDataSource)routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
+        previousDataSourceKey = ((RoutingDataSource) routingDataSource).getDatasourceKey();
+        ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
     }
 
     public void switchToApplicationDataSource() {
-        previousDataSourceKey = ((RoutingDataSource)routingDataSource).getDatasourceKey();
-        ((RoutingDataSource)routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
-        DataSource ds = ((RoutingDataSource)routingDataSource).determineTargetDataSource();
-        if (ds == null) ((RoutingDataSource)routingDataSource).setKey(previousDataSourceKey);
+        previousDataSourceKey = ((RoutingDataSource) routingDataSource).getDatasourceKey();
+        ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
+        DataSource ds = ((RoutingDataSource) routingDataSource).determineTargetDataSource();
     }
 
     public void switchToPreviousDataSource() {
-        RoutingDataSource.DATASOURCE_TYPE currentKey = ((RoutingDataSource)routingDataSource).getDatasourceKey();
-        ((RoutingDataSource)routingDataSource).setKey(previousDataSourceKey);
-        DataSource ds = ((RoutingDataSource)routingDataSource).determineTargetDataSource();
-        if (ds == null) ((RoutingDataSource)routingDataSource).setKey(currentKey);
+        RoutingDataSource.DATASOURCE_TYPE currentKey = ((RoutingDataSource) routingDataSource).getDatasourceKey();
+        ((RoutingDataSource) routingDataSource).setKey(previousDataSourceKey);
+        DataSource ds = ((RoutingDataSource) routingDataSource).determineTargetDataSource();
     }
 
     public DataSource getCurrentDataSource() {

@@ -13,10 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -40,7 +37,8 @@ public class SqlScriptsConfig {
         if (!scriptsDirectory.isEmpty()) {
             Path path = null;
             try {
-                path = Paths.get(getClass().getClassLoader().getResource(scriptsDirectory).toURI());
+                path = Paths
+                        .get(Objects.requireNonNull(getClass().getClassLoader().getResource(scriptsDirectory)).toURI());
             } catch (Exception e) {
                 log.warn("Directory " + scriptsDirectory + " not found!");
             }
@@ -92,12 +90,12 @@ public class SqlScriptsConfig {
             } catch (IOException e) {
                 log.error("Close input stream error! File = " + file, e);
             }
-        } );
+        });
     }
 
     private void executeSqlScript(Reader reader, DataSource dataSource) {
         StringWriter logWriter = new StringWriter();
-        try(Reader innerReader = reader) {
+        try (Reader innerReader = reader) {
             Connection connection = dataSource.getConnection();
             ScriptRunner scriptRunner = new ScriptRunner(connection);
             StringWriter errorWriter = new StringWriter();

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @PropertySource(value = "file:./" + EmailConfig.CONFIG_FILE, ignoreResourceNotFound = true)
-public class EmailConfig extends StorableConfig{
-    @IgnoreField public static final String CONFIG_FILE = "mail.properties" ;
+public class EmailConfig extends StorableConfig {
+    @IgnoreField public static final String CONFIG_FILE = "mail.properties";
     @IgnoreField public static final String NAME_PREFIX = "mail";
 
     private String host;

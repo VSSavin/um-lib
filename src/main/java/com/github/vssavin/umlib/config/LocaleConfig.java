@@ -51,10 +51,13 @@ public class LocaleConfig {
             HashSet<String> keySet = new HashSet<>();
             PropertiesHolder holder = super.getMergedProperties(DEFAULT_LOCALE);
             Properties props = holder.getProperties();
-            if (props == null) return new HashSet<>();
-            else {
-                for(Object key : props.keySet()) {
-                    if (key instanceof String) keySet.add((String) key);
+            if (props == null) {
+                return new HashSet<>();
+            } else {
+                for (Object key : props.keySet()) {
+                    if (key instanceof String) {
+                        keySet.add((String) key);
+                    }
                 }
                 return keySet;
             }
@@ -66,9 +69,10 @@ public class LocaleConfig {
         if (flagName == null) {
             if (returnFirstValueIfNotExists) {
                 flagName = FLAGS_MAP.values().iterator().next();
-                if (flagName == null) return "";
-            }
-             else {
+                if (flagName == null) {
+                    return "";
+                }
+            } else {
                  return "";
             }
         }
@@ -81,9 +85,10 @@ public class LocaleConfig {
         if (languageName == null) {
             if (returnDefaultIfNotExists) {
                 languageName = AVAILABLE_LANGUAGES.get(DEFAULT_LANGUAGE);
-                if (languageName == null) return "";
-            }
-            else {
+                if (languageName == null) {
+                    return "";
+                }
+            } else {
                 return "";
             }
         }
@@ -147,7 +152,7 @@ public class LocaleConfig {
             String flags = bundle.getString("flags");
 
             String[] flagsArray = flags.split(";");
-            for(String flagParams : flagsArray) {
+            for (String flagParams : flagsArray) {
                 String[] flag = flagParams.split(":");
                 if (flag.length > 1) {
                     FLAGS_MAP.put(flag[0].trim(), flag[1].trim());
@@ -164,7 +169,7 @@ public class LocaleConfig {
         messageSource.setDefaultEncoding("UTF-8");
         String messageLanguages = messageSource.getMessage("languages", new Object[]{}, Locale.getDefault());
         String[] languagesArray = messageLanguages.split(";");
-        for(String flagParams : languagesArray) {
+        for (String flagParams : languagesArray) {
             String[] language = flagParams.split(":");
             if (language.length > 1) {
                 AVAILABLE_LANGUAGES.put(language[0].trim(), language[1].trim());

@@ -75,8 +75,7 @@ public class UserServiceImpl implements UserService {
             dataSourceSwitcher.switchToUmDataSource();
             savedUser = userRepository.save(user);
             dataSourceSwitcher.switchToPreviousDataSource();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return savedUser;
@@ -89,8 +88,7 @@ public class UserServiceImpl implements UserService {
             dataSourceSwitcher.switchToUmDataSource();
             updatedUser = userRepository.save(user);
             dataSourceSwitcher.switchToPreviousDataSource();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return updatedUser;
@@ -245,8 +243,7 @@ public class UserServiceImpl implements UserService {
                 } catch (UsernameNotFoundException e) {
                     granted = false;
                 }
-            }
-            else {
+            } else {
                 granted = false;
             }
         }
@@ -297,7 +294,7 @@ public class UserServiceImpl implements UserService {
         return getUserByLogin(username);
     }
 
-    private static class UserRecoveryParams {
+    private static final class UserRecoveryParams {
         private final User user;
         private final String recoveryId;
         private final LocalDateTime expirationTime;

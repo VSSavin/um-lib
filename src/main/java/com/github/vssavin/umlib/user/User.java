@@ -180,7 +180,8 @@ public class User implements UserDetails {
         private boolean credentialsExpired = false;
         private boolean enabled = true;
 
-        private UserBuilder(){}
+        private UserBuilder() {
+        }
 
         public UserBuilder id(Long id) {
             this.id = id;
@@ -256,8 +257,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
         return login.equals(user.login) && email.equals(user.email);
     }

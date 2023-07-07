@@ -289,8 +289,7 @@ class UserController {
                     }
 
                 }
-            }
-            else {
+            } else {
                 modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_PASSWORD,
                         MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
                 response.setStatus(500);
@@ -299,8 +298,7 @@ class UserController {
                 return modelAndView;
             }
 
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_PASSWORD,
                     MessageKeys.REQUEST_PROCESSING_ERROR.getMessageKey(), lang);
             MvcHelper.addObjectsToModelAndView(modelAndView, pageChangePasswordParams, language,
@@ -330,7 +328,7 @@ class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             Collection<?> authorities = authentication.getAuthorities();
-            for(Object authority : authorities) {
+            for (Object authority : authorities) {
                 if (authority.toString().equals("ROLE_ADMIN")) {
                     isAdminUser = true;
                 }
@@ -374,7 +372,7 @@ class UserController {
                 modelAndView.addObject("userNotFound", true);
                 successSend = false;
             } catch (MailException mailException) {
-                log.error("Failed to send an email!" , mailException);
+                log.error("Failed to send an email!", mailException);
                 modelAndView.addObject("failedSend", true);
                 successSend = false;
             }
@@ -409,7 +407,7 @@ class UserController {
             modelAndView.addObject("userNotFound", true);
             successSend = false;
         } catch (MailException mailException) {
-            log.error("Failed to send an email!" , mailException);
+            log.error("Failed to send an email!", mailException);
             modelAndView.addObject("failedSend", true);
             successSend = false;
         }
@@ -582,7 +580,9 @@ class UserController {
 
     private ModelAndView getForbiddenModelAndView(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
-        if (referer == null) referer = UmConfig.successUrl;
+        if (referer == null) {
+            referer = UmConfig.successUrl;
+        }
         ModelAndView modelAndView = new ModelAndView("redirect:" + referer);
         modelAndView.setStatus(HttpStatus.FORBIDDEN);
         return modelAndView;

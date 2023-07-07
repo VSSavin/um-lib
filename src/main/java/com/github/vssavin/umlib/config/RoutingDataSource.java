@@ -3,7 +3,6 @@ package com.github.vssavin.umlib.config;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.lang.NonNull;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +20,7 @@ class RoutingDataSource extends AbstractRoutingDataSource {
     private DATASOURCE_TYPE datasourceKey = DATASOURCE_TYPE.APPLICATION_DATASOURCE;
     private final Map<Object,Object> dataSources = new HashMap<>();
 
-    void setKey(DATASOURCE_TYPE key){
+    void setKey(DATASOURCE_TYPE key) {
         this.datasourceKey = key;
     }
 
@@ -33,7 +32,7 @@ class RoutingDataSource extends AbstractRoutingDataSource {
         setTargetDataSources(dataSources);
     }
 
-    void addDataSource(DATASOURCE_TYPE key, DataSource dataSource){
+    void addDataSource(DATASOURCE_TYPE key, DataSource dataSource) {
         dataSources.put(key,dataSource);
     }
 
