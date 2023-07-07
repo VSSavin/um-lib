@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class StorableConfig {
     @IgnoreField private static final Logger LOG = LoggerFactory.getLogger(StorableConfig.class);
-    @IgnoreField private String configFile = "" ;
+    @IgnoreField private String configFile = "";
     @IgnoreField private String namePrefix = "";
 
     public void setConfigFile(String configFile) {
@@ -33,7 +33,7 @@ public class StorableConfig {
         SortedProperties props = new SortedProperties();
         if (propertiesMap != null) {
 
-            try(FileReader reader = new FileReader(configFile)) {
+            try (FileReader reader = new FileReader(configFile)) {
                 props.load(reader);
             } catch (IOException e) {
                 LOG.error("Reading properties error!", e);
@@ -41,7 +41,7 @@ public class StorableConfig {
 
             props.putAll(propertiesMap);
 
-            try(FileWriter writer = new FileWriter(configFile)) {
+            try (FileWriter writer = new FileWriter(configFile)) {
                 props.store(writer, null);
             } catch (IOException e) {
                 LOG.error("Writing properties error!", e);
@@ -54,7 +54,7 @@ public class StorableConfig {
     private Map<String, String> getProperties() {
         Map<String, String> fieldsMap = new TreeMap<>();
         try {
-            for(Field field : this.getClass().getDeclaredFields()) {
+            for (Field field : this.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 if (field.getDeclaredAnnotation(IgnoreField.class) == null) {
                     fieldsMap.put(namePrefix + "." + field.getName(), String.valueOf(field.get(this)));
@@ -87,8 +87,9 @@ public class StorableConfig {
             Iterator<Map.Entry<Object, Object>> iterator =
                     set1.stream().sorted(Comparator.comparing(o -> o.getKey().toString())).iterator();
 
-            while (iterator.hasNext())
+            while (iterator.hasNext()) {
                 set2.add(iterator.next());
+            }
 
             return set2;
         }
