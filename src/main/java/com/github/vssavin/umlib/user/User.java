@@ -22,6 +22,9 @@ public class User implements UserDetails {
     private String authority;
     private Date expiration_date;
     private String verification_id;
+    private int accountLocked = 0;
+    private int credentialsExpired = 0;
+    private int enabled = 1;
 
     public User(String login, String name, String password, String email, String authority) {
         this.login = login;
@@ -71,20 +74,17 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        //TODO implement this later
-        return true;
+        return accountLocked == 0;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        //TODO implement this later
-        return true;
+        return credentialsExpired == 0;
     }
 
     @Override
     public boolean isEnabled() {
-        //TODO implement this later
-        return true;
+        return enabled != 0;
     }
 
     public String getEmail() {
@@ -135,20 +135,32 @@ public class User implements UserDetails {
         this.authority = authority;
     }
 
+    public void setExpirationDate(Date expirationDate) {
+        this.expiration_date = expirationDate;
+    }
+
     public void setExpiration_date(Date expiration_date) {
         this.expiration_date = expiration_date;
     }
 
-    public void setExpirationDate(Date expiration_date) {
-        this.expiration_date = expiration_date;
+    public void setVerificationId(String verificationId) {
+        this.verification_id = verificationId;
     }
 
     public void setVerification_id(String verification_id) {
         this.verification_id = verification_id;
     }
 
-    public void setVerificationId(String verification_id) {
-        this.verification_id = verification_id;
+    public void setAccountLocked(boolean accountLocked) {
+        this.accountLocked = accountLocked ? 1 : 0;
+    }
+
+    public void setCredentialsExpired(boolean credentialsExpired) {
+        this.credentialsExpired = credentialsExpired ? 1 : 0;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled ? 1 : 0;
     }
 
     public static UserBuilder builder() {
@@ -164,6 +176,9 @@ public class User implements UserDetails {
         private String authority;
         private Date expirationDate;
         private String verificationId;
+        private boolean accountLocked = false;
+        private boolean credentialsExpired = false;
+        private boolean enabled = true;
 
         private UserBuilder(){}
 
@@ -207,6 +222,21 @@ public class User implements UserDetails {
             return this;
         }
 
+        public UserBuilder accountLocked(boolean accountLocked) {
+            this.accountLocked = accountLocked;
+            return this;
+        }
+
+        public UserBuilder credentialsExpired(boolean credentialsExpired) {
+            this.credentialsExpired = credentialsExpired;
+            return this;
+        }
+
+        public UserBuilder enabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
         public User build() {
             User user = new User();
             user.id = id;
@@ -217,6 +247,9 @@ public class User implements UserDetails {
             user.authority = authority;
             user.expiration_date = expirationDate;
             user.verification_id = verificationId;
+            user.setAccountLocked(accountLocked);
+            user.setCredentialsExpired(credentialsExpired);
+            user.setEnabled(enabled);
             return user;
         }
     }
@@ -237,12 +270,16 @@ public class User implements UserDetails {
     @Override
     public String toString() {
         return "User{" +
-                "login='" + login + '\'' +
+                "id=" + id +
+                ", login='" + login + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", authority='" + authority + '\'' +
                 ", expiration_date=" + expiration_date +
                 ", verification_id='" + verification_id + '\'' +
+                ", accountLocked=" + accountLocked +
+                ", credentialsExpired=" + credentialsExpired +
+                ", enabled=" + enabled +
                 '}';
     }
 }

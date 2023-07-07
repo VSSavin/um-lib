@@ -7,7 +7,10 @@ create table IF NOT EXISTS users(
  email varchar(50) not null,
  authority varchar(50) not null,
  expiration_date timestamp not null,
- verification_id varchar(50)
+ verification_id varchar(50),
+ accountLocked smallint DEFAULT 0,
+ credentialsExpired smallint DEFAULT 0,
+ enabled smallint DEFAULT 1
  );
 
 insert into users(login, name, password, email, authority, expiration_date)
