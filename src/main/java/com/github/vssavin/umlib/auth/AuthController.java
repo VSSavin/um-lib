@@ -6,10 +6,10 @@ import com.github.vssavin.umlib.config.OAuth2Config;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
-import com.github.vssavin.umlib.user.UserService;
-import com.github.vssavin.umlib.user.UserUtils;
+import com.github.vssavin.umlib.user.UserSecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,17 +37,18 @@ final class AuthController extends UmControllerBase {
 
     private final SecureService secureService;
     private final UmConfig umConfig;
-    private final UserService userService;
+    private final UserSecurityService userSecurityService;
     private final OAuth2Config oAuth2Config;
 
+    @Autowired
     AuthController(LocaleConfig localeConfig, UmLanguage language, UmConfig umConfig,
-                   UserService userService, OAuth2Config oAuth2Config) {
+                   UserSecurityService userSecurityService, OAuth2Config oAuth2Config) {
         super(language);
         this.secureService = umConfig.getAuthService();
         this.umConfig = umConfig;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageLogoutParams = localeConfig.forPage(PAGE_LOGOUT).getKeys();
-        this.userService = userService;
+        this.userSecurityService = userSecurityService;
         this.oAuth2Config = oAuth2Config;
     }
 
@@ -55,9 +56,9 @@ final class AuthController extends UmControllerBase {
     ModelAndView getLogin(final HttpServletRequest request, final HttpServletResponse response,
                           @RequestParam(required = false) final String lang) {
         try {
-            if (UserUtils.isAuthorizedAdmin(request, userService)) {
+            if (userSecurityService.isAuthorizedAdmin(request)) {
                 response.sendRedirect(UmConfig.adminSuccessUrl);
-            } else if (UserUtils.isAuthorizedUser(request, userService)) {
+            } else if (userSecurityService.isAuthorizedUser(request)) {
                 response.sendRedirect(UmConfig.successUrl);
             }
         } catch (IOException e) {

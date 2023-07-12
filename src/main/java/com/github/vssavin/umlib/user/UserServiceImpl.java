@@ -5,6 +5,9 @@ import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
 import com.github.vssavin.umlib.data.pagination.Paged;
 import com.github.vssavin.umlib.data.pagination.Paging;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.SimpleExpression;
+import com.querydsl.core.types.dsl.StringExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,8 @@ public class UserServiceImpl implements UserService {
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
     private static final User EMPTY_USER = new User("", "", "", "", "");
 
+    private static final QUser users = new QUser("users");
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DataSourceSwitcher dataSourceSwitcher;
@@ -52,7 +57,7 @@ public class UserServiceImpl implements UserService {
         if (userFilter == null || userFilter.isEmpty()) {
             users = userRepository.findAll(pageable);
         } else {
-            Predicate predicate = UserUtils.userFilterToPredicate(userFilter);
+            Predicate predicate = userFilterToPredicate(userFilter);
             users = userRepository.findAll(predicate, pageable);
         }
         dataSourceSwitcher.switchToPreviousDataSource();
@@ -292,6 +297,41 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return getUserByLogin(username);
+    }
+
+    private Predicate userFilterToPredicate(UserFilter userFilter) {
+        BooleanExpression expression = null;
+        expression = processAndEqualLong(expression, users.id, userFilter.getUserId());
+        expression = processAndLikeString(expression, users.email, userFilter.getEmail());
+        expression = processAndLikeString(expression, users.name, userFilter.getName());
+        expression = processAndLikeString(expression, users.login, userFilter.getLogin());
+        return expression;
+    }
+
+    private BooleanExpression processAndEqualLong(BooleanExpression expression,
+                                                         SimpleExpression<Long> simpleExpression, Long value) {
+        if (value != null) {
+            if (expression != null) {
+                expression = expression.and(simpleExpression.eq(value));
+            } else {
+                expression = simpleExpression.eq(value);
+            }
+        }
+
+        return expression;
+    }
+
+    private BooleanExpression processAndLikeString(BooleanExpression expression,
+                                                          StringExpression stringExpression, String value) {
+        if (value != null && !value.isEmpty()) {
+            if (expression != null) {
+                expression = expression.and(stringExpression.like(value));
+            } else {
+                expression = stringExpression.like(value);
+            }
+        }
+
+        return expression;
     }
 
     private static final class UserRecoveryParams {
