@@ -1,9 +1,9 @@
 package com.github.vssavin.umlib.auth;
 
+import com.github.vssavin.umlib.base.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.OAuth2Config;
 import com.github.vssavin.umlib.config.UmConfig;
-import com.github.vssavin.umlib.helper.MvcHelper;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
 import com.github.vssavin.umlib.user.UserService;
@@ -25,7 +25,7 @@ import java.util.Set;
  * @author vssavin on 18.12.2021
  */
 @Controller
-class AuthController {
+final class AuthController extends UmControllerBase {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
     private static final String PAGE_LOGOUT = UmConfig.LOGOUT_URL.replaceAll("/", "");
@@ -35,7 +35,6 @@ class AuthController {
     private final Set<String> pageLoginParams;
     private final Set<String> pageLogoutParams;
 
-    private final UmLanguage language;
     private final SecureService secureService;
     private final UmConfig umConfig;
     private final UserService userService;
@@ -43,7 +42,7 @@ class AuthController {
 
     AuthController(LocaleConfig localeConfig, UmLanguage language, UmConfig umConfig,
                    UserService userService, OAuth2Config oAuth2Config) {
-        this.language = language;
+        super(language);
         this.secureService = umConfig.getAuthService();
         this.umConfig = umConfig;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
@@ -53,9 +52,8 @@ class AuthController {
     }
 
     @GetMapping(value = {"/", UmConfig.LOGIN_URL, UmConfig.LOGIN_URL + ".html"})
-    ModelAndView getLogin(HttpServletRequest request, HttpServletResponse response,
-                                 @RequestParam(required = false) final Boolean error,
-                                 @RequestParam(required = false) final String lang) {
+    ModelAndView getLogin(final HttpServletRequest request, final HttpServletResponse response,
+                          @RequestParam(required = false) final String lang) {
         try {
             if (UserUtils.isAuthorizedAdmin(request, userService)) {
                 response.sendRedirect(UmConfig.adminSuccessUrl);
@@ -67,8 +65,7 @@ class AuthController {
         }
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGIN);
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageLoginParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
         modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
         modelAndView.addObject("googleAuthAllowed", !("".equals(oAuth2Config.getGoogleClientId())));
         modelAndView.addObject("loginTitle", umConfig.getLoginTitle());
@@ -79,8 +76,7 @@ class AuthController {
     ModelAndView getLogout(@RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGOUT);
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageLogoutParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageLogoutParams, secureService.getEncryptMethodNameForView(), lang);
         return modelAndView;
     }
 

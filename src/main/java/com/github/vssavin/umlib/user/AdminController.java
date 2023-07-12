@@ -1,10 +1,9 @@
 package com.github.vssavin.umlib.user;
 
+import com.github.vssavin.umlib.base.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
-import com.github.vssavin.umlib.helper.MvcHelper;
-import com.github.vssavin.umlib.helper.ValidationHelper;
 import com.github.vssavin.umlib.language.MessageKeys;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
@@ -25,14 +24,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.github.vssavin.umlib.user.AdminController.ADMIN_CONTROLLER_PATH;
-import static com.github.vssavin.umlib.helper.MvcHelper.*;
 
 /**
  * @author vssavin on 21.12.21
  */
 @RestController
 @RequestMapping(ADMIN_CONTROLLER_PATH)
-class AdminController {
+final class AdminController extends UmControllerBase {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     static final String ADMIN_CONTROLLER_PATH = "/um/admin";
     private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
@@ -65,11 +63,11 @@ class AdminController {
     private final SecureService secureService;
     private final UmConfig umConfig;
     private final PasswordEncoder passwordEncoder;
-    private final UmLanguage language;
 
     @Autowired
     AdminController(LocaleConfig localeConfig, UserService userService, UmConfig umConfig,
                     PasswordEncoder passwordEncoder, UmLanguage language) {
+        super(language);
         this.userService = userService;
         this.secureService = umConfig.getAuthService();
         this.umConfig = umConfig;
@@ -81,51 +79,49 @@ class AdminController {
         pageRegistrationParams = localeConfig.forPage(PAGE_REGISTRATION).getKeys();
         pageChangeUserPasswordParams = localeConfig.forPage(PAGE_CHANGE_USER_PASSWORD).getKeys();
         this.pageAdminConfirmUserParams = localeConfig.forPage(PAGE_CONFIRM_USER).getKeys();
-        this.language = language;
     }
 
     @GetMapping()
-    ModelAndView admin(HttpServletResponse response, @RequestParam(required = false) final String lang) {
+    ModelAndView admin(final HttpServletResponse response, @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_ADMIN);
             modelAndView.addObject("userName", authorizedName);
         } else {
-            modelAndView = MvcHelper.getErrorModelAndView("errorPage",
+            modelAndView = getErrorModelAndView("errorPage",
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
             response.setStatus(500);
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageAdminParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageAdminParams, secureService.getEncryptMethodNameForView(), lang);
 
         return modelAndView;
     }
 
     @GetMapping(value = {"/" + PAGE_CONFIRM_USER, "/" + PAGE_CONFIRM_USER + ".html"})
-    ModelAndView adminConfirmUser(HttpServletResponse response,
-                                         @RequestParam(required = false) final String lang) {
+    ModelAndView adminConfirmUser(final HttpServletResponse response,
+                                  @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_CONFIRM_USER);
             modelAndView.addObject("userName", authorizedName);
         } else {
-            modelAndView = MvcHelper.getErrorModelAndView("errorPage",
+            modelAndView = getErrorModelAndView("errorPage",
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
             response.setStatus(500);
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageAdminConfirmUserParams, language,
+        addObjectsToModelAndView(modelAndView, pageAdminConfirmUserParams,
                 secureService.getEncryptMethodNameForView(), lang);
 
         return modelAndView;
     }
 
     @GetMapping(value = {"/" + PAGE_REGISTRATION, "/" + PAGE_REGISTRATION + ".html"})
-    ModelAndView registration(HttpServletRequest request, Model model,
-                                     @RequestParam(required = false) final String lang) {
+    ModelAndView registration(final HttpServletRequest request, final Model model,
+                              @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
         if (isAuthorizedUser(authorizedName)) {
@@ -140,22 +136,22 @@ class AdminController {
                             MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang));
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+        addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                 secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
 
     }
 
     @PostMapping(PERFORM_REGISTER_MAPPING)
-    ModelAndView performRegister(HttpServletRequest request, HttpServletResponse response,
-                                        @RequestParam final String login,
-                                        @RequestParam final String username,
-                                        @RequestParam final String password,
-                                        @RequestParam final String confirmPassword,
-                                        @RequestParam final String email,
-                                        @RequestParam(required = false) final String role,
-                                        @RequestParam(required = false) final String lang) {
+    ModelAndView performRegister(final HttpServletRequest request, final HttpServletResponse response,
+                                 @RequestParam final String login,
+                                 @RequestParam final String username,
+                                 @RequestParam final String password,
+                                 @RequestParam final String confirmPassword,
+                                 @RequestParam final String email,
+                                 @RequestParam(required = false) final String role,
+                                 @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         String authorizedName = UserSecurityHelper.getAuthorizedUserLogin();
 
@@ -164,9 +160,9 @@ class AdminController {
         registerRole = Role.getRole(role);
 
         if (!userService.accessGrantedForRegistration(registerRole, authorizedName)) {
-            modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+            addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
             return modelAndView;
@@ -177,24 +173,24 @@ class AdminController {
             String decodedPassword = secureService.decrypt(password, key);
             String decodedConfirmPassword = secureService.decrypt(confirmPassword, key);
             if (!decodedPassword.equals(decodedConfirmPassword)) {
-                modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+                modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE.getMessageKey(), lang);
-                MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+                addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
                 return modelAndView;
             }
 
-            if (!ValidationHelper.isValidEmail(email)) {
-                modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+            if (!isValidUserEmail(email)) {
+                modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
-                MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+                addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
                 return modelAndView;
             }
 
-            if (!ValidationHelper.isValidPassword(umConfig.getPasswordPattern(), decodedPassword)) {
+            if (!isValidUserPassword(umConfig.getPasswordPattern(), decodedPassword)) {
                 modelAndView = new ModelAndView("redirect:" + PAGE_REGISTRATION);
                 modelAndView.addObject("error", true);
                 modelAndView.addObject("errorMsg", umConfig.getPasswordDoesntMatchPatternMessage());
@@ -204,9 +200,9 @@ class AdminController {
 
             try {
                 userService.getUserByEmail(email);
-                modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+                modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(), lang);
-                MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+                addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
                 return modelAndView;
@@ -220,17 +216,17 @@ class AdminController {
             userService.confirmUser(login, "", true);
         } catch (UserExistsException e) {
             log.error("User exists! ", e);
-            modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                     MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, username);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+            addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(400);
             return modelAndView;
         } catch (Exception e) {
             log.error("User registration error! ", e);
-            modelAndView = MvcHelper.getErrorModelAndView(PAGE_REGISTRATION,
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                     MessageKeys.CREATE_USER_ERROR_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+            addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
             return modelAndView;
@@ -238,7 +234,7 @@ class AdminController {
 
         modelAndView = getSuccessModelAndView(PAGE_REGISTRATION,
                 MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), lang, newUser.getLogin());
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageRegistrationParams, language,
+        addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                 secureService.getEncryptMethodNameForView(), lang);
 
         return modelAndView;
@@ -246,25 +242,25 @@ class AdminController {
 
     @GetMapping(value = {"/" + PAGE_CHANGE_USER_PASSWORD, "/" + PAGE_CHANGE_USER_PASSWORD + ".html"},
             produces = {"application/json; charset=utf-8"})
-    ModelAndView changeUserPassword(HttpServletRequest request,
-                                           @RequestParam(required = false) final String lang) {
+    ModelAndView changeUserPassword(final HttpServletRequest request,
+                                    @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView(PAGE_CHANGE_USER_PASSWORD);
         String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
         if (!isAuthorizedUser(authorizedName)) {
-            modelAndView = MvcHelper.getErrorModelAndView("errorPage",
+            modelAndView = getErrorModelAndView("errorPage",
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+        addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                 secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
     }
 
     @PatchMapping(PAGE_CHANGE_USER_PASSWORD)
-    ModelAndView performChangeUserPassword(HttpServletRequest request, HttpServletResponse response,
-                                                  @RequestParam String userName, @RequestParam String newPassword,
-                                                  @RequestParam(required = false) final String lang) {
+    ModelAndView performChangeUserPassword(final HttpServletRequest request, final HttpServletResponse response,
+                                           @RequestParam String userName, @RequestParam String newPassword,
+                                           @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         try {
             String authorizedUserName = UserSecurityHelper.getAuthorizedUserName(userService);
@@ -277,17 +273,17 @@ class AdminController {
                     Utils.clearString(realNewPassword);
                     userService.updateUser(user);
                 } else {
-                    modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
+                    modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                             MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), lang);
-                    MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+                    addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(404);
                     return modelAndView;
                 }
             } else {
-                modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
+                modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                         MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-                MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+                addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(403);
                 return modelAndView;
@@ -295,35 +291,35 @@ class AdminController {
 
         } catch (UsernameNotFoundException ex) {
             log.error("User name not found!", ex);
-            modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
+            modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+            addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(404);
             return modelAndView;
         } catch (Exception ex) {
             log.error("User password change error! ", ex);
-            modelAndView = MvcHelper.getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
+            modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKeys.REQUEST_PROCESSING_ERROR.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+            addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
             return modelAndView;
         }
 
-        modelAndView = MvcHelper.getSuccessModelAndView(PAGE_CHANGE_USER_PASSWORD,
+        modelAndView = getSuccessModelAndView(PAGE_CHANGE_USER_PASSWORD,
                 MessageKeys.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getMessageKey(), lang);
         response.setStatus(200);
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams, language,
+        addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                 secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;
     }
 
     @GetMapping(value = {"/" + PAGE_USERS, "/" + PAGE_USERS + ".html"})
-    ModelAndView users(HttpServletRequest request, HttpServletResponse response,
-                              @ModelAttribute UserFilter userFilter,
+    ModelAndView users(final HttpServletRequest request, final HttpServletResponse response,
+                              @ModelAttribute final UserFilter userFilter,
                               @RequestParam(required = false, defaultValue = "1") final int page,
                               @RequestParam(required = false, defaultValue = "5") final int size,
                               @RequestParam(required = false) final String lang) {
@@ -333,47 +329,43 @@ class AdminController {
             Paged<User> users = userService.getUsers(userFilter, page, size);
             modelAndView.addObject("users", users);
         } else {
-            modelAndView = MvcHelper.getErrorModelAndView(UmConfig.LOGIN_URL,
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageLoginParams, language,
-                    secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageUsersParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;
     }
 
     @GetMapping(value = {"/" + PAGE_USERS + "/" + PAGE_USER_EDIT + "/{id}",
             "/" + PAGE_USERS + "/" + PAGE_USER_EDIT + ".html" + "/{id}"})
-    ModelAndView userEdit(HttpServletRequest request, HttpServletResponse response,
-                                 @PathVariable Long id,
-                                 @RequestParam(required = false) final boolean success,
-                                 @RequestParam(required = false) final String successMsg,
-                                 @RequestParam(required = false) final boolean error,
-                                 @RequestParam(required = false) final String errorMsg,
-                                 @RequestParam(required = false) final String lang) {
+    ModelAndView userEdit(final HttpServletRequest request, final HttpServletResponse response,
+                          @PathVariable final Long id,
+                          @RequestParam(required = false) final boolean success,
+                          @RequestParam(required = false) final String successMsg,
+                          @RequestParam(required = false) final boolean error,
+                          @RequestParam(required = false) final String errorMsg,
+                          @RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView("userEdit");
         if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
             User user = userService.getUserById(id);
             modelAndView.addObject("user", user);
         } else {
-            modelAndView = MvcHelper.getErrorModelAndView(UmConfig.LOGIN_URL,
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageLoginParams, language,
-                    secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
-            MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+            addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
             return modelAndView;
         }
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, pageUserEditParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         if (successMsg != null) {
             modelAndView.addObject("success", success);
@@ -389,16 +381,16 @@ class AdminController {
     }
 
     @PatchMapping(PAGE_USERS)
-    ModelAndView performUserEdit(HttpServletRequest request, HttpServletResponse response,
-                                        @ModelAttribute UserDto userDto,
-                                        @RequestParam(required = false) final String lang) {
+    ModelAndView performUserEdit(final HttpServletRequest request, final HttpServletResponse response,
+                                 @ModelAttribute final UserDto userDto,
+                                 @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView("userEdit");
         try {
             if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
-                if (!ValidationHelper.isValidEmail(userDto.getEmail())) {
-                    modelAndView = MvcHelper.getErrorModelAndView(PAGE_USERS,
+                if (!isValidUserEmail(userDto.getEmail())) {
+                    modelAndView = getErrorModelAndView(PAGE_USERS,
                             MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
-                    MvcHelper.addObjectsToModelAndView(modelAndView, pageUsersParams, language,
+                    addObjectsToModelAndView(modelAndView, pageUsersParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(400);
                     return modelAndView;
@@ -412,9 +404,9 @@ class AdminController {
                 }
 
                 if (userByLogin != null && !userByLogin.getId().equals(userDto.getId())) {
-                    modelAndView = MvcHelper.getErrorModelAndView(PAGE_USERS,
+                    modelAndView = getErrorModelAndView(PAGE_USERS,
                             MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, userDto.getLogin());
-                    MvcHelper.addObjectsToModelAndView(modelAndView, pageUsersParams, language,
+                    addObjectsToModelAndView(modelAndView, pageUsersParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(400);
                     return modelAndView;
@@ -434,18 +426,18 @@ class AdminController {
                         .getMessage("userEdit", MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
                 modelAndView.addObject("successMsg", successMsg);
             } else {
-                modelAndView = MvcHelper.getErrorModelAndView(UmConfig.LOGIN_URL,
+                modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                         MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-                MvcHelper.addObjectsToModelAndView(modelAndView, pageLoginParams, language,
+                addObjectsToModelAndView(modelAndView, pageLoginParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(403);
                 return modelAndView;
             }
         } catch (Exception e) {
             log.error("User update error! ", e);
-            modelAndView = MvcHelper.getErrorModelAndView(UmConfig.LOGIN_URL,
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.USER_EDIT_ERROR_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageUserEditParams, language,
+            addObjectsToModelAndView(modelAndView, pageUserEditParams,
                     secureService.getEncryptMethodNameForView(), lang);
             return modelAndView;
         }
@@ -453,9 +445,9 @@ class AdminController {
         modelAndView = new ModelAndView("redirect:" + ADMIN_CONTROLLER_PATH + "/" + PAGE_USERS +
                 "/" + PAGE_USER_EDIT + "/" + userDto.getId());
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, "userEdit", pageUserEditParams, language,
+        addObjectsToModelAndView(modelAndView, "userEdit", pageUserEditParams,
                 secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         String successMsg = LocaleConfig.getMessage("userEdit",
                 MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
@@ -465,12 +457,11 @@ class AdminController {
     }
 
     @DeleteMapping(PAGE_USERS)
-    ModelAndView deleteUser(HttpServletRequest request,
-                                   HttpServletResponse response,
-                                   @RequestParam Long id,
-                                   @RequestParam(required = false, defaultValue = "1") final int page,
-                                   @RequestParam(required = false, defaultValue = "5") final int size,
-                                   @RequestParam(required = false) final String lang) {
+    ModelAndView deleteUser(final HttpServletRequest request, final HttpServletResponse response,
+                            @RequestParam final Long id,
+                            @RequestParam(required = false, defaultValue = "1") final int page,
+                            @RequestParam(required = false, defaultValue = "5") final int size,
+                            @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView("users");
         if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
             User user = userService.getUserById(id);
@@ -484,10 +475,9 @@ class AdminController {
             }
 
         } else {
-            modelAndView = MvcHelper.getErrorModelAndView(UmConfig.LOGIN_URL,
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
-            MvcHelper.addObjectsToModelAndView(modelAndView, pageLoginParams, language,
-                    secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
             return modelAndView;
         }
@@ -495,14 +485,9 @@ class AdminController {
         Paged<User> users = userService.getUsers(UserFilter.emptyUserFilter(), page, size);
         modelAndView.addObject("users", users);
 
-        MvcHelper.addObjectsToModelAndView(modelAndView, pageUsersParams, language,
-                secureService.getEncryptMethodNameForView(), lang);
-        MvcHelper.addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
+        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;
-    }
-
-    private boolean isAuthorizedUser(String userName) {
-        return (userName != null && !userName.isEmpty());
     }
 }
