@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
  * @author vssavin on 21.01.22
  */
 @Service
-public class ApplicationSecureService extends PlatformSpecificSecureImpl {
+class ApplicationSecureService extends PlatformSpecificSecureImpl {
 }

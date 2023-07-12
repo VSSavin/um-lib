@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Primary
-public class NoSecureService extends NoSecure implements SecureService {
+class NoSecureService extends NoSecure implements SecureService {
     @Override
     public String toString() {
         return "no";
