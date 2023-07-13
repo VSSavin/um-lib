@@ -60,16 +60,18 @@ final class UserController extends UmControllerBase {
     private final Set<String> pageUserControlPanelParams;
 
     private final UserService userService;
+    private final UserSecurityService userSecurityService;
     private final SecureService secureService;
     private final EmailService emailService;
     private final UmConfig mainConfig;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserController(LocaleConfig localeConfig, UserService userService, EmailService emailService,
-                   UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
+    UserController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
+                   EmailService emailService, UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
         super(language);
         this.userService = userService;
+        this.userSecurityService = userSecurityService;
         this.secureService = umConfig.getAuthService();
         this.emailService = emailService;
         this.mainConfig = umConfig;
@@ -92,7 +94,13 @@ final class UserController extends UmControllerBase {
             return getForbiddenModelAndView(request);
         }
 
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName;
+        try {
+            authorizedName = userSecurityService.getAuthorizedUserName(request);
+        } catch (UsernameNotFoundException e) {
+            authorizedName = "";
+        }
+
         if (!authorizedName.isEmpty()) {
             return getForbiddenModelAndView(request);
         }
@@ -120,7 +128,13 @@ final class UserController extends UmControllerBase {
             return getForbiddenModelAndView(request);
         }
 
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName;
+        try {
+            authorizedName = userSecurityService.getAuthorizedUserName(request);
+        } catch (UsernameNotFoundException e) {
+            authorizedName = "";
+        }
+
         if (!authorizedName.isEmpty()) {
             return getForbiddenModelAndView(request);
         }
@@ -429,7 +443,7 @@ final class UserController extends UmControllerBase {
         try {
             user = userService.getUserByLogin(login);
 
-            if (!UserSecurityHelper.getAuthorizedUserLogin().equals(user.getLogin())) {
+            if (!userSecurityService.getAuthorizedUserLogin(request).equals(user.getLogin())) {
                 modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                         MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageLoginParams,
@@ -475,7 +489,7 @@ final class UserController extends UmControllerBase {
         try {
             User userFromDatabase = userService.getUserById(userDto.getId());
 
-            if (!UserSecurityHelper.getAuthorizedUserLogin().equals(userFromDatabase.getLogin())) {
+            if (!userSecurityService.getAuthorizedUserLogin(request).equals(userFromDatabase.getLogin())) {
                 modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                         MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageLoginParams,
@@ -542,7 +556,7 @@ final class UserController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_USER_CONTROL_PANEL);
         User user;
         try {
-            String login = UserSecurityHelper.getAuthorizedUserLogin();
+            String login = userSecurityService.getAuthorizedUserLogin(request);
             user = userService.getUserByLogin(login);
         } catch (Exception e) {
             log.error("User update error! ", e);

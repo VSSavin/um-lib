@@ -60,15 +60,17 @@ final class AdminController extends UmControllerBase {
     private final Set<String> pageAdminConfirmUserParams;
 
     private final UserService userService;
+    private final UserSecurityService userSecurityService;
     private final SecureService secureService;
     private final UmConfig umConfig;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    AdminController(LocaleConfig localeConfig, UserService userService, UmConfig umConfig,
-                    PasswordEncoder passwordEncoder, UmLanguage language) {
+    AdminController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
+                    UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
         super(language);
         this.userService = userService;
+        this.userSecurityService = userSecurityService;
         this.secureService = umConfig.getAuthService();
         this.umConfig = umConfig;
         this.passwordEncoder = passwordEncoder;
@@ -82,9 +84,10 @@ final class AdminController extends UmControllerBase {
     }
 
     @GetMapping()
-    ModelAndView admin(final HttpServletResponse response, @RequestParam(required = false) final String lang) {
+    ModelAndView admin(final HttpServletResponse response, final HttpServletRequest request,
+                       @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName = userSecurityService.getAuthorizedUserName(request);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_ADMIN);
             modelAndView.addObject("userName", authorizedName);
@@ -100,10 +103,10 @@ final class AdminController extends UmControllerBase {
     }
 
     @GetMapping(value = {"/" + PAGE_CONFIRM_USER, "/" + PAGE_CONFIRM_USER + ".html"})
-    ModelAndView adminConfirmUser(final HttpServletResponse response,
+    ModelAndView adminConfirmUser(final HttpServletResponse response, final HttpServletRequest request,
                                   @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName = userSecurityService.getAuthorizedUserName(request);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_CONFIRM_USER);
             modelAndView.addObject("userName", authorizedName);
@@ -123,7 +126,7 @@ final class AdminController extends UmControllerBase {
     ModelAndView registration(final HttpServletRequest request, final Model model,
                               @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName = userSecurityService.getAuthorizedUserName(request);
         if (isAuthorizedUser(authorizedName)) {
             modelAndView = new ModelAndView(PAGE_REGISTRATION, model.asMap());
             modelAndView.addObject("userName", authorizedName);
@@ -153,7 +156,7 @@ final class AdminController extends UmControllerBase {
                                  @RequestParam(required = false) final String role,
                                  @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = UserSecurityHelper.getAuthorizedUserLogin();
+        String authorizedName = userSecurityService.getAuthorizedUserLogin(request);
 
         User newUser;
         Role registerRole;
@@ -245,7 +248,7 @@ final class AdminController extends UmControllerBase {
     ModelAndView changeUserPassword(final HttpServletRequest request,
                                     @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView(PAGE_CHANGE_USER_PASSWORD);
-        String authorizedName = UserSecurityHelper.getAuthorizedUserName(userService);
+        String authorizedName = userSecurityService.getAuthorizedUserName(request);
         if (!isAuthorizedUser(authorizedName)) {
             modelAndView = getErrorModelAndView("errorPage",
                     MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
@@ -263,7 +266,7 @@ final class AdminController extends UmControllerBase {
                                            @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
         try {
-            String authorizedUserName = UserSecurityHelper.getAuthorizedUserName(userService);
+            String authorizedUserName = userSecurityService.getAuthorizedUserName(request);
             if (isAuthorizedUser(authorizedUserName)) {
                 User user = userService.getUserByLogin(userName);
                 String realNewPassword = secureService.decrypt(newPassword,
@@ -325,7 +328,7 @@ final class AdminController extends UmControllerBase {
                               @RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView(PAGE_USERS);
-        if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
+        if (userSecurityService.isAuthorizedAdmin(request)) {
             Paged<User> users = userService.getUsers(userFilter, page, size);
             modelAndView.addObject("users", users);
         } else {
@@ -352,7 +355,7 @@ final class AdminController extends UmControllerBase {
                           @RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView("userEdit");
-        if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
+        if (userSecurityService.isAuthorizedAdmin(request)) {
             User user = userService.getUserById(id);
             modelAndView.addObject("user", user);
         } else {
@@ -386,7 +389,7 @@ final class AdminController extends UmControllerBase {
                                  @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView("userEdit");
         try {
-            if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
+            if (userSecurityService.isAuthorizedAdmin(request)) {
                 if (!isValidUserEmail(userDto.getEmail())) {
                     modelAndView = getErrorModelAndView(PAGE_USERS,
                             MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
@@ -463,7 +466,7 @@ final class AdminController extends UmControllerBase {
                             @RequestParam(required = false, defaultValue = "5") final int size,
                             @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView("users");
-        if (UserSecurityHelper.isAuthorizedAdmin(userService)) {
+        if (userSecurityService.isAuthorizedAdmin(request)) {
             User user = userService.getUserById(id);
             if (user.getLogin().isEmpty()) {
                 String errorMessage = LocaleConfig.getMessage("users",
