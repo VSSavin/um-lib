@@ -49,20 +49,36 @@ public class SimpleUserSecurityService implements UserSecurityService {
 
     @Override
     public String getAuthorizedUserLogin(HttpServletRequest request) {
-        User user = getAuthorizedUser(request);
+        User user;
+        try {
+            user = getAuthorizedUser(request);
+        } catch (UsernameNotFoundException e) {
+            return "";
+        }
         return user.getLogin();
     }
 
     @Override
     public boolean isAuthorizedAdmin(HttpServletRequest request) {
-        User user = getAuthorizedUser(request);
-        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
+        User user = null;
+        try {
+            user = getAuthorizedUser(request);
+        } catch (UsernameNotFoundException ignore) {
+
+        }
+        return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
     }
 
     @Override
     public boolean isAuthorizedUser(HttpServletRequest request) {
-        User user = getAuthorizedUser(request);
-        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
+        User user = null;
+        try {
+            user = getAuthorizedUser(request);
+        } catch (UsernameNotFoundException ignore) {
+
+        }
+
+        return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
     }
 
     private User getAuthorizedUser(HttpServletRequest request) {
@@ -74,18 +90,10 @@ public class SimpleUserSecurityService implements UserSecurityService {
             } else {
                 user = userService.getUserByLogin(principal.getName());
             }
+        }
 
-            /*
-            try {
-                OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) principal;
-                user = userService.getUserByOAuth2Token(token);
-            } catch (ClassCastException e) {
-                //ignore, it's ok'
-            }
-            if (user == null) {
-                user = userService.getUserByLogin(principal.getName());
-            }
-             */
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found!");
         }
         return user;
     }
