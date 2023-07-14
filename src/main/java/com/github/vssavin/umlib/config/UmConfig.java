@@ -1,6 +1,7 @@
 package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.security.SecureService;
+import com.github.vssavin.umlib.user.Role;
 import io.github.vssavin.securelib.Utils;
 import io.github.vssavin.securelib.platformSecure.PlatformSpecificSecure;
 import org.slf4j.Logger;
@@ -26,6 +27,9 @@ public class UmConfig extends StorableConfig {
     @IgnoreField public static final String LOGIN_URL = "/login";
     @IgnoreField public static final String LOGIN_PROCESSING_URL = "/perform-login";
     @IgnoreField public static final String LOGOUT_URL = "/logout";
+    @IgnoreField public static final String PERFORM_LOGOUT_URL = "/perform-logout";
+    @IgnoreField public static final String REGISTRATION_URL = "/um/users/registration";
+    @IgnoreField public static final String PERFORM_REGISTER_URL = "/um/users/perform-register";
 
     @IgnoreField public static String adminSuccessUrl = "/um/admin";
     @IgnoreField public static String successUrl = "/index.html";
@@ -45,7 +49,7 @@ public class UmConfig extends StorableConfig {
     private String applicationUrl;
 
     @Value("${um.registration.allowed:true}")
-    private Boolean registrationAllowed;
+    private boolean registrationAllowed;
 
     @Value("${um.login.title:}")
     private String loginTitle;
@@ -59,13 +63,14 @@ public class UmConfig extends StorableConfig {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/passwordRecovery", new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-password-recovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/registration", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-register", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, new String[0]));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/confirmUser", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", new String[]{"ADMIN"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", new String[]{"ADMIN"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", new String[]{"ADMIN", "USER"}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/perform-logout", new String[0]));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
     }
 
     public UmConfig(ApplicationContext context, SecureService secureService, UmConfigurer umConfigurer,
@@ -121,31 +126,30 @@ public class UmConfig extends StorableConfig {
     }
 
     public void updateAuthorizedPermissions() {
-        if (!permissionsUpdated) {
-            if (!registrationAllowed) {
-                int registrationIndex = -1, performRegisterIndex = -1;
+        if (!permissionsUpdated && !registrationAllowed) {
+            int registrationIndex = -1;
+            int performRegisterIndex = -1;
 
-                for (int i = 0; i < authorizedUrlPermissions.size(); i++) {
-                    AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
-                    if (authorizedUrlPermission.getUrl().equals("/um/users/registration")) {
-                        registrationIndex = i;
-                    } else if (authorizedUrlPermission.getUrl().equals("/um/users/perform-register")) {
-                        performRegisterIndex = i;
-                    }
+            for (int i = 0; i < authorizedUrlPermissions.size(); i++) {
+                AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
+                if (authorizedUrlPermission.getUrl().equals(REGISTRATION_URL)) {
+                    registrationIndex = i;
+                } else if (authorizedUrlPermission.getUrl().equals(PERFORM_REGISTER_URL)) {
+                    performRegisterIndex = i;
                 }
-
-                if (registrationIndex != -1) {
-                    authorizedUrlPermissions.set(registrationIndex,
-                            new AuthorizedUrlPermission("/um/users/registration", new String[]{"ADMIN"}));
-                }
-
-                if (performRegisterIndex != -1) {
-                    authorizedUrlPermissions.set(performRegisterIndex,
-                            new AuthorizedUrlPermission("/um/users/perform-register", new String[]{"ADMIN"}));
-                }
-
-                permissionsUpdated = true;
             }
+
+            if (registrationIndex != -1) {
+                authorizedUrlPermissions.set(registrationIndex,
+                        new AuthorizedUrlPermission(REGISTRATION_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
+            }
+
+            if (performRegisterIndex != -1) {
+                authorizedUrlPermissions.set(performRegisterIndex,
+                        new AuthorizedUrlPermission(PERFORM_REGISTER_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
+            }
+
+            permissionsUpdated = true;
         }
     }
 
@@ -157,7 +161,7 @@ public class UmConfig extends StorableConfig {
             if (args != null && args.length > 0) {
                 return args;
             }
-        } catch (NoSuchBeanDefinitionException ignore) {
+        } catch (NoSuchBeanDefinitionException ignore) { //ignore
         } catch (NoSuchMethodException e) {
             log.error("Method \"getSourceArgs\" not found!", e);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -203,13 +207,14 @@ public class UmConfig extends StorableConfig {
 
     private void processArgs(String[] args) {
         if (args != null && args.length > 0) {
-            System.out.println("Application started with arguments: " + Arrays.toString(args));
+            String argsString = Arrays.toString(args);
+            log.debug("Application started with arguments: {}", argsString);
             Map<String, String> mappedArgs = getMappedArgs(args);
             String password = mappedArgs.get("ep");
             if (password != null) {
                 String encrypted = encryptPropertiesPasswordService.encrypt(password, "");
                 Utils.clearString(password);
-                System.out.printf("Encryption for password [%s] : %s%n", password, encrypted);
+                log.debug("Encryption for password [{}] : {}", password, encrypted);
                 Utils.clearString(password);
             }
             String authServiceName = mappedArgs.get("authService");

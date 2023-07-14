@@ -13,5 +13,14 @@ public enum Role {
         }
         return role.toLowerCase().contains("admin") ? Role.ROLE_ADMIN : Role.ROLE_USER;
     }
+
+    public static String getStringRole(Role role) {
+        String stringRole = role.toString();
+        String[] splitted = stringRole.split("_");
+        if (splitted.length > 1) {
+            stringRole = splitted[1];
+        }
+        return stringRole;
+    }
 }
 
