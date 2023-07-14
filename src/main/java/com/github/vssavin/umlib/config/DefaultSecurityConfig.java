@@ -20,13 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by vssavin on 17.05.2022.
@@ -39,7 +39,6 @@ public class DefaultSecurityConfig {
     private final AuthenticationSuccessHandler authSuccessHandler;
     private final AuthenticationFailureHandler authFailureHandler;
     private final AuthenticationProvider authProvider;
-    private final LogoutHandler logoutHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LogoutSuccessHandler logoutSuccessHandler;
     private final PasswordEncoder passwordEncoder;
@@ -52,7 +51,7 @@ public class DefaultSecurityConfig {
                                  AuthenticationSuccessHandler customAuthenticationSuccessHandler,
                                  AuthenticationFailureHandler customAuthenticationFailureHandler,
                                  AuthenticationProvider customAuthenticationProvider,
-                                 LogoutHandler customLogoutHandler, CustomOAuth2UserService customOAuth2UserService,
+                                 CustomOAuth2UserService customOAuth2UserService,
                                  LogoutSuccessHandler customLogoutSuccessHandler, PasswordEncoder passwordEncoder,
                                  OAuth2Config oAuth2Config) {
         this.beanFactory = beanFactory;
@@ -60,7 +59,6 @@ public class DefaultSecurityConfig {
         this.authSuccessHandler = customAuthenticationSuccessHandler;
         this.authFailureHandler = customAuthenticationFailureHandler;
         this.authProvider = customAuthenticationProvider;
-        this.logoutHandler = customLogoutHandler;
         this.customOAuth2UserService = customOAuth2UserService;
         this.logoutSuccessHandler = customLogoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
@@ -125,11 +123,11 @@ public class DefaultSecurityConfig {
                 .logout()
                 .permitAll()
                 .logoutUrl(configurer.getLogoutUrl())
-                .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID");
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true);
 
-        if (!"".equals(oAuth2Config.getGoogleClientId())) {
+        if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
             registry.and()
                     .oauth2Login()
                     .successHandler(authSuccessHandler)
