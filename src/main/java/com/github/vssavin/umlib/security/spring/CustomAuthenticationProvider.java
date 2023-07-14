@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author vssavin on 18.12.2021
@@ -39,18 +40,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Object credentials = authentication.getCredentials();
         Object userName = authentication.getPrincipal();
-        if (credentials != null) {
+        if (Objects.nonNull(credentials)) {
             UserDetails user = userService.loadUserByUsername(userName.toString());
-            if (user != null) {
-                if (!user.isAccountNonExpired()) {
-                    throw new AccountExpiredException("Account is expired!");
-                }
-                if (!user.isAccountNonLocked()) {
-                    throw new LockedException("Account is locked!");
-                }
-                if (!user.isEnabled()) {
-                    throw new DisabledException("Account is disabled!");
-                }
+            if (Objects.nonNull(user)) {
+                checkUserDetails(user);
 
                 Object details = authentication.getDetails();
                 String addr = "";
@@ -74,11 +67,22 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         } else {
             return authentication;
         }
-
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.isAssignableFrom(CustomUsernamePasswordAuthenticationToken.class);
+    }
+    
+    private void checkUserDetails(UserDetails userDetails) {
+        if (!userDetails.isAccountNonExpired()) {
+            throw new AccountExpiredException("Account is expired!");
+        }
+        if (!userDetails.isAccountNonLocked()) {
+            throw new LockedException("Account is locked!");
+        }
+        if (!userDetails.isEnabled()) {
+            throw new DisabledException("Account is disabled!");
+        }
     }
 }
