@@ -24,7 +24,7 @@ public class BannedIpFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String userIp = request.getRemoteAddr();
         if (CustomAuthenticationFailureHandler.isBannedIp(userIp)) {
-            log.info("Trying to access from banned IP: " + userIp);
+            log.info("Trying to access from banned IP: {}", userIp);
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Доступ запрещен");
             return;

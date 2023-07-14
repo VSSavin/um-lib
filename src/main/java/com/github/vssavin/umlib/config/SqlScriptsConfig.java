@@ -40,7 +40,7 @@ public class SqlScriptsConfig {
                 path = Paths
                         .get(Objects.requireNonNull(getClass().getClassLoader().getResource(scriptsDirectory)).toURI());
             } catch (Exception e) {
-                log.warn("Directory " + scriptsDirectory + " not found!");
+                log.warn("Directory {} not found!", scriptsDirectory);
             }
 
             if (path != null) {
@@ -53,7 +53,7 @@ public class SqlScriptsConfig {
                                     fileStreams.put(p.getFileName().toString(),
                                             new FileInputStream(new File(p.toUri())));
                                 } catch (FileNotFoundException e) {
-                                    log.error("File not found: file = " + p.getFileName());
+                                    log.error("File not found: file = {}", p.getFileName());
                                 }
                             });
                 } catch (Exception e) {
@@ -68,7 +68,7 @@ public class SqlScriptsConfig {
                 try {
                     resourceStream = getClass().getResourceAsStream(sourceFile);
                     if (resourceStream == null) {
-                        log.warn("Resource is null! File: " + sourceFile);
+                        log.warn("Resource is null! File: {}", sourceFile);
                     } else {
                         fileStreams.put(sourceFile, resourceStream);
                     }
@@ -77,13 +77,13 @@ public class SqlScriptsConfig {
                     log.error("Getting resource stream error: file = " + sourceFile, e);
                 }
             } else {
-                log.warn("Resource: " + sourceFile + " is not sql file!");
+                log.warn("Resource: {} is not sql file!", sourceFile);
             }
 
         }
 
         fileStreams.forEach((file, inputStream) -> {
-            log.debug("Processing sql file: " + file);
+            log.debug("Processing sql file: {}", file);
             executeSqlScript(new InputStreamReader(inputStream), dataSource);
             try {
                 inputStream.close();

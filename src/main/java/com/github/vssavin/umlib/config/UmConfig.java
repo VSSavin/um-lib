@@ -85,7 +85,7 @@ public class UmConfig extends StorableConfig {
         }
         initSecureService("");
         processArgs(applicationArgs);
-        log.debug("Using auth service: " + authService);
+        log.debug("Using auth service: {}", authService);
     }
 
     public SecureService getAuthService() {
