@@ -34,13 +34,14 @@ import static com.querydsl.core.types.Projections.bean;
 @Repository
 public class SimpleUserRepository implements UserRepository {
 
-    private static final QUser users = new QUser("users");
+    private static final String TABLE_USERS = "users";
+    private static final QUser users = new QUser(TABLE_USERS);
 
     private static final QBean<User> userBean = bean(User.class, users.id, users.login, users.name, users.password,
             users.email, users.authority, users.expiration_date, users.verification_id);
 
     private static final RelationalPathBase<User> usersRelationalPath =
-            new RelationalPathBase<>(users.getType(), users.getMetadata(), "", "users");
+            new RelationalPathBase<>(users.getType(), users.getMetadata(), "", TABLE_USERS);
 
     private final DataSourceSwitcher dataSourceSwitcher;
     private final Configuration queryDslConfiguration;
@@ -88,19 +89,19 @@ public class SimpleUserRepository implements UserRepository {
     @NonNull
     @Override
     public Iterable<User> findAll(@NonNull Predicate predicate, @NonNull Sort sort) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @NonNull
     @Override
     public Iterable<User> findAll(@NonNull Predicate predicate, @NonNull OrderSpecifier<?>... orders) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @NonNull
     @Override
     public Iterable<User> findAll(@NonNull OrderSpecifier<?>... orders) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @NonNull
@@ -140,7 +141,7 @@ public class SimpleUserRepository implements UserRepository {
     @NonNull
     @Override
     public Iterable<User> findAll(@NonNull Sort sort) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @NonNull
@@ -179,7 +180,7 @@ public class SimpleUserRepository implements UserRepository {
     @NonNull
     @Override
     public <S extends User> Iterable<S> saveAll(@NonNull Iterable<S> entities) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @NonNull
@@ -238,7 +239,7 @@ public class SimpleUserRepository implements UserRepository {
 
     @Override
     public void deleteAll(@NonNull Iterable<? extends User> entities) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new NotImplementedException();
     }
 
     @Override
@@ -283,23 +284,23 @@ public class SimpleUserRepository implements UserRepository {
     }
 
     private SQLDeleteClause prepareDeleteQuery() {
-        AbstractSQLQueryFactory<?> queryFactory = initNewQueryFactory();
-        return queryFactory.delete(new RelationalPathBase<User>(users.getType(), users.getMetadata(),
-                "","users"));
+        AbstractSQLQueryFactory<?> factory = initNewQueryFactory();
+        return factory.delete(new RelationalPathBase<>(users.getType(), users.getMetadata(),
+                "",TABLE_USERS));
     }
 
     private AbstractSQLQueryFactory<?> initNewQueryFactory() {
         DataSource dataSource = dataSourceSwitcher.getCurrentDataSource();
-        AbstractSQLQueryFactory<?> queryFactory;
+        AbstractSQLQueryFactory<?> factory;
         if (queryDslConfiguration.getTemplates() instanceof PostgreSQLTemplates) {
-            queryFactory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
+            factory = new PostgreSQLQueryFactory(queryDslConfiguration, new DataSourceProvider(dataSource));
         } else if (queryDslConfiguration.getTemplates() instanceof H2Templates) {
-            queryFactory = new CustomH2QueryFactory(queryDslConfiguration, dataSource);
+            factory = new CustomH2QueryFactory(queryDslConfiguration, dataSource);
         } else {
-            queryFactory = new SQLQueryFactory(queryDslConfiguration, dataSource);
+            factory = new SQLQueryFactory(queryDslConfiguration, dataSource);
         }
 
-        return queryFactory;
+        return factory;
     }
 
     private String dateToTimestamp(Date date) {
@@ -319,8 +320,21 @@ public class SimpleUserRepository implements UserRepository {
             try {
                 return ds.getConnection();
             } catch (SQLException e) {
-                throw new RuntimeException(e.getMessage(), e);
+                throw new DataSourceProviderException(e.getMessage(), e);
             }
+        }
+    }
+
+    private static final class NotImplementedException extends RuntimeException {
+        NotImplementedException() {
+            super("Not implemented yet!");
+        }
+    }
+
+    private static final class DataSourceProviderException extends RuntimeException {
+
+        DataSourceProviderException(String message, Throwable e) {
+            super(message, e);
         }
     }
 }
