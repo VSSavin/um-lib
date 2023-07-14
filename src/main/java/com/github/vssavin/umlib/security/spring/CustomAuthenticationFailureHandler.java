@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,14 +34,13 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
         } else {
             if (failureCounts >= MAX_FAILURE_COUNTS) {
                 Long expireTime = banExpireTimes.get(ipAddress);
-                if (expireTime != null) {
-                    if (Calendar.getInstance().getTimeInMillis() > expireTime) {
+                if (Objects.nonNull(expireTime) && (Calendar.getInstance().getTimeInMillis() > expireTime)) {
                         expireTime = 0L;
                         banExpireTimes.put(ipAddress, expireTime);
                         failureCounts = 0;
                         blackList.put(ipAddress, failureCounts);
                         return false;
-                    }
+
                 }
                 return true;
             } else {
@@ -72,7 +72,7 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
                 if (failureCounts >= MAX_FAILURE_COUNTS) {
                     banExpireTimes.put(userIp,
                             Calendar.getInstance().getTimeInMillis() + (BANNED_TIME_MINUTES * 60 * 1000));
-                    log.info("IP " + userIp + " has been banned!");
+                    log.info("IP {} has ben banned!", userIp);
                     response.sendError(HttpStatus.FORBIDDEN.value(), "Доступ запрещен");
                 } else {
                     response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
