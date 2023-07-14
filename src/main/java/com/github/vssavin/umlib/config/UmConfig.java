@@ -225,7 +225,7 @@ public class UmConfig extends StorableConfig {
         Map<String, String> resultMap = new HashMap<>();
         if (args.length > 0) {
             for (String arg : args) {
-                String[] params = arg.replaceAll("--", "").split("=");
+                String[] params = arg.replace("--", "").split("=");
                 if (params.length > 0) {
                     String value = params.length > 1 ? params[1] : "";
                     resultMap.put(params[0], value);

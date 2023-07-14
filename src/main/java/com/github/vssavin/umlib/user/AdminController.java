@@ -33,7 +33,7 @@ import static com.github.vssavin.umlib.user.AdminController.ADMIN_CONTROLLER_PAT
 final class AdminController extends UmControllerBase {
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
     static final String ADMIN_CONTROLLER_PATH = "/um/admin";
-    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
+    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replace("/", "");
     private static final String PAGE_USERS = "users";
     private static final String PAGE_USER_EDIT = "edit";
     private static final String PAGE_EDIT = "userEdit";

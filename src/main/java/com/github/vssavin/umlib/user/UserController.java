@@ -33,7 +33,7 @@ import java.util.*;
 final class UserController extends UmControllerBase {
     static final String USER_CONTROLLER_PATH = "/um/users";
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
+    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replace("/", "");
     private static final String PAGE_REGISTRATION = "registration";
     private static final String PAGE_CHANGE_PASSWORD = "changePassword";
     private static final String PAGE_CONFIRM_USER = "confirmUser";

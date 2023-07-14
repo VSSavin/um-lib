@@ -27,8 +27,8 @@ import java.util.Set;
 @Controller
 final class AuthController extends UmControllerBase {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replaceAll("/", "");
-    private static final String PAGE_LOGOUT = UmConfig.LOGOUT_URL.replaceAll("/", "");
+    private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replace("/", "");
+    private static final String PAGE_LOGOUT = UmConfig.LOGOUT_URL.replace("/", "");
 
     private static final String PERFORM_LOGOUT = "/perform-logout";
 
