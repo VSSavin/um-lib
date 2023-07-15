@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
     private static final User EMPTY_USER = new User("", "", "", "", "");
 
-    private static final QUser users = new QUser("users");
+    private static final QUser QUERY_USER = new QUser("users");
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
             savedUser = userRepository.save(user);
             dataSourceSwitcher.switchToPreviousDataSource();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new UserServiceException("User adding error!", e);
         }
         return savedUser;
     }
@@ -94,7 +95,7 @@ public class UserServiceImpl implements UserService {
             updatedUser = userRepository.save(user);
             dataSourceSwitcher.switchToPreviousDataSource();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new UserServiceException("User update error!", e);
         }
         return updatedUser;
     }
@@ -104,7 +105,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findUserByName(name);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (users != null && users.size() > 0) {
+        if (Objects.nonNull(users) && !users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User: %s not found!", name));
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByLogin(login);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (users != null && users.size() > 0) {
+        if (Objects.nonNull(users) && !users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User with login: %s not found!", login));
@@ -126,7 +127,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByEmail(email);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (users != null && users.size() > 0) {
+        if (Objects.nonNull(users) && !users.isEmpty()) {
             return users.get(0);
         }
 
@@ -135,7 +136,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(User user) {
-        if (user != null) {
+        if (Objects.nonNull(user)) {
             dataSourceSwitcher.switchToUmDataSource();
             userRepository.deleteByLogin(user.getLogin());
             dataSourceSwitcher.switchToPreviousDataSource();
@@ -151,7 +152,7 @@ public class UserServiceImpl implements UserService {
             //ignore
         }
 
-        if (user != null) {
+        if (Objects.nonNull(user)) {
             throw new UserExistsException(String.format("User %s already exists!", username));
         }
 
@@ -159,7 +160,7 @@ public class UserServiceImpl implements UserService {
         try {
             return addUser(user);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new UserServiceException("User register error!", e);
         }
     }
 
@@ -172,15 +173,15 @@ public class UserServiceImpl implements UserService {
             //ignore
         }
 
-        if (isAdminUser && (verificationId == null || verificationId.isEmpty()) && user != null) {
+        if (isAdminUser && (Objects.isNull(verificationId) || verificationId.isEmpty()) && Objects.nonNull(user)) {
             verificationId = user.getVerificationId();
         }
 
-        if (user != null && user.getVerificationId().equals(verificationId)) {
+        if (Objects.nonNull(user) && user.getVerificationId().equals(verificationId)) {
             Calendar calendar = Calendar.getInstance();
             Date currentDate = calendar.getTime();
             Date userExpirationDate = user.getExpirationDate();
-            long maxExpirationMs = User.EXPIRATION_DAYS * 86_400_000;
+            long maxExpirationMs = (long) User.EXPIRATION_DAYS * 86_400_000;
             if (currentDate.after(userExpirationDate) ||
                     Math.abs(currentDate.getTime() - userExpirationDate.getTime()) < maxExpirationMs) {
                 calendar.add(Calendar.YEAR, 100);
@@ -212,11 +213,11 @@ public class UserServiceImpl implements UserService {
     public Map<String, User> getUserRecoveryId(String loginOrEmail) {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByEmail(loginOrEmail);
-        if (users.size() == 0) {
+        if (users.isEmpty()) {
             users = userRepository.findByLogin(loginOrEmail);
         }
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (users.size() == 0) {
+        if (users.isEmpty()) {
             throw new UsernameNotFoundException("Such user not found");
         }
 
@@ -228,7 +229,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByRecoveryId(String recoveryId) {
         UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
-        if (userRecoveryParams == null) {
+        if (Objects.isNull(userRecoveryParams)) {
             throw new UsernameNotFoundException("User with recoveryId = " + recoveryId + " not found!");
         }
         return userRecoveryParams.getUser();
@@ -239,7 +240,7 @@ public class UserServiceImpl implements UserService {
         boolean granted = true;
 
         if (role.equals(Role.ROLE_ADMIN)) {
-            if (authorizedName != null && !authorizedName.isEmpty()) {
+            if (Objects.nonNull(authorizedName) && !authorizedName.isEmpty()) {
                 try {
                     User admin = getUserByLogin(authorizedName);
                     if (!Role.ROLE_ADMIN.name().equals(admin.getAuthority())) {
@@ -266,7 +267,7 @@ public class UserServiceImpl implements UserService {
             //ignore, it's ok
         }
 
-        if (user == null) {
+        if (Objects.isNull(user)) {
             user = registerUser(email, email, generateRandomPassword(10), email, Role.ROLE_USER);
             confirmUser(user.getLogin(), user.getVerificationId(), true);
         }
@@ -299,19 +300,21 @@ public class UserServiceImpl implements UserService {
         return getUserByLogin(username);
     }
 
+    @Nonnull
     private Predicate userFilterToPredicate(UserFilter userFilter) {
         BooleanExpression expression = null;
-        expression = processAndEqualLong(expression, users.id, userFilter.getUserId());
-        expression = processAndLikeString(expression, users.email, userFilter.getEmail());
-        expression = processAndLikeString(expression, users.name, userFilter.getName());
-        expression = processAndLikeString(expression, users.login, userFilter.getLogin());
+        expression = processAndEqualLong(expression, QUERY_USER.id, userFilter.getUserId());
+        expression = processAndLikeString(expression, QUERY_USER.email, userFilter.getEmail());
+        expression = processAndLikeString(expression, QUERY_USER.name, userFilter.getName());
+        expression = processAndLikeString(expression, QUERY_USER.login, userFilter.getLogin());
         return expression;
     }
 
+    @Nonnull
     private BooleanExpression processAndEqualLong(BooleanExpression expression,
                                                          SimpleExpression<Long> simpleExpression, Long value) {
-        if (value != null) {
-            if (expression != null) {
+        if (Objects.nonNull(value)) {
+            if (Objects.nonNull(expression)) {
                 expression = expression.and(simpleExpression.eq(value));
             } else {
                 expression = simpleExpression.eq(value);
@@ -321,10 +324,11 @@ public class UserServiceImpl implements UserService {
         return expression;
     }
 
+    @Nonnull
     private BooleanExpression processAndLikeString(BooleanExpression expression,
                                                           StringExpression stringExpression, String value) {
-        if (value != null && !value.isEmpty()) {
-            if (expression != null) {
+        if (Objects.nonNull(value) && !value.isEmpty()) {
+            if (Objects.nonNull(expression)) {
                 expression = expression.and(stringExpression.like(value));
             } else {
                 expression = stringExpression.like(value);
