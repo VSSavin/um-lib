@@ -27,13 +27,10 @@ public class DataSourceSwitcher {
     public void switchToApplicationDataSource() {
         previousDataSourceKey = ((RoutingDataSource) routingDataSource).getDatasourceKey();
         ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
-        DataSource ds = ((RoutingDataSource) routingDataSource).determineTargetDataSource();
     }
 
     public void switchToPreviousDataSource() {
-        RoutingDataSource.DATASOURCE_TYPE currentKey = ((RoutingDataSource) routingDataSource).getDatasourceKey();
         ((RoutingDataSource) routingDataSource).setKey(previousDataSourceKey);
-        DataSource ds = ((RoutingDataSource) routingDataSource).determineTargetDataSource();
     }
 
     public DataSource getCurrentDataSource() {
