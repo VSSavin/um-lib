@@ -19,6 +19,8 @@ public class UmControllerBase {
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
+    private static final String REDIRECT_PREFIX = "redirect:";
+
     protected final UmLanguage language;
 
     public UmControllerBase(UmLanguage language) {
@@ -28,13 +30,7 @@ public class UmControllerBase {
     protected void addObjectsToModelAndView(ModelAndView modelAndView, Collection<String> elements,
                                             String encryptMethodName, String requestedLang) {
         if (Objects.nonNull(modelAndView)) {
-            String[] splitted = new String[0];
-            if (Objects.nonNull(modelAndView.getViewName())) {
-                splitted = modelAndView.getViewName().split(":");
-            }
-
-            String page = Objects.isNull(modelAndView.getViewName()) ? "" : splitted.length > 1 ?
-                    splitted[1].replaceFirst("/", "") : splitted[0];
+            String page = getPageName(modelAndView);
 
             if (Objects.nonNull(elements) && !page.isEmpty()) {
                 elements.forEach(param ->
@@ -103,7 +99,7 @@ public class UmControllerBase {
     }
 
     protected ModelAndView getSuccessModelAndView(String page, String messageKey, String lang, Object... formatValues) {
-        ModelAndView modelAndView = new ModelAndView("redirect:" + page);
+        ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject("success", true);
         String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
@@ -119,7 +115,7 @@ public class UmControllerBase {
     }
 
     protected ModelAndView getErrorModelAndView(String page, String messageKey, String lang, Object... formatValues) {
-        ModelAndView modelAndView = new ModelAndView("redirect:" + page);
+        ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject("error", true);
         String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
@@ -138,7 +134,7 @@ public class UmControllerBase {
         if (referer == null) {
             referer = UmConfig.successUrl;
         }
-        ModelAndView modelAndView = new ModelAndView("redirect:" + referer);
+        ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + referer);
         modelAndView.setStatus(HttpStatus.FORBIDDEN);
         return modelAndView;
     }
@@ -153,5 +149,22 @@ public class UmControllerBase {
 
     protected boolean isValidUserPassword(Pattern validRegexPattern, String passwordStr) {
         return validRegexPattern.matcher(passwordStr).matches();
+    }
+
+    private String getPageName(ModelAndView modelAndView) {
+        String[] splitted = new String[0];
+        String viewName = modelAndView.getViewName();
+        if (Objects.nonNull(viewName)) {
+            splitted = viewName.split(":");
+        }
+
+        String page;
+        if (Objects.isNull(viewName)) {
+            page = "";
+        } else {
+            page = splitted.length > 1 ? splitted[1].replaceFirst("/", "") : splitted[0];
+        }
+
+        return page;
     }
 }
