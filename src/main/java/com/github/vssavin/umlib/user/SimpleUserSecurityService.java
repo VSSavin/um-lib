@@ -64,7 +64,7 @@ public class SimpleUserSecurityService implements UserSecurityService {
         try {
             user = getAuthorizedUser(request);
         } catch (UsernameNotFoundException ignore) {
-
+            //ignore, it's ok
         }
         return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
     }
@@ -75,7 +75,7 @@ public class SimpleUserSecurityService implements UserSecurityService {
         try {
             user = getAuthorizedUser(request);
         } catch (UsernameNotFoundException ignore) {
-
+            //ignore, it's ok
         }
 
         return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
