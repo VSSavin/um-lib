@@ -32,15 +32,48 @@ public class SqlScriptsConfig {
     }
 
     public void executeSqlScripts(DataSource dataSource, String scriptsDirectory, List<String> sourceFiles) {
+        Map<String, InputStream> fileStreams = getFileStreams(scriptsDirectory);
+
+        for (String sourceFile : sourceFiles) {
+            InputStream resourceStream;
+            if (sourceFile.endsWith(".sql")) {
+                try {
+                    resourceStream = getClass().getResourceAsStream(sourceFile);
+                    if (resourceStream == null) {
+                        log.warn("Resource is null! File: {}", sourceFile);
+                    } else {
+                        fileStreams.put(sourceFile, resourceStream);
+                    }
+
+                } catch (Exception e) {
+                    log.error("Getting resource stream error: file = " + sourceFile, e);
+                }
+            } else {
+                log.warn("Resource: {} is not sql file!", sourceFile);
+            }
+        }
+
+        fileStreams.forEach((file, inputStream) -> {
+            log.debug("Processing sql file: {}", file);
+            executeSqlScript(new InputStreamReader(inputStream), dataSource);
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                log.error("Close input stream error! File = " + file, e);
+            }
+        });
+    }
+
+    private Map<String, InputStream> getFileStreams(String directory) {
         Map<String, InputStream> fileStreams = new HashMap<>();
 
-        if (!scriptsDirectory.isEmpty()) {
+        if (!directory.isEmpty()) {
             Path path = null;
             try {
                 path = Paths
-                        .get(Objects.requireNonNull(getClass().getClassLoader().getResource(scriptsDirectory)).toURI());
+                        .get(Objects.requireNonNull(getClass().getClassLoader().getResource(directory)).toURI());
             } catch (Exception e) {
-                log.warn("Directory {} not found!", scriptsDirectory);
+                log.warn("Directory {} not found!", directory);
             }
 
             if (path != null) {
@@ -62,35 +95,7 @@ public class SqlScriptsConfig {
             }
         }
 
-        for (String sourceFile : sourceFiles) {
-            InputStream resourceStream;
-            if (sourceFile.endsWith(".sql")) {
-                try {
-                    resourceStream = getClass().getResourceAsStream(sourceFile);
-                    if (resourceStream == null) {
-                        log.warn("Resource is null! File: {}", sourceFile);
-                    } else {
-                        fileStreams.put(sourceFile, resourceStream);
-                    }
-
-                } catch (Exception e) {
-                    log.error("Getting resource stream error: file = " + sourceFile, e);
-                }
-            } else {
-                log.warn("Resource: {} is not sql file!", sourceFile);
-            }
-
-        }
-
-        fileStreams.forEach((file, inputStream) -> {
-            log.debug("Processing sql file: {}", file);
-            executeSqlScript(new InputStreamReader(inputStream), dataSource);
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                log.error("Close input stream error! File = " + file, e);
-            }
-        });
+        return fileStreams;
     }
 
     private void executeSqlScript(Reader reader, DataSource dataSource) {
@@ -102,11 +107,12 @@ public class SqlScriptsConfig {
             scriptRunner.setLogWriter(new PrintWriter(logWriter));
             scriptRunner.setErrorLogWriter(new PrintWriter(errorWriter));
             scriptRunner.runScript(innerReader);
-            if (!logWriter.toString().isEmpty()) {
-                log.debug(logWriter.toString());
+            String message = logWriter.toString();
+            if (!message.isEmpty()) {
+                log.debug(message);
             }
             if (!errorWriter.toString().isEmpty()) {
-                throw new RuntimeException("Executing script error: " + errorWriter);
+                throw new ExecuteSqlScriptException("Executing script error: " + errorWriter);
             }
 
         } catch (Exception e) {
@@ -114,6 +120,12 @@ public class SqlScriptsConfig {
                 log.debug(logWriter.toString());
             }
             log.error("Executing init script error: ", e);
+        }
+    }
+
+    private static class ExecuteSqlScriptException extends RuntimeException {
+        ExecuteSqlScriptException(String message) {
+            super(message);
         }
     }
 }
