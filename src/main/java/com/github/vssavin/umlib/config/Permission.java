@@ -2,12 +2,15 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.user.Role;
 
+import static com.github.vssavin.umlib.user.Role.ROLE_ADMIN;
+import static com.github.vssavin.umlib.user.Role.ROLE_USER;
+
 /**
  * @author vssavin on 18.07.2023
  */
 public enum Permission {
-    USER_ADMIN(new String[]{Role.ROLE_USER.toString(), Role.ROLE_ADMIN.toString()}),
-    ADMIN_ONLY(new String[]{Role.ROLE_ADMIN.toString()}),
+    USER_ADMIN(new String[]{Role.getStringRole(ROLE_USER), Role.getStringRole(ROLE_ADMIN)}),
+    ADMIN_ONLY(new String[]{Role.getStringRole(ROLE_ADMIN)}),
     ANY_USER(new String[]{}),
     ;
 
