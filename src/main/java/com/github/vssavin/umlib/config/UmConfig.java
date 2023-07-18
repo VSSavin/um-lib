@@ -42,7 +42,7 @@ public class UmConfig extends StorableConfig {
     private final ApplicationContext context;
     private final SecureService defaultSecureService;
     private final PlatformSpecificSecure encryptPropertiesPasswordService;
-    private UmConfigurer umConfigurer;
+    private final UmConfigurer umConfigurer;
     private SecureService authService;
 
     @Value("${" + NAME_PREFIX + ".url}")
@@ -54,24 +54,9 @@ public class UmConfig extends StorableConfig {
     @Value("${um.login.title:}")
     private String loginTitle;
 
-    private static final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
+    private final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
     private boolean permissionsUpdated = false;
-
-    static {
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/passwordRecovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-password-recovery", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/confirmUser", new String[0]));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN), Role.getStringRole(Role.ROLE_USER)}));
-    }
 
     public UmConfig(ApplicationContext context, SecureService secureService, UmConfigurer umConfigurer,
                     @Qualifier("applicationSecureService") PlatformSpecificSecure applicationSecureService) {
@@ -82,6 +67,8 @@ public class UmConfig extends StorableConfig {
         this.authService = defaultSecureService;
         this.umConfigurer = umConfigurer;
         this.encryptPropertiesPasswordService = applicationSecureService;
+
+        initDefaultPermissions();
 
         if (applicationArgs == null || applicationArgs.length == 0) {
             String[] args = getAppArgsFromContext(context);
@@ -96,8 +83,6 @@ public class UmConfig extends StorableConfig {
         initSecureService("");
         processArgs(applicationArgs);
         log.debug("Using auth service: {}", authService);
-
-
     }
 
     public SecureService getAuthService() {
@@ -241,6 +226,24 @@ public class UmConfig extends StorableConfig {
         }
     }
 
+    private void initDefaultPermissions() {
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission("/um/users/passwordRecovery", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission("/um/users/perform-password-recovery", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission("/um/users/confirmUser", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN.getRoles()));
+    }
+
     private static Map<String, String> getMappedArgs(String[] args) {
         Map<String, String> resultMap = new HashMap<>();
         if (args.length > 0) {
@@ -254,8 +257,6 @@ public class UmConfig extends StorableConfig {
         }
         return resultMap;
     }
-
-
 
     private static class NoSuchSecureServiceException extends RuntimeException {
 
