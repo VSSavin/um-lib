@@ -22,9 +22,11 @@ public class UmControllerBase {
     private static final String REDIRECT_PREFIX = "redirect:";
 
     protected final UmLanguage language;
+    protected final UmConfig umConfig;
 
-    public UmControllerBase(UmLanguage language) {
+    public UmControllerBase(UmLanguage language, UmConfig umConfig) {
         this.language = language;
+        this.umConfig = umConfig;
     }
 
     protected void addObjectsToModelAndView(ModelAndView modelAndView, Collection<String> elements,
@@ -132,7 +134,7 @@ public class UmControllerBase {
     protected ModelAndView getForbiddenModelAndView(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         if (referer == null) {
-            referer = UmConfig.successUrl;
+            referer = umConfig.getSuccessUrl();
         }
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + referer);
         modelAndView.setStatus(HttpStatus.FORBIDDEN);

@@ -63,18 +63,16 @@ final class UserController extends UmControllerBase {
     private final UserSecurityService userSecurityService;
     private final SecureService secureService;
     private final EmailService emailService;
-    private final UmConfig mainConfig;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     UserController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
                    EmailService emailService, UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
-        super(language);
+        super(language, umConfig);
         this.userService = userService;
         this.userSecurityService = userSecurityService;
         this.secureService = umConfig.getAuthService();
         this.emailService = emailService;
-        this.mainConfig = umConfig;
         this.pageUserEditParams = localeConfig.forPage(PAGE_USER_EDIT).getKeys();
         this.pageUserControlPanelParams = localeConfig.forPage(PAGE_USER_CONTROL_PANEL).getKeys();
         this.pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
@@ -90,7 +88,7 @@ final class UserController extends UmControllerBase {
                               @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
 
-        if (!mainConfig.getRegistrationAllowed()) {
+        if (!umConfig.getRegistrationAllowed()) {
             return getForbiddenModelAndView(request);
         }
 
@@ -124,7 +122,7 @@ final class UserController extends UmControllerBase {
                                         @RequestParam(required = false) final String role,
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        if (!mainConfig.getRegistrationAllowed()) {
+        if (!umConfig.getRegistrationAllowed()) {
             return getForbiddenModelAndView(request);
         }
 
@@ -177,10 +175,10 @@ final class UserController extends UmControllerBase {
             String decodedPassword = secureService.decrypt(password,
                     secureService.getSecureKey(request.getRemoteAddr()));
 
-            if (!isValidUserPassword(mainConfig.getPasswordPattern(), decodedPassword)) {
+            if (!isValidUserPassword(umConfig.getPasswordPattern(), decodedPassword)) {
                 modelAndView = new ModelAndView("redirect:" + PAGE_REGISTRATION);
                 modelAndView.addObject("error", true);
-                modelAndView.addObject("errorMsg", mainConfig.getPasswordDoesntMatchPatternMessage());
+                modelAndView.addObject("errorMsg", umConfig.getPasswordDoesntMatchPatternMessage());
                 response.setStatus(400);
                 return modelAndView;
             }
@@ -199,11 +197,11 @@ final class UserController extends UmControllerBase {
             newUser = userService.registerUser(login, username, passwordEncoder.encode(decodedPassword),
                     email, registerRole);
             Utils.clearString(decodedPassword);
-            String url = String.format("%s%s/%s?login=%s&verificationId=%s&lang=%s", mainConfig.getApplicationUrl(),
+            String url = String.format("%s%s/%s?login=%s&verificationId=%s&lang=%s", umConfig.getApplicationUrl(),
                     USER_CONTROLLER_PATH, PAGE_CONFIRM_USER, login, newUser.getVerificationId(), lang);
             try {
                 emailService.sendSimpleMessage(email,
-                        String.format("User registration at %s", mainConfig.getApplicationUrl()),
+                        String.format("User registration at %s", umConfig.getApplicationUrl()),
                         String.format("Confirm user registration: %s", url));
             } catch (MailException mailException) {
                 log.error("Sending email error!", mailException);
@@ -407,7 +405,7 @@ final class UserController extends UmControllerBase {
 
             if (optionalRecoveryId.isPresent()) {
                 User user = map.get(optionalRecoveryId.get());
-                String message = mainConfig.getApplicationUrl() + USER_CONTROLLER_PATH + "/" +
+                String message = umConfig.getApplicationUrl() + USER_CONTROLLER_PATH + "/" +
                         PAGE_RECOVERY_PASSWORD + "?recoveryId=" + optionalRecoveryId.get();
                 emailService.sendSimpleMessage(user.getEmail(), "Password recovery", message);
             }

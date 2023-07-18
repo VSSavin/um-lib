@@ -36,16 +36,14 @@ final class AuthController extends UmControllerBase {
     private final Set<String> pageLogoutParams;
 
     private final SecureService secureService;
-    private final UmConfig umConfig;
     private final UserSecurityService userSecurityService;
     private final OAuth2Config oAuth2Config;
 
     @Autowired
     AuthController(LocaleConfig localeConfig, UmLanguage language, UmConfig umConfig,
                    UserSecurityService userSecurityService, OAuth2Config oAuth2Config) {
-        super(language);
+        super(language, umConfig);
         this.secureService = umConfig.getAuthService();
-        this.umConfig = umConfig;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageLogoutParams = localeConfig.forPage(PAGE_LOGOUT).getKeys();
         this.userSecurityService = userSecurityService;
@@ -57,9 +55,9 @@ final class AuthController extends UmControllerBase {
                           @RequestParam(required = false) final String lang) {
         try {
             if (userSecurityService.isAuthorizedAdmin(request)) {
-                response.sendRedirect(UmConfig.adminSuccessUrl);
+                response.sendRedirect(umConfig.getAdminSuccessUrl());
             } else if (userSecurityService.isAuthorizedUser(request)) {
-                response.sendRedirect(UmConfig.successUrl);
+                response.sendRedirect(umConfig.getSuccessUrl());
             }
         } catch (IOException e) {
             log.error("Sending redirect i/o error: ", e);

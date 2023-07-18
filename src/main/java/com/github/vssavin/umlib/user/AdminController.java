@@ -62,17 +62,15 @@ final class AdminController extends UmControllerBase {
     private final UserService userService;
     private final UserSecurityService userSecurityService;
     private final SecureService secureService;
-    private final UmConfig umConfig;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     AdminController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
                     UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
-        super(language);
+        super(language, umConfig);
         this.userService = userService;
         this.userSecurityService = userSecurityService;
         this.secureService = umConfig.getAuthService();
-        this.umConfig = umConfig;
         this.passwordEncoder = passwordEncoder;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageUsersParams = localeConfig.forPage(PAGE_USERS).getKeys();

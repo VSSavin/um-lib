@@ -22,21 +22,23 @@ import java.util.Date;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserService userService;
+    private final UmConfig umConfig;
 
-    public CustomAuthenticationSuccessHandler(UserService userService) {
+    public CustomAuthenticationSuccessHandler(UserService userService, UmConfig umConfig) {
         this.userService = userService;
+        this.umConfig = umConfig;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-        String successUrl = UmConfig.successUrl;
+        String successUrl = umConfig.getSuccessUrl();
         User user = null;
         try {
             OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
             user = userService.processOAuthPostLogin(oAuth2User);
             if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) {
-                successUrl = UmConfig.adminSuccessUrl;
+                successUrl = umConfig.getAdminSuccessUrl();
             }
         } catch (ClassCastException e) {
             //ignore, it's ok
@@ -46,7 +48,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             user = userService.getUserByLogin(authentication.getPrincipal().toString());
             if (user != null) {
                 if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) {
-                    successUrl = UmConfig.adminSuccessUrl;
+                    successUrl = umConfig.getAdminSuccessUrl();
                 }
                 if (user.getExpirationDate().before(new Date())) {
                     userService.deleteUser(user);

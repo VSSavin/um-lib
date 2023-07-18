@@ -31,8 +31,8 @@ public class UmConfig extends StorableConfig {
     @IgnoreField public static final String REGISTRATION_URL = "/um/users/registration";
     @IgnoreField public static final String PERFORM_REGISTER_URL = "/um/users/perform-register";
 
-    @IgnoreField public static String adminSuccessUrl = "/um/admin";
-    @IgnoreField public static String successUrl = "/index.html";
+    @IgnoreField private final String adminSuccessUrl;
+    @IgnoreField private final String successUrl;
 
     @IgnoreField private static final String NAME_PREFIX = "application";
     @IgnoreField private static final String CONFIG_FILE = "conf.properties";
@@ -42,7 +42,7 @@ public class UmConfig extends StorableConfig {
     private final ApplicationContext context;
     private final SecureService defaultSecureService;
     private final PlatformSpecificSecure encryptPropertiesPasswordService;
-    private final UmConfigurer umConfigurer;
+    private UmConfigurer umConfigurer;
     private SecureService authService;
 
     @Value("${" + NAME_PREFIX + ".url}")
@@ -82,23 +82,38 @@ public class UmConfig extends StorableConfig {
         this.authService = defaultSecureService;
         this.umConfigurer = umConfigurer;
         this.encryptPropertiesPasswordService = applicationSecureService;
+
         if (applicationArgs == null || applicationArgs.length == 0) {
             String[] args = getAppArgsFromContext(context);
             if (args.length > 0) {
                 applicationArgs = args;
             }
         }
+
+        adminSuccessUrl = umConfigurer.getAdminSuccessUrl();
+        successUrl = umConfigurer.getSuccessUrl();
+
         initSecureService("");
         processArgs(applicationArgs);
         log.debug("Using auth service: {}", authService);
+
+
     }
 
     public SecureService getAuthService() {
         return authService;
     }
 
-    public static List<AuthorizedUrlPermission> getAuthorizedUrlPermissions() {
+    public List<AuthorizedUrlPermission> getAuthorizedUrlPermissions() {
         return authorizedUrlPermissions;
+    }
+
+    public String getAdminSuccessUrl() {
+        return adminSuccessUrl;
+    }
+
+    public String getSuccessUrl() {
+        return successUrl;
     }
 
     public String getApplicationUrl() {
@@ -239,6 +254,8 @@ public class UmConfig extends StorableConfig {
         }
         return resultMap;
     }
+
+
 
     private static class NoSuchSecureServiceException extends RuntimeException {
 
