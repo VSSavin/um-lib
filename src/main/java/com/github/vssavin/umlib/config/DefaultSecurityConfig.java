@@ -3,8 +3,6 @@ package com.github.vssavin.umlib.config;
 import com.github.vssavin.umlib.security.spring.BannedIpFilter;
 import com.github.vssavin.umlib.security.spring.CustomOAuth2UserService;
 import com.github.vssavin.umlib.user.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,7 +36,7 @@ public class DefaultSecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final OAuth2Config oAuth2Config;
 
-    private UmConfigurer configurer;
+    private final UmConfigurer configurer;
 
     @Autowired
     public DefaultSecurityConfig(UmConfigurer configurer, UserService userService,
@@ -85,8 +83,8 @@ public class DefaultSecurityConfig {
 
         List<AuthorizedUrlPermission> urlPermissions = umConfig.getAuthorizedUrlPermissions();
 
-        urlPermissions.add(new AuthorizedUrlPermission("/oauth/**", new String[]{}));
-        urlPermissions.add(new AuthorizedUrlPermission("/login/oauth2/code/google", new String[]{}));
+        urlPermissions.add(new AuthorizedUrlPermission("/oauth/**", Permission.ANY_USER.getRoles()));
+        urlPermissions.add(new AuthorizedUrlPermission("/login/oauth2/code/google", Permission.ANY_USER.getRoles()));
 
         umConfig.updateAuthorizedPermissions();
 
