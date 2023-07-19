@@ -1,11 +1,13 @@
 package com.github.vssavin.umlib.config;
 
+import com.github.vssavin.umlib.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,10 +26,11 @@ import java.util.Properties;
 @Configuration
 @ComponentScan({"com.github.vssavin.umlib"})
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "com.github.vssavin.umlib.user")
+@EnableJpaRepositories(basePackageClasses = User.class)
 @EnableWebSecurity
 @Import(DefaultSecurityConfig.class)
 public class ApplicationConfig {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
     @Bean
     public UmConfigurer umConfigurer() {
@@ -35,7 +38,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter(){
+    public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter() {
         FilterRegistrationBean<HiddenHttpMethodFilter> filterBean =
                 new FilterRegistrationBean<>(new HiddenHttpMethodFilter());
         filterBean.setUrlPatterns(Collections.singletonList("/*"));
@@ -43,22 +46,22 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource,
+                                                                       DatabaseConfig databaseConfig) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 
         try {
             em.setDataSource(routingDataSource);
-            em.setPackagesToScan("com.github.vssavin.umlib.user");
+            em.setPackagesToScan(User.class.getPackage().getName());
 
-            JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-            em.setJpaVendorAdapter(vendorAdapter);
-            String hibernateDialect = "org.hibernate.dialect.H2Dialect";
+            em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+            String hibernateDialect = databaseConfig.getDialect();
 
             Properties additionalProperties = new Properties();
             additionalProperties.put("hibernate.dialect", hibernateDialect);
             em.setJpaProperties(additionalProperties);
         } catch (Exception e) {
-            System.out.println("Creating LocalContainerEntityManagerFactoryBean error!");
+            log.error("Creating LocalContainerEntityManagerFactoryBean error!", e);
         }
 
         return em;
