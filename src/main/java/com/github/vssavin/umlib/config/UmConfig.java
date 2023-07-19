@@ -109,7 +109,7 @@ public class UmConfig extends StorableConfig {
         this.applicationUrl = applicationUrl;
     }
 
-    public Boolean getRegistrationAllowed() {
+    public boolean isRegistrationAllowed() {
         return registrationAllowed;
     }
 

@@ -65,7 +65,7 @@ final class AuthController extends UmControllerBase {
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGIN);
         addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
-        modelAndView.addObject("registrationAllowed", umConfig.getRegistrationAllowed());
+        modelAndView.addObject("registrationAllowed", umConfig.isRegistrationAllowed());
         modelAndView.addObject("googleAuthAllowed", !("".equals(oAuth2Config.getGoogleClientId())));
         modelAndView.addObject("loginTitle", umConfig.getLoginTitle());
         return modelAndView;

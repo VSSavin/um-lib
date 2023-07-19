@@ -88,7 +88,7 @@ final class UserController extends UmControllerBase {
                               @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
 
-        if (!umConfig.getRegistrationAllowed()) {
+        if (!umConfig.isRegistrationAllowed()) {
             return getForbiddenModelAndView(request);
         }
 
@@ -122,7 +122,7 @@ final class UserController extends UmControllerBase {
                                         @RequestParam(required = false) final String role,
                                         @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        if (!umConfig.getRegistrationAllowed()) {
+        if (!umConfig.isRegistrationAllowed()) {
             return getForbiddenModelAndView(request);
         }
 
