@@ -3,6 +3,7 @@ package com.github.vssavin.umlib.user;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,5 +15,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long>, 
     List<User> findByLogin(String login);
     List<User> findUserByName(String name);
     List<User> findByEmail(String email);
+    @Transactional
     void deleteByLogin(String login);
 }

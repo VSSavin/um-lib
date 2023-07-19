@@ -3,12 +3,14 @@ package com.github.vssavin.umlib.config;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import javax.persistence.EntityManagerFactory;
@@ -21,6 +23,8 @@ import java.util.Properties;
  */
 @Configuration
 @ComponentScan({"com.github.vssavin.umlib"})
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackages = "com.github.vssavin.umlib.user")
 @EnableWebSecurity
 @Import(DefaultSecurityConfig.class)
 public class ApplicationConfig {
@@ -44,7 +48,7 @@ public class ApplicationConfig {
 
         try {
             em.setDataSource(routingDataSource);
-            em.setPackagesToScan("io.github.vssavin.umlib.entity");
+            em.setPackagesToScan("com.github.vssavin.umlib.user");
 
             JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
             em.setJpaVendorAdapter(vendorAdapter);

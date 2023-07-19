@@ -5,22 +5,29 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.util.*;
 
 /**
  * @author vssavin on 18.12.2021
  */
 //TODO: refactor this later!!!
+@Entity
+@Table(name = "users")
 @QueryEntity
 public class User implements UserDetails {
     public static final int EXPIRATION_DAYS = 1;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String login;
     private String name;
     private String password;
     private String email;
     private String authority;
+    @Column(name = "expiration_date")
     private Date expiration_date;
+    @Column(name = "verification_id")
     private String verification_id;
     private int accountLocked = 0;
     private int credentialsExpired = 0;

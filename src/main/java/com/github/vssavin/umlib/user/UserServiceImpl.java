@@ -36,8 +36,6 @@ public class UserServiceImpl implements UserService {
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
     private static final User EMPTY_USER = new User("", "", "", "", "");
 
-    private static final QUser QUERY_USER = new QUser("users");
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DataSourceSwitcher dataSourceSwitcher;
@@ -303,10 +301,11 @@ public class UserServiceImpl implements UserService {
     @Nonnull
     private Predicate userFilterToPredicate(UserFilter userFilter) {
         BooleanExpression expression = null;
-        expression = processAndEqualLong(expression, QUERY_USER.id, userFilter.getUserId());
-        expression = processAndLikeString(expression, QUERY_USER.email, userFilter.getEmail());
-        expression = processAndLikeString(expression, QUERY_USER.name, userFilter.getName());
-        expression = processAndLikeString(expression, QUERY_USER.login, userFilter.getLogin());
+        QUser user = QUser.user;
+        expression = processAndEqualLong(expression, user.id, userFilter.getUserId());
+        expression = processAndLikeString(expression, user.email, userFilter.getEmail());
+        expression = processAndLikeString(expression, user.name, userFilter.getName());
+        expression = processAndLikeString(expression, user.login, userFilter.getLogin());
         return expression;
     }
 
