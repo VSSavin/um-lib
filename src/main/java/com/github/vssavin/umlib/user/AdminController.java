@@ -217,7 +217,6 @@ final class AdminController extends UmControllerBase {
             }
 
             if (isEmailExist(email)) {
-                userService.getUserByEmail(email);
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(), lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
