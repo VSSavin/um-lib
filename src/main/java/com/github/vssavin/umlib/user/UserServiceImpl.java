@@ -312,7 +312,7 @@ public class UserServiceImpl implements UserService {
 
     @Nonnull
     private BooleanExpression processAndEqualLong(BooleanExpression expression,
-                                                         SimpleExpression<Long> simpleExpression, Long value) {
+                                                  SimpleExpression<Long> simpleExpression, Long value) {
         if (Objects.nonNull(value)) {
             if (Objects.nonNull(expression)) {
                 expression = expression.and(simpleExpression.eq(value));
@@ -326,7 +326,7 @@ public class UserServiceImpl implements UserService {
 
     @Nonnull
     private BooleanExpression processAndLikeString(BooleanExpression expression,
-                                                          StringExpression stringExpression, String value) {
+                                                   StringExpression stringExpression, String value) {
         if (Objects.nonNull(value) && !value.isEmpty()) {
             if (Objects.nonNull(expression)) {
                 expression = expression.and(stringExpression.like(value));
