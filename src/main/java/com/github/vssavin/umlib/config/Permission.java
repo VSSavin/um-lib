@@ -11,8 +11,7 @@ import static com.github.vssavin.umlib.user.Role.ROLE_USER;
 public enum Permission {
     USER_ADMIN(new String[]{Role.getStringRole(ROLE_USER), Role.getStringRole(ROLE_ADMIN)}),
     ADMIN_ONLY(new String[]{Role.getStringRole(ROLE_ADMIN)}),
-    ANY_USER(new String[]{}),
-    ;
+    ANY_USER(new String[]{});
 
     private final String[] roles;
 
