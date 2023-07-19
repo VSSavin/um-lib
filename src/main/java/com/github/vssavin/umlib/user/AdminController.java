@@ -45,22 +45,6 @@ final class AdminController extends UmControllerBase {
 
     private static final String PERFORM_REGISTER_MAPPING = "/perform-register";
 
-    private static final String ERROR_PAGE = "errorPage";
-
-    private static final String ERROR_MSG_ATTRIBUTE = "errorMsg";
-
-    private static final String ERROR_ATTRIBUTE = "error";
-
-    private static final String SUCCESS_ATTRIBUTE = "success";
-
-    private static final String SUCCESS_MSG_ATTRIBUTE = "successMsg";
-
-    private static final String USER_NAME_ATTRIBUTE = "userName";
-
-    private static final String USERS_ATTRIBUTE = "users";
-
-    private static final String USER_ATTRIBUTE = "user";
-
     private static final Set<String> IGNORED_PARAMS = new HashSet<>();
 
     static {

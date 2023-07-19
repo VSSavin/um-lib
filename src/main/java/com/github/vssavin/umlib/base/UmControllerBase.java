@@ -19,7 +19,23 @@ public class UmControllerBase {
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-    private static final String REDIRECT_PREFIX = "redirect:";
+    protected static final String REDIRECT_PREFIX = "redirect:";
+
+    protected static final String ERROR_PAGE = "errorPage";
+
+    protected static final String ERROR_ATTRIBUTE = "error";
+
+    protected static final String ERROR_MSG_ATTRIBUTE = "errorMsg";
+
+    protected static final String SUCCESS_ATTRIBUTE = "success";
+
+    protected static final String SUCCESS_MSG_ATTRIBUTE = "successMsg";
+
+    protected static final String USER_NAME_ATTRIBUTE = "userName";
+
+    protected static final String USERS_ATTRIBUTE = "users";
+
+    protected static final String USER_ATTRIBUTE = "user";
 
     protected final UmLanguage language;
     protected final UmConfig umConfig;
@@ -102,15 +118,15 @@ public class UmControllerBase {
 
     protected ModelAndView getSuccessModelAndView(String page, String messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
-        modelAndView.addObject("success", true);
+        modelAndView.addObject(SUCCESS_ATTRIBUTE, true);
         String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
             if (formatValues != null) {
-                modelAndView.addObject("successMsg", String.format(message, formatValues));
+                modelAndView.addObject(SUCCESS_MSG_ATTRIBUTE, String.format(message, formatValues));
             }
 
         } else {
-            modelAndView.addObject("successMsg", message);
+            modelAndView.addObject(SUCCESS_MSG_ATTRIBUTE, message);
         }
 
         return modelAndView;
@@ -118,14 +134,14 @@ public class UmControllerBase {
 
     protected ModelAndView getErrorModelAndView(String page, String messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
-        modelAndView.addObject("error", true);
+        modelAndView.addObject(ERROR_ATTRIBUTE, true);
         String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
         if (message.contains("%")) {
             if (formatValues != null) {
-                modelAndView.addObject("errorMsg", String.format(message, formatValues));
+                modelAndView.addObject(ERROR_MSG_ATTRIBUTE, String.format(message, formatValues));
             }
         } else {
-            modelAndView.addObject("errorMsg", message);
+            modelAndView.addObject(ERROR_MSG_ATTRIBUTE, message);
         }
 
         return modelAndView;
