@@ -30,10 +30,8 @@ public class DefaultSecurityConfig {
     private final UserService userService;
     private final AuthenticationSuccessHandler authSuccessHandler;
     private final AuthenticationFailureHandler authFailureHandler;
-    private final AuthenticationProvider authProvider;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LogoutSuccessHandler logoutSuccessHandler;
-    private final PasswordEncoder passwordEncoder;
     private final OAuth2Config oAuth2Config;
 
     private final UmConfigurer configurer;
@@ -42,29 +40,27 @@ public class DefaultSecurityConfig {
     public DefaultSecurityConfig(UmConfigurer configurer, UserService userService,
                                  AuthenticationSuccessHandler customAuthenticationSuccessHandler,
                                  AuthenticationFailureHandler customAuthenticationFailureHandler,
-                                 AuthenticationProvider customAuthenticationProvider,
                                  CustomOAuth2UserService customOAuth2UserService,
-                                 LogoutSuccessHandler customLogoutSuccessHandler, PasswordEncoder passwordEncoder,
+                                 LogoutSuccessHandler customLogoutSuccessHandler,
                                  OAuth2Config oAuth2Config) {
         this.configurer = configurer;
         this.userService = userService;
         this.authSuccessHandler = customAuthenticationSuccessHandler;
         this.authFailureHandler = customAuthenticationFailureHandler;
-        this.authProvider = customAuthenticationProvider;
         this.customOAuth2UserService = customOAuth2UserService;
         this.logoutSuccessHandler = customLogoutSuccessHandler;
-        this.passwordEncoder = passwordEncoder;
         this.oAuth2Config = oAuth2Config;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsService userDetailsService)
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+                                                       AuthenticationProvider customAuthenticationProvider)
             throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailsService)
+                .userDetailsService(userService)
                 .passwordEncoder(passwordEncoder)
                 .and()
-                .authenticationProvider(authProvider)
+                .authenticationProvider(customAuthenticationProvider)
                 .build();
     }
 
@@ -130,7 +126,7 @@ public class DefaultSecurityConfig {
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl =
                     registry.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), null));
 
-            if (roles != null && roles.length == 0) {
+            if (Objects.nonNull(roles) && roles.length == 0) {
                 registry = authorizedUrl.permitAll();
             } else if (roles != null) {
                 registry = authorizedUrl.hasAnyRole(urlPermission.getRoles());
