@@ -34,7 +34,6 @@ import java.util.stream.IntStream;
 public class UserServiceImpl implements UserService {
 
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
-    private static final User EMPTY_USER = new User("", "", "", "", "");
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -82,7 +81,10 @@ public class UserServiceImpl implements UserService {
         User user = null;
         dataSourceSwitcher.switchToUmDataSource();
         try {
-            user = userRepository.findById(id).orElse(EMPTY_USER);
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isPresent()) {
+                user = optionalUser.get();
+            }
         } catch (Exception e) {
             throwable = e;
         }
@@ -91,6 +93,10 @@ public class UserServiceImpl implements UserService {
 
         if (throwable != null) {
             throw new UserServiceException(String.format("Getting a user by id = %d error!", id), throwable);
+        }
+
+        if (user == null) {
+            throw new UserNotFoundException(String.format("User with id = %d not found!", id));
         }
 
         return user;

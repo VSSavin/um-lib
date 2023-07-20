@@ -457,16 +457,23 @@ final class AdminController extends UmControllerBase {
                             @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView = new ModelAndView(PAGE_USERS);
         if (userSecurityService.isAuthorizedAdmin(request)) {
-            User user = userService.getUserById(id);
-            if (user.getLogin().isEmpty()) {
+            try {
+                User user = userService.getUserById(id);
+                if (user.getLogin().isEmpty()) {
+                    String errorMessage = LocaleConfig.getMessage(PAGE_USERS,
+                            MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
+                    modelAndView.addObject(ERROR_ATTRIBUTE, true);
+                    modelAndView.addObject(ERROR_MSG_ATTRIBUTE, errorMessage);
+                } else  {
+                    userService.deleteUser(user);
+                }
+            } catch (UserNotFoundException e) {
                 String errorMessage = LocaleConfig.getMessage(PAGE_USERS,
                         MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
                 modelAndView.addObject(ERROR_ATTRIBUTE, true);
                 modelAndView.addObject(ERROR_MSG_ATTRIBUTE, errorMessage);
-            } else  {
-                userService.deleteUser(user);
+                response.setStatus(404);
             }
-
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
