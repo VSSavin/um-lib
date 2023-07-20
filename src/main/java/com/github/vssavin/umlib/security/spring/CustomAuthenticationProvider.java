@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author vssavin on 18.12.2021
@@ -40,9 +39,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Object credentials = authentication.getCredentials();
         Object userName = authentication.getPrincipal();
-        if (Objects.nonNull(credentials)) {
+        if (credentials != null) {
             UserDetails user = userService.loadUserByUsername(userName.toString());
-            if (Objects.nonNull(user)) {
+            if (user != null) {
                 checkUserDetails(user);
 
                 Object details = authentication.getDetails();

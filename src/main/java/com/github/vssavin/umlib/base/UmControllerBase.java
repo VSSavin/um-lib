@@ -9,7 +9,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -47,15 +46,15 @@ public class UmControllerBase {
 
     protected void addObjectsToModelAndView(ModelAndView modelAndView, Collection<String> elements,
                                             String encryptMethodName, String requestedLang) {
-        if (Objects.nonNull(modelAndView)) {
+        if (modelAndView != null) {
             String page = getPageName(modelAndView);
 
-            if (Objects.nonNull(elements) && !page.isEmpty()) {
+            if (elements != null && !page.isEmpty()) {
                 elements.forEach(param ->
                         modelAndView.addObject(param,LocaleConfig.getMessage(page, param, requestedLang)));
             }
 
-            if (Objects.nonNull(requestedLang)) {
+            if (requestedLang != null) {
                 modelAndView.addObject("lang", requestedLang);
                 modelAndView.addObject("urlLang", requestedLang);
             }
@@ -63,7 +62,7 @@ public class UmControllerBase {
             modelAndView.addObject("encryptMethodName", encryptMethodName);
 
             modelAndView.addObject("languages", LocaleConfig.getAvailableLanguages());
-            if (Objects.nonNull(language)) {
+            if (language != null) {
                 modelAndView.addObject("langObject", language);
             }
         }
@@ -72,15 +71,15 @@ public class UmControllerBase {
     protected void addObjectsToModelAndView(ModelAndView modelAndView, String viewName, Collection<String> elements,
                                             String encryptMethodName, String requestedLang) {
 
-        if (Objects.isNull(viewName)) {
+        if (viewName == null) {
             addObjectsToModelAndView(modelAndView, elements, encryptMethodName, requestedLang);
         } else {
-            if (Objects.nonNull(elements)) {
+            if (elements != null) {
                 elements.forEach(param ->
                         modelAndView.addObject(param, LocaleConfig.getMessage(viewName, param, requestedLang)));
             }
 
-            if (Objects.nonNull(requestedLang)) {
+            if (requestedLang != null) {
                 modelAndView.addObject("lang", requestedLang);
                 modelAndView.addObject("urlLang", requestedLang);
             }
@@ -88,7 +87,7 @@ public class UmControllerBase {
             modelAndView.addObject("encryptMethodName", encryptMethodName);
 
             modelAndView.addObject("languages", LocaleConfig.getAvailableLanguages());
-            if (Objects.nonNull(language)) {
+            if (language != null) {
                 modelAndView.addObject("langObject", language);
             }
         }
@@ -172,12 +171,12 @@ public class UmControllerBase {
     private String getPageName(ModelAndView modelAndView) {
         String[] splitted = new String[0];
         String viewName = modelAndView.getViewName();
-        if (Objects.nonNull(viewName)) {
+        if (viewName != null) {
             splitted = viewName.split(":");
         }
 
         String page;
-        if (Objects.isNull(viewName)) {
+        if (viewName == null) {
             page = "";
         } else {
             page = splitted.length > 1 ? splitted[1].replaceFirst("/", "") : splitted[0];

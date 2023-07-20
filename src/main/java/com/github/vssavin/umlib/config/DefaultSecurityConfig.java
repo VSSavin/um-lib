@@ -126,7 +126,7 @@ public class DefaultSecurityConfig {
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl =
                     registry.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), null));
 
-            if (Objects.nonNull(roles) && roles.length == 0) {
+            if (roles != null && roles.length == 0) {
                 registry = authorizedUrl.permitAll();
             } else if (roles != null) {
                 registry = authorizedUrl.hasAnyRole(urlPermission.getRoles());

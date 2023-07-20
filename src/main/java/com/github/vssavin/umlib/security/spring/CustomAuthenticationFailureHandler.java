@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,7 +33,7 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
         } else {
             if (failureCounts >= MAX_FAILURE_COUNTS) {
                 Long expireTime = banExpireTimes.get(ipAddress);
-                if (Objects.nonNull(expireTime) && (Calendar.getInstance().getTimeInMillis() > expireTime)) {
+                if (expireTime != null && (Calendar.getInstance().getTimeInMillis() > expireTime)) {
                         expireTime = 0L;
                         banExpireTimes.put(ipAddress, expireTime);
                         failureCounts = 0;

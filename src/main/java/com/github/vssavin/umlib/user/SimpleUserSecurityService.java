@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.Objects;
 
 /**
  * @author vssavin on 12.07.2023
@@ -66,7 +65,7 @@ public class SimpleUserSecurityService implements UserSecurityService {
         } catch (UsernameNotFoundException ignore) {
             //ignore, it's ok
         }
-        return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
+        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_ADMIN;
     }
 
     @Override
@@ -78,13 +77,13 @@ public class SimpleUserSecurityService implements UserSecurityService {
             //ignore, it's ok
         }
 
-        return Objects.nonNull(user) && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
+        return user != null && Role.getRole(user.getAuthority()) == Role.ROLE_USER;
     }
 
     private User getAuthorizedUser(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         User user = null;
-        if (Objects.nonNull(principal)) {
+        if (principal != null) {
             if (principal instanceof OAuth2AuthenticationToken) {
                 user = userService.getUserByOAuth2Token((OAuth2AuthenticationToken) principal);
             } else {

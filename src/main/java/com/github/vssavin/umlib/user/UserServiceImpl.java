@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findUserByName(name);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (Objects.nonNull(users) && !users.isEmpty()) {
+        if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User: %s not found!", name));
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByLogin(login);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (Objects.nonNull(users) && !users.isEmpty()) {
+        if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User with login: %s not found!", login));
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
         dataSourceSwitcher.switchToUmDataSource();
         List<User> users = userRepository.findByEmail(email);
         dataSourceSwitcher.switchToPreviousDataSource();
-        if (Objects.nonNull(users) && !users.isEmpty()) {
+        if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
 
@@ -134,10 +134,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(User user) {
-        if (Objects.nonNull(user)) {
+        if (user != null) {
+            Throwable throwable = null;
             dataSourceSwitcher.switchToUmDataSource();
-            userRepository.deleteByLogin(user.getLogin());
+            try {
+                userRepository.deleteByLogin(user.getLogin());
+            } catch (Exception e) {
+                throwable = e;
+            }
             dataSourceSwitcher.switchToPreviousDataSource();
+            if (throwable != null)
+                throw new UserServiceException(String.format("Delete user %s error", user), throwable);
         }
     }
 
@@ -150,7 +157,7 @@ public class UserServiceImpl implements UserService {
             //ignore
         }
 
-        if (Objects.nonNull(user)) {
+        if (user != null) {
             throw new UserExistsException(String.format("User %s already exists!", username));
         }
 
@@ -171,11 +178,11 @@ public class UserServiceImpl implements UserService {
             //ignore
         }
 
-        if (isAdminUser && (Objects.isNull(verificationId) || verificationId.isEmpty()) && Objects.nonNull(user)) {
+        if (isAdminUser && (verificationId == null || verificationId.isEmpty()) && user != null) {
             verificationId = user.getVerificationId();
         }
 
-        if (Objects.nonNull(user) && user.getVerificationId().equals(verificationId)) {
+        if (user != null && user.getVerificationId().equals(verificationId)) {
             Calendar calendar = Calendar.getInstance();
             Date currentDate = calendar.getTime();
             Date userExpirationDate = user.getExpirationDate();
@@ -227,7 +234,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByRecoveryId(String recoveryId) {
         UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
-        if (Objects.isNull(userRecoveryParams)) {
+        if (userRecoveryParams == null) {
             throw new UsernameNotFoundException("User with recoveryId = " + recoveryId + " not found!");
         }
         return userRecoveryParams.getUser();
@@ -238,7 +245,7 @@ public class UserServiceImpl implements UserService {
         boolean granted = true;
 
         if (role.equals(Role.ROLE_ADMIN)) {
-            if (Objects.nonNull(authorizedName) && !authorizedName.isEmpty()) {
+            if (authorizedName != null && !authorizedName.isEmpty()) {
                 try {
                     User admin = getUserByLogin(authorizedName);
                     if (!Role.ROLE_ADMIN.name().equals(admin.getAuthority())) {
@@ -265,7 +272,7 @@ public class UserServiceImpl implements UserService {
             //ignore, it's ok
         }
 
-        if (Objects.isNull(user)) {
+        if (user == null) {
             user = registerUser(email, email, generateRandomPassword(10), email, Role.ROLE_USER);
             confirmUser(user.getLogin(), user.getVerificationId(), true);
         }
@@ -312,8 +319,8 @@ public class UserServiceImpl implements UserService {
     @Nonnull
     private BooleanExpression processAndEqualLong(BooleanExpression expression,
                                                   SimpleExpression<Long> simpleExpression, Long value) {
-        if (Objects.nonNull(value)) {
-            if (Objects.nonNull(expression)) {
+        if (value != null) {
+            if (expression != null) {
                 expression = expression.and(simpleExpression.eq(value));
             } else {
                 expression = simpleExpression.eq(value);
@@ -326,8 +333,8 @@ public class UserServiceImpl implements UserService {
     @Nonnull
     private BooleanExpression processAndLikeString(BooleanExpression expression,
                                                    StringExpression stringExpression, String value) {
-        if (Objects.nonNull(value) && !value.isEmpty()) {
-            if (Objects.nonNull(expression)) {
+        if (value != null && !value.isEmpty()) {
+            if (expression != null) {
                 expression = expression.and(stringExpression.like(value));
             } else {
                 expression = stringExpression.like(value);
