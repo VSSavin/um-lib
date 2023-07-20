@@ -52,9 +52,9 @@ public class UserServiceImpl implements UserService {
     public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
         Page<User> users = null;
         Throwable throwable = null;
-        Pageable pageable = PageRequest.of(pageNumber - 1, size);
         dataSourceSwitcher.switchToUmDataSource();
         try {
+            Pageable pageable = PageRequest.of(pageNumber - 1, size);
             if (userFilter == null || userFilter.isEmpty()) {
                 users = userRepository.findAll(pageable);
             } else {
