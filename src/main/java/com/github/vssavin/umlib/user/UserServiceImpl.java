@@ -50,59 +50,109 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
-        Page<User> users;
+        Page<User> users = null;
+        Throwable throwable = null;
         Pageable pageable = PageRequest.of(pageNumber - 1, size);
         dataSourceSwitcher.switchToUmDataSource();
-        if (userFilter == null || userFilter.isEmpty()) {
-            users = userRepository.findAll(pageable);
-        } else {
-            Predicate predicate = userFilterToPredicate(userFilter);
-            users = userRepository.findAll(predicate, pageable);
+        try {
+            if (userFilter == null || userFilter.isEmpty()) {
+                users = userRepository.findAll(pageable);
+            } else {
+                Predicate predicate = userFilterToPredicate(userFilter);
+                users = userRepository.findAll(predicate, pageable);
+            }
+        } catch (Exception e) {
+            throwable = e;
         }
+
         dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(
+                    String.format("Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!",
+                            pageNumber, size, userFilter), throwable);
+        }
 
         return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
     @Override
     public User getUserById(Long id) {
+        Throwable throwable = null;
+        User user = null;
         dataSourceSwitcher.switchToUmDataSource();
-        User user = userRepository.findById(id).orElse(EMPTY_USER);
+        try {
+            user = userRepository.findById(id).orElse(EMPTY_USER);
+        } catch (Exception e) {
+            throwable = e;
+        }
+
         dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Getting a user by id = %d error!", id), throwable);
+        }
+
         return user;
     }
 
     @Override
     public User addUser(User user) {
-        User savedUser;
+        User savedUser = null;
+        Throwable throwable = null;
+        dataSourceSwitcher.switchToUmDataSource();
         try {
-            dataSourceSwitcher.switchToUmDataSource();
             savedUser = userRepository.save(user);
-            dataSourceSwitcher.switchToPreviousDataSource();
         } catch (Exception e) {
-            throw new UserServiceException("User adding error!", e);
+            throwable = e;
         }
+
+        dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Adding error for user [%s]!", user), throwable);
+        }
+
         return savedUser;
     }
 
     @Override
     public User updateUser(User user) {
-        User updatedUser;
+        User updatedUser = null;
+        Throwable throwable = null;
+        dataSourceSwitcher.switchToUmDataSource();
         try {
-            dataSourceSwitcher.switchToUmDataSource();
             updatedUser = userRepository.save(user);
-            dataSourceSwitcher.switchToPreviousDataSource();
         } catch (Exception e) {
-            throw new UserServiceException("User update error!", e);
+            throwable = e;
         }
+
+        dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Update error for user [%s]", user), throwable);
+        }
+
         return updatedUser;
     }
 
     @Override
     public User getUserByName(String name) {
+        Throwable throwable = null;
+        List<User> users = null;
         dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = userRepository.findUserByName(name);
+        try {
+            users = userRepository.findUserByName(name);
+        } catch (Exception e) {
+            throwable = e;
+        }
+
         dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Error while getting user by name [%s]", name), throwable);
+        }
+
         if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
@@ -111,9 +161,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByLogin(String login) {
+        Throwable throwable = null;
         dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = userRepository.findByLogin(login);
+        List<User> users = null;
+        try {
+            users = userRepository.findByLogin(login);
+        } catch (Exception e) {
+            throwable = e;
+        }
+
         dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Error while getting user by login [%s]", login), throwable);
+        }
+
         if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
@@ -122,9 +184,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
+        Throwable throwable = null;
         dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = userRepository.findByEmail(email);
+        List<User> users = null;
+        try {
+            users = userRepository.findByEmail(email);
+        } catch (Exception e) {
+            throwable = e;
+        }
+
         dataSourceSwitcher.switchToPreviousDataSource();
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Error while getting user by email [%s]", email), throwable);
+        }
+
         if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
@@ -134,17 +207,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(User user) {
-        if (user != null) {
-            Throwable throwable = null;
-            dataSourceSwitcher.switchToUmDataSource();
-            try {
-                userRepository.deleteByLogin(user.getLogin());
-            } catch (Exception e) {
-                throwable = e;
-            }
-            dataSourceSwitcher.switchToPreviousDataSource();
-            if (throwable != null)
-                throw new UserServiceException(String.format("Delete user %s error", user), throwable);
+        Objects.requireNonNull(user, "User must not be null!");
+        Throwable throwable = null;
+        dataSourceSwitcher.switchToUmDataSource();
+        try {
+            userRepository.deleteByLogin(user.getLogin());
+        } catch (Exception e) {
+            throwable = e;
+        }
+        dataSourceSwitcher.switchToPreviousDataSource();
+        if (throwable != null) {
+            throw new UserServiceException(String.format("Error while deleting user [%s]", user), throwable);
         }
     }
 
@@ -165,7 +238,7 @@ public class UserServiceImpl implements UserService {
         try {
             return addUser(user);
         } catch (Exception e) {
-            throw new UserServiceException("User register error!", e);
+            throw new UserServiceException(String.format("User [%s] registration error!", user), e);
         }
     }
 
@@ -216,12 +289,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, User> getUserRecoveryId(String loginOrEmail) {
+        Throwable throwable = null;
         dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = userRepository.findByEmail(loginOrEmail);
-        if (users.isEmpty()) {
-            users = userRepository.findByLogin(loginOrEmail);
+        List<User> users = null;
+        try {
+            users = userRepository.findByEmail(loginOrEmail);
+        } catch (Exception e) {
+            throwable = e;
         }
-        dataSourceSwitcher.switchToPreviousDataSource();
+
+        if (throwable != null) {
+            dataSourceSwitcher.switchToPreviousDataSource();
+            throw new UserServiceException(
+                    String.format("Error while getting recovery id, login/email = [%s]", loginOrEmail), throwable);
+        }
+
+        if (users.isEmpty()) {
+            try {
+                users = userRepository.findByLogin(loginOrEmail);
+            } catch (Exception e) {
+                throwable = e;
+            }
+
+            if (throwable != null) {
+                dataSourceSwitcher.switchToPreviousDataSource();
+                throw new UserServiceException(
+                        String.format("Error while getting recovery id, login/email = [%s]", loginOrEmail), throwable);
+            }
+
+        }
+
         if (users.isEmpty()) {
             throw new UsernameNotFoundException("Such user not found");
         }

@@ -58,4 +58,14 @@ public class UserFilter {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString() {
+        return "UserFilter{" +
+                "userId=" + userId +
+                ", login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
