@@ -7,8 +7,8 @@ create table IF NOT EXISTS users(
  authority varchar(50) not null,
  expiration_date timestamp not null,
  verification_id varchar(50),
- accountLocked smallint DEFAULT 0,
- credentialsExpired smallint DEFAULT 0,
+ account_locked smallint DEFAULT 0,
+ credentials_expired smallint DEFAULT 0,
  enabled smallint DEFAULT 1
  );
 

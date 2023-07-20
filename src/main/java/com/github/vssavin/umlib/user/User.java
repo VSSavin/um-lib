@@ -11,7 +11,6 @@ import java.util.*;
 /**
  * @author vssavin on 18.12.2021
  */
-//TODO: refactor this later!!!
 @Entity
 @Table(name = "users")
 @QueryEntity
@@ -26,10 +25,12 @@ public class User implements UserDetails {
     private String email;
     private String authority;
     @Column(name = "expiration_date")
-    private Date expiration_date;
+    private Date expirationDate;
     @Column(name = "verification_id")
-    private String verification_id;
+    private String verificationId;
+    @Column(name = "account_locked")
     private int accountLocked = 0;
+    @Column(name = "credentials_expired")
     private int credentialsExpired = 0;
     private int enabled = 1;
 
@@ -41,8 +42,8 @@ public class User implements UserDetails {
         this.authority = authority;
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, EXPIRATION_DAYS);
-        expiration_date = calendar.getTime();
-        verification_id = UUID.randomUUID().toString();
+        expirationDate = calendar.getTime();
+        verificationId = UUID.randomUUID().toString();
     }
 
     public User() {
@@ -71,12 +72,12 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return getLogin();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return expiration_date.after(new Date());
+        return expirationDate.after(new Date());
     }
 
     @Override
@@ -102,20 +103,12 @@ public class User implements UserDetails {
         return authority;
     }
 
-    public Date getExpiration_date() {
-        return expiration_date;
-    }
-
     public Date getExpirationDate() {
-        return expiration_date;
-    }
-
-    public String getVerification_id() {
-        return verification_id;
+        return expirationDate;
     }
 
     public String getVerificationId() {
-        return verification_id;
+        return verificationId;
     }
 
     public void setId(Long id) {
@@ -143,19 +136,11 @@ public class User implements UserDetails {
     }
 
     public void setExpirationDate(Date expirationDate) {
-        this.expiration_date = expirationDate;
-    }
-
-    public void setExpiration_date(Date expiration_date) {
-        this.expiration_date = expiration_date;
+        this.expirationDate = expirationDate;
     }
 
     public void setVerificationId(String verificationId) {
-        this.verification_id = verificationId;
-    }
-
-    public void setVerification_id(String verification_id) {
-        this.verification_id = verification_id;
+        this.verificationId = verificationId;
     }
 
     public void setAccountLocked(boolean accountLocked) {
@@ -253,8 +238,8 @@ public class User implements UserDetails {
             user.password = password;
             user.email = email;
             user.authority = authority;
-            user.expiration_date = expirationDate;
-            user.verification_id = verificationId;
+            user.expirationDate = expirationDate;
+            user.verificationId = verificationId;
             user.setAccountLocked(accountLocked);
             user.setCredentialsExpired(credentialsExpired);
             user.setEnabled(enabled);
@@ -287,8 +272,8 @@ public class User implements UserDetails {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", authority='" + authority + '\'' +
-                ", expiration_date=" + expiration_date +
-                ", verification_id='" + verification_id + '\'' +
+                ", expiration_date=" + expirationDate +
+                ", verification_id='" + verificationId + '\'' +
                 ", accountLocked=" + accountLocked +
                 ", credentialsExpired=" + credentialsExpired +
                 ", enabled=" + enabled +
