@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.config;
 
-import com.querydsl.sql.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,28 +49,6 @@ public class UmDataSourceConfig {
     }
 
     @Bean
-    protected Configuration queryDslConfiguration() {
-        String driverClass = umDatabaseConfig.getDriverClass();
-
-        if (driverClass.contains("h2")) {
-            return new Configuration(H2Templates.DEFAULT);
-        } else if (driverClass.contains("postgres")) {
-            return new Configuration(PostgreSQLTemplates.DEFAULT);
-        } else if (driverClass.contains("hsql")) {
-            return new Configuration(HSQLDBTemplates.DEFAULT);
-        } else if (driverClass.contains("mysql")) {
-            return new Configuration(MySQLTemplates.DEFAULT);
-        } else if (driverClass.contains("firebird")) {
-            return new Configuration(FirebirdTemplates.DEFAULT);
-        } else if (driverClass.contains("oracle")) {
-            return new Configuration(OracleTemplates.DEFAULT);
-        } else if (driverClass.contains("sqlite")) {
-            return new Configuration(SQLiteTemplates.DEFAULT);
-        }
-        throw new IllegalArgumentException("Database driver: " + driverClass + " unsupported yet!");
-    }
-
-    @Bean
     AbstractRoutingDataSource routingDataSource(@Autowired(required = false)
                                                 @Qualifier("appDataSource") DataSource appDataSource,
                                                 @Autowired(required = false)
@@ -80,15 +57,14 @@ public class UmDataSourceConfig {
         RoutingDataSource routingDataSource = new RoutingDataSource();
         DataSource ds = appDataSource != null ? appDataSource : dataSource;
         routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
-        if (ds != null) {
-            routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
-            routingDataSource.setDefaultTargetDataSource(ds);
-        }
         if (ds == null) {
             routingDataSource.setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
             routingDataSource.setDefaultTargetDataSource(umDataSource);
+        } else {
+            routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
+            routingDataSource.setDefaultTargetDataSource(ds);
         }
+
         return routingDataSource;
     }
-
 }
