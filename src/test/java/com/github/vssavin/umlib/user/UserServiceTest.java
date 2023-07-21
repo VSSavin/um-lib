@@ -228,10 +228,7 @@ public class UserServiceTest {
         attributesMap.put(nameAttributeKey, email);
         Collection<? extends GrantedAuthority> authorities =
                 Collections.singletonList(new SimpleGrantedAuthority(Role.getStringRole(Role.ROLE_USER)));
-
-        return new DefaultOAuth2User(
-                Collections.singletonList(new SimpleGrantedAuthority(Role.getStringRole(Role.ROLE_ADMIN))),
-                attributesMap, nameAttributeKey);
+        return new DefaultOAuth2User(authorities, attributesMap, nameAttributeKey);
     }
 
     @Nonnull
