@@ -41,10 +41,8 @@ public class UserServiceTest {
     @InjectMocks
     private UserServiceImpl userService;
 
-    private final User emptyUser = new User("", "", "", "", "");
     private final User adminUser =
             new User("admin", "admin", "", "admin@example.com", "ROLE_ADMIN");
-    private final Long id = 1L;
     private final UserFilter adminFilter = new UserFilter(null, "admin", "", "");
     private final UserFilter wrongIdFilter = new UserFilter(-1L, "", "", "");
     private final Pageable pageOneSizeOne = PageRequest.of(0, 1);
@@ -99,7 +97,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetUsersNotEmptyPage() {
-        UserFilter filter = new UserFilter(null, "admin", "", "");
+        UserFilter filter = new UserFilter(null, adminUser.getLogin(), "", "");
         Paged<User> users = userService.getUsers(filter, 1, 1);
         Assert.assertFalse(users.getPage().getContent().isEmpty());
     }
@@ -121,8 +119,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetUserByNameExistentName() {
-        User user = userService.getUserByName("admin");
-        Assert.assertEquals("admin", user.getName());
+        User user = userService.getUserByName(adminUser.getName());
+        Assert.assertEquals(adminUser.getName(), user.getName());
     }
 
     @Test(expected = UsernameNotFoundException.class)
@@ -132,8 +130,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetUserByLoginExistentLogin() {
-        User user = userService.getUserByLogin("admin");
-        Assert.assertEquals("admin", user.getLogin());
+        User user = userService.getUserByLogin(adminUser.getLogin());
+        Assert.assertEquals(adminUser.getLogin(), user.getLogin());
     }
 
     @Test(expected = EmailNotFoundException.class)
@@ -143,8 +141,8 @@ public class UserServiceTest {
 
     @Test
     public void shouldGetUserByEmailExistentEmail() {
-        User user = userService.getUserByEmail("admin@example.com");
-        Assert.assertEquals("admin@example.com", user.getEmail());
+        User user = userService.getUserByEmail(adminUser.getEmail());
+        Assert.assertEquals(adminUser.getEmail(), user.getEmail());
     }
 
     @Nonnull
