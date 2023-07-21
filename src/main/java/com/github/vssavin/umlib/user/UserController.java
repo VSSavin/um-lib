@@ -368,7 +368,7 @@ final class UserController extends UmControllerBase {
                 String newPassword = userService.generateNewUserPassword(recoveryId);
                 String message = "Your new password: " + newPassword;
                 emailService.sendSimpleMessage(user.getEmail(), "Your new password: ", message);
-            } catch (UsernameNotFoundException usernameNotFoundException) {
+            } catch (UserServiceException usernameNotFoundException) {
                 log.error("User not found! ", usernameNotFoundException);
                 modelAndView.addObject("userNotFound", true);
                 successSend = false;
@@ -403,7 +403,7 @@ final class UserController extends UmControllerBase {
                         PAGE_RECOVERY_PASSWORD + "?recoveryId=" + optionalRecoveryId.get();
                 emailService.sendSimpleMessage(user.getEmail(), "Password recovery", message);
             }
-        } catch (UsernameNotFoundException usernameNotFoundException) {
+        } catch (UserServiceException usernameNotFoundException) {
             log.error("User not found: " + loginOrEmail + "! ", usernameNotFoundException);
             modelAndView.addObject("userNotFound", true);
             successSend = false;

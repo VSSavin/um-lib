@@ -35,131 +35,78 @@ public class UserServiceImpl implements UserService {
 
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
 
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DataSourceSwitcher dataSourceSwitcher;
+    private final UmRepositorySupport<UserRepository, User> repositorySupport;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
                            DataSourceSwitcher dataSourceSwitcher) {
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.dataSourceSwitcher = dataSourceSwitcher;
+        this.repositorySupport = new UmRepositorySupport<>(userRepository, dataSourceSwitcher);
     }
 
     @Override
     public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
-        Page<User> users = null;
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
+        String message = "Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!";
+        Object[] params = {pageNumber, size, userFilter};
+        Page<User> users;
+        UmRepositorySupport.PagedRepositoryFunction<UserRepository, User> function;
+        Pageable pageable;
         try {
-            Pageable pageable = PageRequest.of(pageNumber - 1, size);
-            if (userFilter == null || userFilter.isEmpty()) {
-                users = userRepository.findAll(pageable);
-            } else {
-                Predicate predicate = userFilterToPredicate(userFilter);
-                users = userRepository.findAll(predicate, pageable);
-            }
+            pageable = PageRequest.of(pageNumber - 1, size);
         } catch (Exception e) {
-            throwable = e;
+            throw new UserServiceException(String.format(message, params), e);
         }
 
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(
-                    String.format("Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!",
-                            pageNumber, size, userFilter), throwable);
+        if (userFilter == null || userFilter.isEmpty()) {
+            function = repository -> repository.findAll(pageable);
+        } else {
+            Predicate predicate = userFilterToPredicate(userFilter);
+            function = repository -> repository.findAll(predicate, pageable);
         }
+
+        users = repositorySupport.execute(function, message, params);
 
         return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
     @Override
     public User getUserById(Long id) {
-        Throwable throwable = null;
-        User user = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        try {
-            Optional<User> optionalUser = userRepository.findById(id);
-            if (optionalUser.isPresent()) {
-                user = optionalUser.get();
-            }
-        } catch (Exception e) {
-            throwable = e;
-        }
+        String message = "Getting a user by id = %d error!";
+        Object[] params = {id};
+        UmRepositorySupport.RepositoryOptionalFunction<UserRepository, User> function = repository -> repository.findById(id);
+        Optional<User> user = repositorySupport.execute(function, message, params);
 
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Getting a user by id = %d error!", id), throwable);
-        }
-
-        if (user == null) {
+        if (!user.isPresent()) {
             throw new UserNotFoundException(String.format("User with id = %d not found!", id));
         }
 
-        return user;
+        return user.get();
     }
 
     @Override
     public User addUser(User user) {
-        User savedUser = null;
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        try {
-            savedUser = userRepository.save(user);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Adding error for user [%s]!", user), throwable);
-        }
-
-        return savedUser;
+        String message = "Adding error for user [%s]!";
+        Object[] params = {user};
+        UmRepositorySupport.RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
+        return repositorySupport.execute(function, message, params);
     }
 
     @Override
     public User updateUser(User user) {
-        User updatedUser = null;
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        try {
-            updatedUser = userRepository.save(user);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Update error for user [%s]", user), throwable);
-        }
-
-        return updatedUser;
+        String message = "Update error for user [%s]";
+        Object[] params = {user};
+        UmRepositorySupport.RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
+        return repositorySupport.execute(function, message, params);
     }
 
     @Override
     public User getUserByName(String name) {
-        Throwable throwable = null;
-        List<User> users = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        try {
-            users = userRepository.findUserByName(name);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Error while getting user by name [%s]", name), throwable);
-        }
-
-        if (users != null && !users.isEmpty()) {
+        String message = "Error while getting user by name [%s]";
+        Object[] params = {name};
+        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findUserByName(name);
+        List<User> users = repositorySupport.execute(function, message, params);
+        if (!users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User: %s not found!", name));
@@ -167,64 +114,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByLogin(String login) {
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = null;
-        try {
-            users = userRepository.findByLogin(login);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Error while getting user by login [%s]", login), throwable);
-        }
-
-        if (users != null && !users.isEmpty()) {
+        String message = "Error while getting user by login [%s]";
+        Object[] params = {login};
+        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findByLogin(login);
+        List<User> users = repositorySupport.execute(function, message, params);
+        if (!users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User with login: %s not found!", login));
+
     }
 
     @Override
     public User getUserByEmail(String email) {
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = null;
-        try {
-            users = userRepository.findByEmail(email);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Error while getting user by email [%s]", email), throwable);
-        }
-
-        if (users != null && !users.isEmpty()) {
+        String message = "Error while getting user by email [%s]";
+        Object[] params = {email};
+        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(email);
+        List<User> users = repositorySupport.execute(function, message, params);
+        if (!users.isEmpty()) {
             return users.get(0);
         }
-
         throw new EmailNotFoundException(String.format("Email: %s not found!", email));
     }
 
     @Override
     public void deleteUser(User user) {
         Objects.requireNonNull(user, "User must not be null!");
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        try {
-            userRepository.deleteByLogin(user.getLogin());
-        } catch (Exception e) {
-            throwable = e;
-        }
-        dataSourceSwitcher.switchToPreviousDataSource();
-        if (throwable != null) {
-            throw new UserServiceException(String.format("Error while deleting user [%s]", user), throwable);
-        }
+        String message = "Error while deleting user [%s]";
+        Object[] params = {user};
+        UmRepositorySupport.RepositoryConsumer<UserRepository> function = repo -> repo.deleteByLogin(user.getLogin());
+        repositorySupport.execute(function, message, params);
     }
 
     @Override
@@ -295,38 +214,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Map<String, User> getUserRecoveryId(String loginOrEmail) {
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
-        List<User> users = null;
-        try {
-            users = userRepository.findByEmail(loginOrEmail);
-        } catch (Exception e) {
-            throwable = e;
-        }
-
-        if (throwable != null) {
-            dataSourceSwitcher.switchToPreviousDataSource();
-            throw new UserServiceException(
-                    String.format("Error while getting recovery id, login/email = [%s]", loginOrEmail), throwable);
-        }
+        List<User> users;
+        String message = "Error while getting recovery id, login/email = [%s]";
+        Object[] params = {loginOrEmail};
+        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function =
+                repo -> repo.findByEmail(loginOrEmail);
+        users = repositorySupport.execute(function, message, params);
 
         if (users.isEmpty()) {
-            try {
-                users = userRepository.findByLogin(loginOrEmail);
-            } catch (Exception e) {
-                throwable = e;
+            function = repo -> repo.findByLogin(loginOrEmail);
+            users = repositorySupport.execute(function, message, params);
+
+            if (users.isEmpty()) {
+                throw new UserServiceException(String.format("User [%s] not found!", loginOrEmail));
             }
-
-            if (throwable != null) {
-                dataSourceSwitcher.switchToPreviousDataSource();
-                throw new UserServiceException(
-                        String.format("Error while getting recovery id, login/email = [%s]", loginOrEmail), throwable);
-            }
-
-        }
-
-        if (users.isEmpty()) {
-            throw new UsernameNotFoundException("Such user not found");
         }
 
         UserRecoveryParams userRecoveryParams = new UserRecoveryParams(users.get(0));
@@ -338,7 +239,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByRecoveryId(String recoveryId) {
         UserRecoveryParams userRecoveryParams = passwordRecoveryIds.get(recoveryId);
         if (userRecoveryParams == null) {
-            throw new UsernameNotFoundException("User with recoveryId = " + recoveryId + " not found!");
+            throw new UserServiceException("User with recoveryId = " + recoveryId + " not found!");
         }
         return userRecoveryParams.getUser();
     }
