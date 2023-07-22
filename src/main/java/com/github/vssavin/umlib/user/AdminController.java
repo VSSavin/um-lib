@@ -354,7 +354,8 @@ final class AdminController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_EDIT);
         if (userSecurityService.isAuthorizedAdmin(request)) {
             User user = userService.getUserById(id);
-            modelAndView.addObject(USER_ATTRIBUTE, user);
+            UserDto userDto = UserDto.toDto(user);
+            modelAndView.addObject(USER_ATTRIBUTE, userDto);
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);

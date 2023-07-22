@@ -68,6 +68,27 @@
                 <label for="email" class="sr-only" th:text="${emailTitle}">Электронная почта</label>
                 <input type="text" id="email" name="email" class="form-control" th:placeholder="${emailTitle}" th:value="${user.email}">
             </p>
+            <p>
+                <label for="accountLocked" class="sr-only" th:text="${accountLockedTitle}">Аккаунт заблокирован</label>
+                <select id="accountLocked" name="accountLocked" class="form-select">
+                    <option th:selected="!${user.accountLocked}" value="false" th:text="${noTitle}">No</option>
+                    <option th:selected="${user.accountLocked}" value="true" th:text="${yesTitle}">Yes</option>
+                </select>
+            </p>
+            <p>
+                <label for="credentialsExpired" class="sr-only" th:text="${credentialsExpiredTitle}">Истек срок действия пароля</label>
+                <select id="credentialsExpired" name="credentialsExpired" class="form-select">
+                    <option th:selected="!${user.credentialsExpired}" value="false" th:text="${noTitle}">No</option>
+                    <option th:selected="${user.credentialsExpired}" value="true" th:text="${yesTitle}">Yes</option>
+                </select>
+            </p>
+            <p>
+                <label for="enabled" class="sr-only" th:text="${enabledTitle}">Аккаунт включен</label>
+                <select id="enabled" name="enabled" class="form-select">
+                    <option th:selected="!${user.enabled}" value="false" th:text="${noTitle}">No</option>
+                    <option th:selected="${user.enabled}" value="true" th:text="${yesTitle}">Yes</option>
+                </select>
+            </p>
             <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${saveUser}">Сохранить</button>
         </form>
     </div>
