@@ -408,7 +408,11 @@ final class AdminController extends UmControllerBase {
                 User userFromDatabase = userService.getUserById(userDto.getId());
                 User newUser = User.builder().id(userFromDatabase.getId()).login(userDto.getLogin())
                         .name(userDto.getName()).password(userFromDatabase.getPassword())
-                        .email(userDto.getEmail()).authority(userFromDatabase.getAuthority())
+                        .email(userDto.getEmail())
+                        .accountLocked(userDto.isAccountLocked())
+                        .credentialsExpired(userDto.isCredentialsExpired())
+                        .enabled(userDto.isEnabled())
+                        .authority(userFromDatabase.getAuthority())
                         .expirationDate(userFromDatabase.getExpirationDate())
                         .verificationId(userFromDatabase.getVerificationId())
                         .build();
