@@ -20,50 +20,64 @@ public class UmConfigurer {
     private PasswordConfig passwordConfig;
     private String passwordDoesntMatchPatternMessage = "Wrong password!";
     private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
+    private boolean configured = false;
 
     public UmConfigurer loginUrl(String loginUrl) {
+        checkAccess();
         this.loginUrl = loginUrl;
         return this;
     }
 
     public UmConfigurer loginProcessingUrl(String loginProcessingUrl) {
+        checkAccess();
         this.loginProcessingUrl = loginProcessingUrl;
         return this;
     }
 
     public UmConfigurer logoutUrl(String logoutUrl) {
+        checkAccess();
         this.logoutUrl = logoutUrl;
         return this;
     }
 
     public UmConfigurer successUrl(String successUrl) {
+        checkAccess();
         this.successUrl = successUrl;
         return this;
     }
 
     public UmConfigurer adminSuccessUrl(String adminSuccessUrl) {
+        checkAccess();
         this.adminSuccessUrl = adminSuccessUrl;
         return this;
     }
 
     public UmConfigurer secureService(SecureService secureService) {
+        checkAccess();
         this.secureService = secureService;
         return this;
     }
 
     public UmConfigurer passwordDoesnotMatchPatternMessage(String passwordDoesntMatchPatternMessage) {
+        checkAccess();
         this.passwordDoesntMatchPatternMessage = passwordDoesntMatchPatternMessage;
         return this;
     }
 
     public UmConfigurer permissions(List<AuthorizedUrlPermission> permissions) {
+        checkAccess();
         this.permissions = permissions;
         return this;
     }
 
     public UmConfigurer permission(AuthorizedUrlPermission permission) {
+        checkAccess();
         this.permissions.add(permission);
         return this;
+    }
+
+    public void configure() {
+        this.configured = true;
     }
 
     public String getLoginUrl() {
@@ -200,6 +214,12 @@ public class UmConfigurer {
                 ", passwordPattern=" + passwordPattern +
                 ", passwordConfig=" + passwordConfig +
                 '}';
+    }
+
+    private void checkAccess() {
+        if (configured) {
+            throw new IllegalStateException("UmConfigurer is already configured!");
+        }
     }
 
     private Pattern initPasswordPattern(PasswordConfig passwordConfig) {
