@@ -69,6 +69,7 @@ public class UmConfig extends StorableConfig {
         this.encryptPropertiesPasswordService = applicationSecureService;
 
         initDefaultPermissions();
+        this.authorizedUrlPermissions.addAll(umConfigurer.getPermissions());
 
         if (applicationArgs == null || applicationArgs.length == 0) {
             String[] args = getAppArgsFromContext(context);

@@ -2,6 +2,8 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.security.SecureService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -17,6 +19,7 @@ public class UmConfigurer {
     private Pattern passwordPattern;
     private PasswordConfig passwordConfig;
     private String passwordDoesntMatchPatternMessage = "Wrong password!";
+    private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
 
     public UmConfigurer loginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
@@ -50,6 +53,16 @@ public class UmConfigurer {
 
     public UmConfigurer passwordDoesnotMatchPatternMessage(String passwordDoesntMatchPatternMessage) {
         this.passwordDoesntMatchPatternMessage = passwordDoesntMatchPatternMessage;
+        return this;
+    }
+
+    public UmConfigurer permissions(List<AuthorizedUrlPermission> permissions) {
+        this.permissions = permissions;
+        return this;
+    }
+
+    public UmConfigurer permission(AuthorizedUrlPermission permission) {
+        this.permissions.add(permission);
         return this;
     }
 
@@ -89,6 +102,10 @@ public class UmConfigurer {
 
     public String getPasswordDoesntMatchPatternMessage() {
         return passwordDoesntMatchPatternMessage;
+    }
+
+    public List<AuthorizedUrlPermission> getPermissions() {
+        return permissions;
     }
 
     public PasswordConfig passwordConfig() {

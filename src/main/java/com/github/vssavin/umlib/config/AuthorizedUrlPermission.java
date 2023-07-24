@@ -14,6 +14,11 @@ public class AuthorizedUrlPermission {
         this.roles = roles;
     }
 
+    public AuthorizedUrlPermission(String url, Permission permission) {
+        this.url = url;
+        this.roles = permission.getRoles();
+    }
+
     public String getUrl() {
         return url;
     }
