@@ -36,7 +36,8 @@ public class ApplicationConfig {
     public UmConfigurer umConfigurer() {
         return new UmConfigurer().successUrl("/index.html")
                 .permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
-                .permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER));
+                .permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER))
+                .configure();
     }
 
     @Bean

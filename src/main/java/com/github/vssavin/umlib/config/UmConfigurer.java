@@ -76,8 +76,9 @@ public class UmConfigurer {
         return this;
     }
 
-    public void configure() {
+    public UmConfigurer configure() {
         this.configured = true;
+        return this;
     }
 
     public String getLoginUrl() {
