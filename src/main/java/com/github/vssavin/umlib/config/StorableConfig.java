@@ -10,6 +10,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
+ * Configuration class that supports saving properties to a file.
+ *
  * @author vssavin on 17.12.21
  */
 public class StorableConfig {
@@ -99,7 +101,5 @@ public class StorableConfig {
             return Collections.enumeration(new TreeSet<>(super.keySet()));
         }
     }
-
-
 
 }

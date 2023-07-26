@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
+ * Base project configuration class.
+ *
  * @author vssavin on 15.05.2022
  */
 @Configuration
