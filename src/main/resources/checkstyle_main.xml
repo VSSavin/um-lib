@@ -7,8 +7,6 @@
   <property name="charset" value="UTF-8"/>
   <property name="fileExtensions" value="java, properties, xml"/>
 
-  <module name="JavadocPackage"/>
-
   <module name="TreeWalker">
 
     <module name="JavadocType">
