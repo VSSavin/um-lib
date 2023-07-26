@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import java.util.Objects;
 
 /**
+ * Provides data paging.
+ *
  * Created by vssavin on 04.08.2022.
  */
 public class Paged<T> {

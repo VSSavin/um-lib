@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.data.pagination;
 
 /**
+ * Provides a simple paging data element.
+ *
  * Created by vssavin on 04.08.2022.
  */
 public class PageItem {
