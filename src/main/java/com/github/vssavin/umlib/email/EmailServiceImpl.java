@@ -6,6 +6,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 /**
+ * Default implementation of {@link com.github.vssavin.umlib.email.EmailService} interface.
+ *
  * @author vssavin on 13.01.22
  */
 @Service

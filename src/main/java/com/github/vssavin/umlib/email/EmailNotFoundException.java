@@ -1,6 +1,9 @@
 package com.github.vssavin.umlib.email;
 
 /**
+ * Special unchecked exception type used
+ * to indicate that email is not found.
+ *
  * @author vssavin on 08.01.2022
  */
 public class EmailNotFoundException extends RuntimeException {
