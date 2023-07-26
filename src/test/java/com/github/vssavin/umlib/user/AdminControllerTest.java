@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.user;
 
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.LocaleConfig;
-import com.github.vssavin.umlib.language.MessageKeys;
+import com.github.vssavin.umlib.language.MessageKey;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -60,7 +60,7 @@ public class AdminControllerTest extends AbstractTest {
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(
-                MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), new Object[]{},
+                MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", String.format(messagePattern, login)))
@@ -81,7 +81,7 @@ public class AdminControllerTest extends AbstractTest {
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String message = changeUserPasswordMessageSource.getMessage(
-                MessageKeys.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getMessageKey(), new Object[]{},
+                MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", message));
@@ -101,7 +101,7 @@ public class AdminControllerTest extends AbstractTest {
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String message = changeUserPasswordMessageSource.getMessage(
-                MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), new Object[]{},
+                MessageKey.USER_NOT_FOUND_MESSAGE.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("error", true))
                 .andExpect(model().attribute("errorMsg", message));

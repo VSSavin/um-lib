@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.user;
 
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.LocaleConfig;
-import com.github.vssavin.umlib.language.MessageKeys;
+import com.github.vssavin.umlib.language.MessageKey;
 import com.github.vssavin.umlib.email.MockedEmailService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -81,7 +81,7 @@ public class UserControllerTest extends AbstractTest {
         ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
                         .params(registerParams)
                         .with(csrf()));
-        String messagePattern = registrationMessageSource.getMessage(MessageKeys.USER_EXISTS_PATTERN.getMessageKey(),
+        String messagePattern = registrationMessageSource.getMessage(MessageKey.USER_EXISTS_PATTERN.getKey(),
                 new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("error", true))
                 .andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
@@ -100,7 +100,7 @@ public class UserControllerTest extends AbstractTest {
         ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
                 .params(registerParams)
                 .with(csrf()));
-        String messagePattern = registrationMessageSource.getMessage(MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(),
+        String messagePattern = registrationMessageSource.getMessage(MessageKey.EMAIL_EXISTS_MESSAGE.getKey(),
                 new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("error", true))
                 .andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
@@ -125,7 +125,7 @@ public class UserControllerTest extends AbstractTest {
                 .with(csrf()));
 
         String message = changePasswordMessageSource.getMessage(
-                MessageKeys.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getMessageKey(), new Object[]{},
+                MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", message));
@@ -149,7 +149,7 @@ public class UserControllerTest extends AbstractTest {
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
         String message = changePasswordMessageSource.getMessage(
-                MessageKeys.WRONG_PASSWORD_MESSAGE.getMessageKey(), new Object[]{},
+                MessageKey.WRONG_PASSWORD_MESSAGE.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("error", true))
                 .andExpect(model().attribute("errorMsg", message));
@@ -172,7 +172,7 @@ public class UserControllerTest extends AbstractTest {
                 .params(registerParams)
                 .with(csrf()));
         String message = registrationMessageSource.getMessage(
-                MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), new Object[]{},
+                MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN.getKey(), new Object[]{},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", String.format(message, login)));

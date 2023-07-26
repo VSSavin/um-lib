@@ -2,6 +2,7 @@ package com.github.vssavin.umlib.base;
 
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
+import com.github.vssavin.umlib.language.MessageKey;
 import com.github.vssavin.umlib.language.UmLanguage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
@@ -166,10 +167,10 @@ public class UmControllerBase {
      * @param formatValues values to format the message string
      * @return the {@link org.springframework.web.servlet.ModelAndView} object with success params
      */
-    protected ModelAndView getSuccessModelAndView(String page, String messageKey, String lang, Object... formatValues) {
+    protected ModelAndView getSuccessModelAndView(String page, MessageKey messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject(SUCCESS_ATTRIBUTE, true);
-        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
+        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey.getKey(), lang);
         if (message.contains("%")) {
             if (formatValues != null) {
                 modelAndView.addObject(SUCCESS_MSG_ATTRIBUTE, String.format(message, formatValues));
@@ -192,10 +193,10 @@ public class UmControllerBase {
      * @param formatValues values to format the message string
      * @return the {@link org.springframework.web.servlet.ModelAndView} object with error params
      */
-    protected ModelAndView getErrorModelAndView(String page, String messageKey, String lang, Object... formatValues) {
+    protected ModelAndView getErrorModelAndView(String page, MessageKey messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject(ERROR_ATTRIBUTE, true);
-        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey, lang);
+        String message = LocaleConfig.getMessage(page.replaceFirst("/", ""), messageKey.getKey(), lang);
         if (message.contains("%")) {
             if (formatValues != null) {
                 modelAndView.addObject(ERROR_MSG_ATTRIBUTE, String.format(message, formatValues));

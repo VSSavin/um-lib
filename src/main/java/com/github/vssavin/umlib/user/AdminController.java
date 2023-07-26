@@ -4,7 +4,7 @@ import com.github.vssavin.umlib.base.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
-import com.github.vssavin.umlib.language.MessageKeys;
+import com.github.vssavin.umlib.language.MessageKey;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
 import io.github.vssavin.securelib.Utils;
@@ -93,8 +93,7 @@ final class AdminController extends UmControllerBase {
             modelAndView = new ModelAndView(PAGE_ADMIN);
             modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         } else {
-            modelAndView = getErrorModelAndView(ERROR_PAGE,
-                    MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(ERROR_PAGE, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
             response.setStatus(500);
         }
 
@@ -112,8 +111,7 @@ final class AdminController extends UmControllerBase {
             modelAndView = new ModelAndView(PAGE_CONFIRM_USER);
             modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         } else {
-            modelAndView = getErrorModelAndView(ERROR_PAGE,
-                    MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(ERROR_PAGE, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
             response.setStatus(500);
         }
 
@@ -137,7 +135,7 @@ final class AdminController extends UmControllerBase {
 
             modelAndView.addObject(ERROR_MSG_ATTRIBUTE,
                     LocaleConfig.getMessage(PAGE_REGISTRATION,
-                            MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang));
+                            MessageKey.AUTHENTICATION_REQUIRED_MESSAGE.getKey(), lang));
         }
 
         addObjectsToModelAndView(modelAndView, pageRegistrationParams,
@@ -164,8 +162,7 @@ final class AdminController extends UmControllerBase {
         registerRole = Role.getRole(role);
 
         if (!userService.accessGrantedForRegistration(registerRole, authorizedName)) {
-            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                    MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
@@ -178,7 +175,7 @@ final class AdminController extends UmControllerBase {
             String decodedConfirmPassword = secureService.decrypt(confirmPassword, key);
             if (!decodedPassword.equals(decodedConfirmPassword)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                        MessageKeys.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE.getMessageKey(), lang);
+                        MessageKey.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
@@ -186,8 +183,7 @@ final class AdminController extends UmControllerBase {
             }
 
             if (!isValidUserEmail(email)) {
-                modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                        MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
+                modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.EMAIL_NOT_VALID_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
@@ -203,8 +199,7 @@ final class AdminController extends UmControllerBase {
             }
 
             if (isEmailExist(email)) {
-                modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                        MessageKeys.EMAIL_EXISTS_MESSAGE.getMessageKey(), lang);
+                modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.EMAIL_EXISTS_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(400);
@@ -218,16 +213,14 @@ final class AdminController extends UmControllerBase {
             userService.confirmUser(login, "", true);
         } catch (UserExistsException e) {
             log.error("User exists! ", e);
-            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                    MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, username);
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.USER_EXISTS_PATTERN, lang, username);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(400);
             return modelAndView;
         } catch (Exception e) {
             log.error("User registration error! ", e);
-            modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
-                    MessageKeys.CREATE_USER_ERROR_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.CREATE_USER_ERROR_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
@@ -235,7 +228,7 @@ final class AdminController extends UmControllerBase {
         }
 
         modelAndView = getSuccessModelAndView(PAGE_REGISTRATION,
-                MessageKeys.USER_CREATED_SUCCESSFULLY_PATTERN.getMessageKey(), lang, newUser.getLogin());
+                MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN, lang, newUser.getLogin());
         addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                 secureService.getEncryptMethodNameForView(), lang);
 
@@ -249,8 +242,7 @@ final class AdminController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_CHANGE_USER_PASSWORD);
         String authorizedName = userSecurityService.getAuthorizedUserName(request);
         if (!isAuthorizedUser(authorizedName)) {
-            modelAndView = getErrorModelAndView(ERROR_PAGE,
-                    MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(ERROR_PAGE, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
         }
 
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
@@ -276,7 +268,7 @@ final class AdminController extends UmControllerBase {
                     userService.updateUser(user);
                 } else {
                     modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                            MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), lang);
+                            MessageKey.USER_NOT_FOUND_MESSAGE, lang);
                     addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(404);
@@ -284,7 +276,7 @@ final class AdminController extends UmControllerBase {
                 }
             } else {
                 modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                        MessageKeys.AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                        MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(403);
@@ -294,7 +286,7 @@ final class AdminController extends UmControllerBase {
         } catch (UsernameNotFoundException ex) {
             log.error("User name not found!", ex);
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                    MessageKeys.USER_NOT_FOUND_MESSAGE.getMessageKey(), lang);
+                    MessageKey.USER_NOT_FOUND_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(404);
@@ -302,7 +294,7 @@ final class AdminController extends UmControllerBase {
         } catch (Exception ex) {
             log.error("User password change error! ", ex);
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                    MessageKeys.REQUEST_PROCESSING_ERROR.getMessageKey(), lang);
+                    MessageKey.REQUEST_PROCESSING_ERROR, lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                     secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(500);
@@ -310,7 +302,7 @@ final class AdminController extends UmControllerBase {
         }
 
         modelAndView = getSuccessModelAndView(PAGE_CHANGE_USER_PASSWORD,
-                MessageKeys.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getMessageKey(), lang);
+                MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE, lang);
         response.setStatus(200);
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                 secureService.getEncryptMethodNameForView(), lang);
@@ -332,7 +324,7 @@ final class AdminController extends UmControllerBase {
             modelAndView.addObject(USERS_ATTRIBUTE, users);
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
-                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                    MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
         }
@@ -360,7 +352,7 @@ final class AdminController extends UmControllerBase {
             modelAndView.addObject(USER_ATTRIBUTE, userDto);
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
-                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                    MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
             addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
@@ -392,7 +384,7 @@ final class AdminController extends UmControllerBase {
             if (userSecurityService.isAuthorizedAdmin(request)) {
                 if (!isValidUserEmail(userDto.getEmail())) {
                     modelAndView = getErrorModelAndView(PAGE_USERS,
-                            MessageKeys.EMAIL_NOT_VALID_MESSAGE.getMessageKey(), lang);
+                            MessageKey.EMAIL_NOT_VALID_MESSAGE, lang);
                     addObjectsToModelAndView(modelAndView, pageUsersParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(400);
@@ -401,7 +393,7 @@ final class AdminController extends UmControllerBase {
 
                 if (!isLoginValid(userDto.getLogin(), userDto.getId())) {
                     modelAndView = getErrorModelAndView(PAGE_USERS,
-                            MessageKeys.USER_EXISTS_PATTERN.getMessageKey(), lang, userDto.getLogin());
+                            MessageKey.USER_EXISTS_PATTERN, lang, userDto.getLogin());
                     addObjectsToModelAndView(modelAndView, pageUsersParams,
                             secureService.getEncryptMethodNameForView(), lang);
                     response.setStatus(400);
@@ -423,11 +415,11 @@ final class AdminController extends UmControllerBase {
                 modelAndView.addObject("user", newUser);
                 modelAndView.addObject(SUCCESS_ATTRIBUTE, true);
                 String successMsg = LocaleConfig
-                        .getMessage(PAGE_EDIT, MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
+                        .getMessage(PAGE_EDIT, MessageKey.USER_EDIT_SUCCESS_MESSAGE.getKey(), lang);
                 modelAndView.addObject(SUCCESS_MSG_ATTRIBUTE, successMsg);
             } else {
                 modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
-                        MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                        MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageLoginParams,
                         secureService.getEncryptMethodNameForView(), lang);
                 response.setStatus(403);
@@ -435,8 +427,7 @@ final class AdminController extends UmControllerBase {
             }
         } catch (Exception e) {
             log.error("User update error! ", e);
-            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
-                    MessageKeys.USER_EDIT_ERROR_MESSAGE.getMessageKey(), lang);
+            modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL, MessageKey.USER_EDIT_ERROR_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageUserEditParams,
                     secureService.getEncryptMethodNameForView(), lang);
             return modelAndView;
@@ -449,8 +440,7 @@ final class AdminController extends UmControllerBase {
                 secureService.getEncryptMethodNameForView(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
-        String successMsg = LocaleConfig.getMessage(PAGE_EDIT,
-                MessageKeys.USER_EDIT_SUCCESS_MESSAGE.getMessageKey(), lang);
+        String successMsg = LocaleConfig.getMessage(PAGE_EDIT, MessageKey.USER_EDIT_SUCCESS_MESSAGE.getKey(), lang);
         modelAndView.addObject(SUCCESS_ATTRIBUTE, true);
         modelAndView.addObject(SUCCESS_MSG_ATTRIBUTE, successMsg);
         return modelAndView;
@@ -468,7 +458,7 @@ final class AdminController extends UmControllerBase {
                 User user = userService.getUserById(id);
                 if (user.getLogin().isEmpty()) {
                     String errorMessage = LocaleConfig.getMessage(PAGE_USERS,
-                            MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
+                            MessageKey.USER_DELETE_ERROR_MESSAGE.getKey(), lang);
                     modelAndView.addObject(ERROR_ATTRIBUTE, true);
                     modelAndView.addObject(ERROR_MSG_ATTRIBUTE, errorMessage);
                 } else  {
@@ -476,14 +466,14 @@ final class AdminController extends UmControllerBase {
                 }
             } catch (UserNotFoundException e) {
                 String errorMessage = LocaleConfig.getMessage(PAGE_USERS,
-                        MessageKeys.USER_DELETE_ERROR_MESSAGE.getMessageKey(), lang);
+                        MessageKey.USER_DELETE_ERROR_MESSAGE.getKey(), lang);
                 modelAndView.addObject(ERROR_ATTRIBUTE, true);
                 modelAndView.addObject(ERROR_MSG_ATTRIBUTE, errorMessage);
                 response.setStatus(404);
             }
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
-                    MessageKeys.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE.getMessageKey(), lang);
+                    MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
             response.setStatus(403);
             return modelAndView;

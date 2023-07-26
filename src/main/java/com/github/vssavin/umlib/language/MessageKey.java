@@ -3,7 +3,7 @@ package com.github.vssavin.umlib.language;
 /**
  * @author vssavin on 30.12.21
  */
-public enum MessageKeys {
+public enum MessageKey {
     USER_CREATED_SUCCESSFULLY_PATTERN("userCreatedSuccessfullyPattern"),
     USER_EXISTS_PATTERN("userExistsPattern"),
     PASSWORDS_MUST_BE_IDENTICAL_MESSAGE("passwordsMustBeIdenticalMessage"),
@@ -22,13 +22,13 @@ public enum MessageKeys {
     CONFIRM_SUCCESS_MESSAGE("confirmSuccessMessage"),
     CONFIRM_FAILED_MESSAGE("confirmFailedMessage");
 
-    private final String messageKey;
+    private final String key;
 
-    MessageKeys(String messageKey) {
-        this.messageKey = messageKey;
+    MessageKey(String key) {
+        this.key = key;
     }
 
-    public String getMessageKey() {
-        return messageKey;
+    public String getKey() {
+        return key;
     }
 }
