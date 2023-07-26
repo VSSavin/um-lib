@@ -15,7 +15,7 @@ import java.util.*;
  * @author vssavin on 17.12.21
  */
 public class StorableConfig {
-    @IgnoreField private static final Logger LOG = LoggerFactory.getLogger(StorableConfig.class);
+    @IgnoreField private static final Logger log = LoggerFactory.getLogger(StorableConfig.class);
     @IgnoreField private String configFile = "";
     @IgnoreField private String namePrefix = "";
 
@@ -38,7 +38,7 @@ public class StorableConfig {
             try (FileReader reader = new FileReader(configFile)) {
                 props.load(reader);
             } catch (IOException e) {
-                LOG.error("Reading properties error!", e);
+                log.error("Reading properties error!", e);
             }
 
             props.putAll(propertiesMap);
@@ -46,10 +46,8 @@ public class StorableConfig {
             try (FileWriter writer = new FileWriter(configFile)) {
                 props.store(writer, null);
             } catch (IOException e) {
-                LOG.error("Writing properties error!", e);
+                log.error("Writing properties error!", e);
             }
-
-
         }
     }
 
@@ -63,9 +61,9 @@ public class StorableConfig {
                 }
             }
         } catch (IllegalAccessException e) {
-            LOG.error("Field processing error!", e);
+            log.error("Field processing error!", e);
         } catch (Exception e) {
-            LOG.error("Getting properties error!", e);
+            log.error("Getting properties error!", e);
         }
 
         return fieldsMap;
