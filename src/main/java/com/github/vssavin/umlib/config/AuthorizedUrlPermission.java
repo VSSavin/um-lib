@@ -3,6 +3,8 @@ package com.github.vssavin.umlib.config;
 import java.util.Arrays;
 
 /**
+ * Immutable class for storing url permissions.
+ *
  * Created by vssavin on 17.05.2022.
  */
 public class AuthorizedUrlPermission {

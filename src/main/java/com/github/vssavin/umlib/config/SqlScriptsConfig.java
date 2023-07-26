@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
+ * Provides scanning and execution of sql scripts.
+ *
  * Created by vssavin on 16.05.2022.
  */
 @Component

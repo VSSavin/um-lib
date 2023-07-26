@@ -4,6 +4,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 /**
+ * Configuration class to connect to email service.
+ *
  * @author vssavin on 13.01.22
  */
 @Component

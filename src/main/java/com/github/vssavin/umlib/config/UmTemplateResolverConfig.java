@@ -12,6 +12,8 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 /**
+ * Configuration of user management template resolvers.
+ *
  * @author vssavin on 15.05.2022
  */
 @Configuration

@@ -6,6 +6,8 @@ import static com.github.vssavin.umlib.user.Role.ROLE_ADMIN;
 import static com.github.vssavin.umlib.user.Role.ROLE_USER;
 
 /**
+ * Enum with available permissions.
+ *
  * @author vssavin on 18.07.2023
  */
 public enum Permission {

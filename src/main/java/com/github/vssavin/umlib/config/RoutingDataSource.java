@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Routes connection switching between data sources based on a lookup key.
+ *
  * Created by vssavin on 25.08.2022.
  */
 class RoutingDataSource extends AbstractRoutingDataSource {

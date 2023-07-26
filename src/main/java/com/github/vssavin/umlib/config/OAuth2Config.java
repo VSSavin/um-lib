@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 /**
+ * Configuration class for Google O2Auth.
+ *
  * @author vssavin on 07.09.2022
  */
 @PropertySource(value = "classpath:" + OAuth2Config.CONFIG_FILE, ignoreResourceNotFound = true)

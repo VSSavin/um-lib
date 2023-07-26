@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Configuration class for automatically generation of required language beans.
+ *
  * @author vssavin on 27.12.21
  */
 @Configuration

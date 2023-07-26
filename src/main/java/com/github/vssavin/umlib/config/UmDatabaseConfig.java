@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 /**
+ * Configuration of user management database params.
+ *
  * Created by vssavin on 25.08.2022.
  */
 @Configuration

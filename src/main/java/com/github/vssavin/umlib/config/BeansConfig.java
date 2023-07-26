@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
+ * Contains default beans for user management.
+ *
  * @author vssavin on 18.12.2021
  */
 @Component

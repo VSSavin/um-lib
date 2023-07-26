@@ -12,6 +12,8 @@ import javax.sql.DataSource;
 
 
 /**
+ * Configuration of user management data sources.
+ *
  * Created by vssavin on 25.08.2022.
  */
 public class UmDataSourceConfig {

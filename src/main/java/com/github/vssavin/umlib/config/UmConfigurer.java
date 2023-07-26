@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * Configures user management params.
+ *
  * @author vssavin on 26.06.2023
  */
 public class UmConfigurer {
