@@ -12,6 +12,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
+ * Base class for project controllers that use
+ * {@link org.springframework.web.servlet.ModelAndView} as their return type.
+ * Contains methods for adding various objects to model map  with predefined
+ * attribute names using specified language.
+ *
  * @author vssavin on 12.07.2023
  */
 public class UmControllerBase {
@@ -39,11 +44,27 @@ public class UmControllerBase {
     protected final UmLanguage language;
     protected final UmConfig umConfig;
 
+    /**
+     * Creates a new {@link UmControllerBase} with {@link UmLanguage} and {@link UmConfig} params.
+     *
+     * @param language UmLanguage instance
+     * @param umConfig main configuration class
+     */
     public UmControllerBase(UmLanguage language, UmConfig umConfig) {
         this.language = language;
         this.umConfig = umConfig;
     }
 
+    /**
+     * Adds all elements to {@link org.springframework.web.servlet.ModelAndView} instance
+     * using requested language.
+     *
+     * @param modelAndView {@link org.springframework.web.servlet.ModelAndView} instance to add all elements
+     * @param elements collection to be added to
+     *                 modelAndView {@link org.springframework.web.servlet.ModelAndView} instance
+     * @param encryptMethodName javascript method name to encrypt data
+     * @param requestedLang language for elements
+     */
     protected void addObjectsToModelAndView(ModelAndView modelAndView, Collection<String> elements,
                                             String encryptMethodName, String requestedLang) {
         if (modelAndView != null) {
@@ -51,7 +72,7 @@ public class UmControllerBase {
 
             if (elements != null && !page.isEmpty()) {
                 elements.forEach(param ->
-                        modelAndView.addObject(param,LocaleConfig.getMessage(page, param, requestedLang)));
+                        modelAndView.addObject(param, LocaleConfig.getMessage(page, param, requestedLang)));
             }
 
             if (requestedLang != null) {
@@ -68,6 +89,18 @@ public class UmControllerBase {
         }
     }
 
+    /**
+     * Adds all elements to {@link org.springframework.web.servlet.ModelAndView} instance
+     * using requested language and specified viewName.
+     *
+     * @param modelAndView {@link org.springframework.web.servlet.ModelAndView} instance to add all elements
+     * @param viewName view name for the specified language
+     * @param elements collection to be added to
+     *                 modelAndView {@link org.springframework.web.servlet.ModelAndView} instance
+     * @param encryptMethodName javascript method name to encrypt data
+     * @param requestedLang language for elements
+     * @see #addObjectsToModelAndView(ModelAndView, Collection, String, String)
+     */
     protected void addObjectsToModelAndView(ModelAndView modelAndView, String viewName, Collection<String> elements,
                                             String encryptMethodName, String requestedLang) {
 
@@ -93,6 +126,14 @@ public class UmControllerBase {
         }
     }
 
+    /**
+     * Adds all elements from the requestMap to {@link org.springframework.web.servlet.ModelAndView} instance
+     * except for elements from the ignored collection
+     *
+     * @param modelAndView {@link org.springframework.web.servlet.ModelAndView} instance to add all elements
+     * @param requestMap the elements to add to modelAndView
+     * @param ignored ignored elements
+     */
     protected void addObjectsToModelAndView(ModelAndView modelAndView, Map<String, String[]> requestMap,
                                             Collection<String> ignored) {
         boolean ignoredEmpty = ignored == null;
@@ -115,6 +156,16 @@ public class UmControllerBase {
         });
     }
 
+    /**
+     * Generates a {@link org.springframework.web.servlet.ModelAndView} object for the success response
+     * using requested language
+     *
+     * @param page redirect page
+     * @param messageKey the message key for specified language
+     * @param lang the language
+     * @param formatValues values to format the message string
+     * @return the {@link org.springframework.web.servlet.ModelAndView} object with success params
+     */
     protected ModelAndView getSuccessModelAndView(String page, String messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject(SUCCESS_ATTRIBUTE, true);
@@ -131,6 +182,16 @@ public class UmControllerBase {
         return modelAndView;
     }
 
+    /**
+     * Generates a {@link org.springframework.web.servlet.ModelAndView} object for the error response
+     * using requested language
+     *
+     * @param page redirect page
+     * @param messageKey the message key for specified language
+     * @param lang the language
+     * @param formatValues values to format the message string
+     * @return the {@link org.springframework.web.servlet.ModelAndView} object with error params
+     */
     protected ModelAndView getErrorModelAndView(String page, String messageKey, String lang, Object... formatValues) {
         ModelAndView modelAndView = new ModelAndView(REDIRECT_PREFIX + page);
         modelAndView.addObject(ERROR_ATTRIBUTE, true);
@@ -146,6 +207,12 @@ public class UmControllerBase {
         return modelAndView;
     }
 
+    /**
+     * Generates a {@link org.springframework.web.servlet.ModelAndView} object for the forbidden response
+     *
+     * @param request the request to check headers
+     * @return the {@link org.springframework.web.servlet.ModelAndView} object with forbidden params
+     */
     protected ModelAndView getForbiddenModelAndView(HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         if (referer == null) {
@@ -156,18 +223,43 @@ public class UmControllerBase {
         return modelAndView;
     }
 
+    /**
+     * Checks if the user authorized
+     *
+     * @param userName username to check
+     * @return true if user authorized, false otherwise
+     */
     protected boolean isAuthorizedUser(String userName) {
         return (userName != null && !userName.isEmpty());
     }
 
+    /**
+     * Checks if email is valid
+     *
+     * @param emailStr email to check
+     * @return true if email is valid, false otherwise
+     */
     protected boolean isValidUserEmail(String emailStr) {
         return VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr).matches();
     }
 
+    /**
+     * Checks if password is valid
+     *
+     * @param validRegexPattern password pattern
+     * @param passwordStr password to check
+     * @return true if the password matches the pattern, false otherwise
+     */
     protected boolean isValidUserPassword(Pattern validRegexPattern, String passwordStr) {
         return validRegexPattern.matcher(passwordStr).matches();
     }
 
+    /**
+     * Returns the name of the modelAndView
+     *
+     * @param modelAndView the instance of {@link org.springframework.web.servlet.ModelAndView}
+     * @return the string name of the modelAndView object, empty if the name is not found
+     */
     private String getPageName(ModelAndView modelAndView) {
         String[] splitted = new String[0];
         String viewName = modelAndView.getViewName();
