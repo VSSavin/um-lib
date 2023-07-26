@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
+ * An {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler} implementation
+ * that attempts to authenticate the user using o2Auth or user/password mechanism.
+ *
  * @author vssavin on 22.12.21
  */
 @Component

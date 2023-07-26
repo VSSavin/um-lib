@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
+ * An {@link org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler} implementation
+ * that generates a url to redirect after the user logs out.
+ *
  * Created by vssavin on 15.08.2022.
  */
 @Component

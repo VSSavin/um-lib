@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * Security filter to check if user ip was locked.
+ *
  * @author vssavin on 18.12.2021
  */
 @Component

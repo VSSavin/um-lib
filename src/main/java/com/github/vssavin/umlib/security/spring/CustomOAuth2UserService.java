@@ -4,6 +4,8 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.stereotype.Service;
 
 /**
+ * Service bean with DefaultOAuth2UserService implementation of o2Auth.
+ *
  * @author vssavin on 07.09.2022
  */
 @Service

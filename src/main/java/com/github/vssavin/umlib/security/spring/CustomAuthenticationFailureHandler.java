@@ -14,6 +14,9 @@ import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Security filter to add the user's IP address
+ * to the black list if logging failed a few times.
+ *
  * @author vssavin on 18.12.2021
  */
 @Component

@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * An {@link org.springframework.security.authentication.AuthenticationProvider} implementation that
+ * attempts to log in the user whose password has been encrypted.
+ *
  * @author vssavin on 18.12.2021
  */
 @Component
