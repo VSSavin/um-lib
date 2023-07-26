@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Provides data for using secure algorithms.
+ *
  * Created by vssavin on 16.05.2022.
  */
 @RestController

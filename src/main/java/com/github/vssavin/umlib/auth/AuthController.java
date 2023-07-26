@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
+ * Authentication controller - allows user authentication
+ *
  * @author vssavin on 18.12.2021
  */
 @Controller

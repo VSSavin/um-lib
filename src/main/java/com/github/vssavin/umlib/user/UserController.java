@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
+ * Provides user management for regular users.
+ *
  * @author vssavin on 23.12.21
  */
 @RestController

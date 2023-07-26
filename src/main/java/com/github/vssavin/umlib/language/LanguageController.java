@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
+ * Provides information about supported languages.
+ *
  * Created by vssavin on 16.05.2022.
  */
 @RestController

@@ -27,6 +27,8 @@ import java.util.Set;
 import static com.github.vssavin.umlib.user.AdminController.ADMIN_CONTROLLER_PATH;
 
 /**
+ * Provides user management for administrators.
+ *
  * @author vssavin on 21.12.21
  */
 @RestController
