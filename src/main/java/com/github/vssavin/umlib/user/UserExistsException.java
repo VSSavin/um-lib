@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.user;
 
 /**
+ * Special unchecked exception type used to indicate that the specified user exists.
+ *
  * @author vssavin on 23.12.21
  */
 public class UserExistsException extends RuntimeException {

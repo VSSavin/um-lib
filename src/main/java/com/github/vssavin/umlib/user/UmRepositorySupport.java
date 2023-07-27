@@ -10,6 +10,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
+ * Ensures that the datasource is switched before and after execution of the repository method.
+ *
+ * @param <T> the type of the input repository
+ * @param <R> the type of the result of the function
+ *
  * @author vssavin on 21.07.2023
  */
 

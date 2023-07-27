@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
+ * Main repository of user management.
+ *
  * @author vssavin on 18.12.2021
  */
 @Repository

@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.user;
 
 /**
+ * Provides storage of user filtering params.
+ *
  * @author vssavin on 05.08.2022.
  */
 public class UserFilter {

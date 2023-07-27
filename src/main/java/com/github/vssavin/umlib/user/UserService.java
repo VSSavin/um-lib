@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
+ * Main interface for service provides user management.
+ *
  * @author vssavin on 18.12.2021
  */
 @Service

@@ -3,6 +3,8 @@ package com.github.vssavin.umlib.user;
 import java.util.Objects;
 
 /**
+ * Base user management data transfer object.
+ *
  * @author vssavin on 05.08.2022.
  */
 public class UserDto {

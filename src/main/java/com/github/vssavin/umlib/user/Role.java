@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.user;
 
 /**
+ * Provides available roles.
+ *
  * @author vssavin on 23.12.21
  */
 public enum Role {

@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 /**
+ * Service for checking user authorization.
+ *
  * @author vssavin on 12.07.2023
  */
 @Service

@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.user;
 
 /**
+ * Special unchecked exception type used to indicate that password recovery failed.
+ *
  * @author vssavin on 11.07.2022.
  */
 class RecoveryExpiredException extends RuntimeException {

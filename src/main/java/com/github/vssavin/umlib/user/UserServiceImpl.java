@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
+ * Main implementation of user management service.
+ *
  * @author vssavin on 18.12.2021
  */
 @Service

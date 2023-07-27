@@ -8,6 +8,8 @@ import javax.persistence.*;
 import java.util.*;
 
 /**
+ * Base user management entity.
+ *
  * @author vssavin on 18.12.2021
  */
 @Entity
