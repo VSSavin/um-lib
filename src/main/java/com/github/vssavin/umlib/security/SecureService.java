@@ -3,7 +3,7 @@ package com.github.vssavin.umlib.security;
 import io.github.vssavin.securelib.Secure;
 
 /**
- * Provides a service that uses the RSA encryption algorithm.
+ * Main interface for using various encryption algorithms.
  *
  * @author vssavin on 18.01.22
  */
