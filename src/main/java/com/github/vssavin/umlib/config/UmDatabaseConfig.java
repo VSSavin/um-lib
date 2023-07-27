@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 /**
  * Configuration of user management database params.
  *
- * Created by vssavin on 25.08.2022.
+ * @author vssavin on 25.08.2022.
  */
 @Configuration
 @PropertySource(value = "classpath:" + UmDatabaseConfig.CONFIG_FILE)

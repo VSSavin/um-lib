@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 /**
  * Configuration of user management data sources.
  *
- * Created by vssavin on 25.08.2022.
+ * @author vssavin on 25.08.2022.
  */
 public class UmDataSourceConfig {
     private static final Logger log = LoggerFactory.getLogger(UmDataSourceConfig.class);

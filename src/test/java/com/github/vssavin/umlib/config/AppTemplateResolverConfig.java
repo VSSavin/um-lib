@@ -8,7 +8,7 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 /**
- * Created by vssavin on 17.05.2022.
+ * @author vssavin on 17.05.2022.
  */
 
 //Example of adding some template resolvers

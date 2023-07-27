@@ -5,7 +5,7 @@ import com.github.vssavin.umlib.email.EmailService;
 import java.util.List;
 
 /**
- * Created by vssavin on 12.07.2022.
+ * @author vssavin on 12.07.2022.
  */
 public interface MockedEmailService extends EmailService {
 

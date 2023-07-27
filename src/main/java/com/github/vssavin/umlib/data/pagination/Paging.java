@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Provides a pagination element.
  *
- * Created by vssavin on 04.08.2022.
+ * @author vssavin on 04.08.2022.
  */
 public class Paging {
 

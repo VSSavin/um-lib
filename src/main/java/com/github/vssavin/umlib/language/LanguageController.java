@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Provides information about supported languages.
  *
- * Created by vssavin on 16.05.2022.
+ * @author vssavin on 16.05.2022.
  */
 @RestController
 class LanguageController {

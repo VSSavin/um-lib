@@ -3,7 +3,7 @@ package com.github.vssavin.umlib.user;
 import java.util.Objects;
 
 /**
- * Created by vssavin on 05.08.2022.
+ * @author vssavin on 05.08.2022.
  */
 public class UserDto {
     private Long id;

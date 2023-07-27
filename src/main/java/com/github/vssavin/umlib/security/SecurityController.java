@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Provides data for using secure algorithms.
  *
- * Created by vssavin on 16.05.2022.
+ * @author vssavin on 16.05.2022.
  */
 @RestController
 @RequestMapping("/um/security")

@@ -1,7 +1,7 @@
 package com.github.vssavin.umlib.user;
 
 /**
- * Created by vssavin on 05.08.2022.
+ * @author vssavin on 05.08.2022.
  */
 public class UserFilter {
     private Long userId;

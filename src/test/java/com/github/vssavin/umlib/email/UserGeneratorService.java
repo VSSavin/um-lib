@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by vssavin on 04.08.2022.
+ * @author vssavin on 04.08.2022.
  */
 @Service
 @DependsOn("sqlScriptsConfig")

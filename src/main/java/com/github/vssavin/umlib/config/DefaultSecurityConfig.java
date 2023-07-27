@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * Provides default user management configuration for spring-security.
  *
- * Created by vssavin on 17.05.2022.
+ * @author vssavin on 17.05.2022.
  */
 public class DefaultSecurityConfig {
     private final UserService userService;

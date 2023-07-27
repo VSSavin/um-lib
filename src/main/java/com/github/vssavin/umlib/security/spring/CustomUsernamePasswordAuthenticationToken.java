@@ -9,7 +9,7 @@ import java.util.Collection;
 /**
  * Provides erasing string credentials.
  *
- * Created by vssavin on 01.08.2022.
+ * @author vssavin on 01.08.2022.
  */
 class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 

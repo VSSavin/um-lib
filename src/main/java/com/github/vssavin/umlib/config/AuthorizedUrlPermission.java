@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Immutable class for storing url permissions.
  *
- * Created by vssavin on 17.05.2022.
+ * @author vssavin on 17.05.2022.
  */
 public class AuthorizedUrlPermission {
     private final String url;

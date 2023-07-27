@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 /**
  * Wrapper to provide switching between user management datasource and main datasource.
  *
- * Created by vssavin on 25.08.2022.
+ * @author vssavin on 25.08.2022.
  */
 @Component
 public class DataSourceSwitcher {
