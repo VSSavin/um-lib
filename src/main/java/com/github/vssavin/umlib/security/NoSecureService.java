@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
+ * Provides a service doesn't use any encryption algorithm.
+ *
  * @author vssavin on 17.05.2022.
  */
 @Service

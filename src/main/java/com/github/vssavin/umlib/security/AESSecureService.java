@@ -4,6 +4,8 @@ import io.github.vssavin.securelib.AESSecure;
 import org.springframework.stereotype.Service;
 
 /**
+ * Provides a service that uses the AES encryption algorithm.
+ *
  * @author vssavin on 18.01.22
  */
 @Service
