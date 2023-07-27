@@ -7,6 +7,8 @@ import java.util.Objects;
 /**
  * Provides data paging.
  *
+ * @param <T> the type of the paged element.
+ *
  * @author vssavin on 04.08.2022.
  */
 public class Paged<T> {

@@ -4,6 +4,8 @@ import com.github.vssavin.umlib.config.LocaleConfig;
 import org.springframework.stereotype.Component;
 
 /**
+ * Provides data about supported languages for thymeleaf templates.
+ *
  * @author vssavin on 20.12.21
  */
 @Component

@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.language;
 
 /**
+ * Provides available keys for language messages.
+ *
  * @author vssavin on 30.12.21
  */
 public enum MessageKey {
