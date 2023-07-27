@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.user;
 
-import com.github.vssavin.umlib.base.UmControllerBase;
+import com.github.vssavin.umlib.base.controller.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.email.EmailNotFoundException;

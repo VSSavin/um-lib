@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.auth;
 
-import com.github.vssavin.umlib.base.UmControllerBase;
+import com.github.vssavin.umlib.base.controller.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.OAuth2Config;
 import com.github.vssavin.umlib.config.UmConfig;

@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.base;
+package com.github.vssavin.umlib.base.controller;
 
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
