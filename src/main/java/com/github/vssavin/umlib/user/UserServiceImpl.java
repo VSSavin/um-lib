@@ -1,5 +1,6 @@
 package com.github.vssavin.umlib.user;
 
+import com.github.vssavin.umlib.base.repository.*;
 import com.querydsl.core.types.Predicate;
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.email.EmailNotFoundException;
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
         String message = "Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!";
         Object[] params = {pageNumber, size, userFilter};
         Page<User> users;
-        UmRepositorySupport.PagedRepositoryFunction<UserRepository, User> function;
+        PagedRepositoryFunction<UserRepository, User> function;
         Pageable pageable;
         try {
             pageable = PageRequest.of(pageNumber - 1, size);
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         String message = "Getting a user by id = %d error!";
         Object[] params = {id};
-        UmRepositorySupport.RepositoryOptionalFunction<UserRepository, User> function = repository -> repository.findById(id);
+        RepositoryOptionalFunction<UserRepository, User> function = repository -> repository.findById(id);
         Optional<User> user = repositorySupport.execute(function, message, params);
 
         if (!user.isPresent()) {
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public User addUser(User user) {
         String message = "Adding error for user [%s]!";
         Object[] params = {user};
-        UmRepositorySupport.RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
+        RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
         return repositorySupport.execute(function, message, params);
     }
 
@@ -98,7 +99,7 @@ public class UserServiceImpl implements UserService {
     public User updateUser(User user) {
         String message = "Update error for user [%s]";
         Object[] params = {user};
-        UmRepositorySupport.RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
+        RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
         return repositorySupport.execute(function, message, params);
     }
 
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByName(String name) {
         String message = "Error while getting user by name [%s]";
         Object[] params = {name};
-        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findUserByName(name);
+        RepositoryListFunction<UserRepository, User> function = repo -> repo.findUserByName(name);
         List<User> users = repositorySupport.execute(function, message, params);
         if (!users.isEmpty()) {
             return users.get(0);
@@ -118,7 +119,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByLogin(String login) {
         String message = "Error while getting user by login [%s]";
         Object[] params = {login};
-        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findByLogin(login);
+        RepositoryListFunction<UserRepository, User> function = repo -> repo.findByLogin(login);
         List<User> users = repositorySupport.execute(function, message, params);
         if (!users.isEmpty()) {
             return users.get(0);
@@ -131,7 +132,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByEmail(String email) {
         String message = "Error while getting user by email [%s]";
         Object[] params = {email};
-        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(email);
+        RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(email);
         List<User> users = repositorySupport.execute(function, message, params);
         if (!users.isEmpty()) {
             return users.get(0);
@@ -144,7 +145,7 @@ public class UserServiceImpl implements UserService {
         Objects.requireNonNull(user, "User must not be null!");
         String message = "Error while deleting user [%s]";
         Object[] params = {user};
-        UmRepositorySupport.RepositoryConsumer<UserRepository> function = repo -> repo.deleteByLogin(user.getLogin());
+        RepositoryConsumer<UserRepository> function = repo -> repo.deleteByLogin(user.getLogin());
         repositorySupport.execute(function, message, params);
     }
 
@@ -219,8 +220,7 @@ public class UserServiceImpl implements UserService {
         List<User> users;
         String message = "Error while getting recovery id, login/email = [%s]";
         Object[] params = {loginOrEmail};
-        UmRepositorySupport.RepositoryListFunction<UserRepository, User> function =
-                repo -> repo.findByEmail(loginOrEmail);
+        RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(loginOrEmail);
         users = repositorySupport.execute(function, message, params);
 
         if (users.isEmpty()) {

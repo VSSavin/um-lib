@@ -1,13 +1,12 @@
-package com.github.vssavin.umlib.user;
+package com.github.vssavin.umlib.base.repository;
 
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
+import com.github.vssavin.umlib.user.UserServiceException;
 import org.springframework.data.domain.Page;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Ensures that the datasource is switched before and after execution of the repository method.
@@ -27,7 +26,7 @@ public class UmRepositorySupport<T, R> {
         this.dataSourceSwitcher = dataSourceSwitcher;
     }
 
-    Page<R> execute(PagedRepositoryFunction<T, R> function, String message, Object... params) {
+    public Page<R> execute(PagedRepositoryFunction<T, R> function, String message, Object... params) {
         Throwable throwable = null;
         Page<R> result = null;
         dataSourceSwitcher.switchToUmDataSource();
@@ -47,7 +46,7 @@ public class UmRepositorySupport<T, R> {
         return result;
     }
 
-    Optional<R> execute(RepositoryOptionalFunction<T, R> function, String message, Object... params) {
+    public Optional<R> execute(RepositoryOptionalFunction<T, R> function, String message, Object... params) {
         Throwable throwable = null;
         Optional<R> optionalResult = Optional.empty();
         dataSourceSwitcher.switchToUmDataSource();
@@ -67,7 +66,7 @@ public class UmRepositorySupport<T, R> {
         return optionalResult;
     }
 
-    R execute(RepositoryFunction<T, R> function, String message, Object... params) {
+    public R execute(RepositoryFunction<T, R> function, String message, Object... params) {
         Throwable throwable = null;
         R result = null;
         dataSourceSwitcher.switchToUmDataSource();
@@ -87,7 +86,7 @@ public class UmRepositorySupport<T, R> {
         return result;
     }
 
-    List<R> execute(RepositoryListFunction<T, R> function, String message, Object... params) {
+    public List<R> execute(RepositoryListFunction<T, R> function, String message, Object... params) {
         Throwable throwable = null;
         List<R> resultList = Collections.emptyList();
         dataSourceSwitcher.switchToUmDataSource();
@@ -107,7 +106,7 @@ public class UmRepositorySupport<T, R> {
         return resultList;
     }
 
-    void execute(RepositoryConsumer<T> consumer, String message, Object... params) {
+    public void execute(RepositoryConsumer<T> consumer, String message, Object... params) {
         Throwable throwable = null;
         dataSourceSwitcher.switchToUmDataSource();
         try {
@@ -119,20 +118,5 @@ public class UmRepositorySupport<T, R> {
         if (throwable != null) {
             throw new UserServiceException(String.format(message, params), throwable);
         }
-    }
-
-    interface RepositoryOptionalFunction<T, R> extends Function<T, Optional<R>> {
-    }
-
-    interface RepositoryListFunction<T, R> extends Function<T, List<R>> {
-    }
-
-    interface PagedRepositoryFunction<T, R> extends Function<T, Page<R>> {
-    }
-
-    interface RepositoryConsumer<T> extends Consumer<T> {
-    }
-
-    interface RepositoryFunction<T, R> extends Function<T, R> {
     }
 }
