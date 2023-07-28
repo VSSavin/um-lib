@@ -34,6 +34,10 @@ class RoutingDataSource extends AbstractRoutingDataSource {
         setTargetDataSources(dataSources);
     }
 
+    Map<Object, Object> getDataSources() {
+        return dataSources;
+    }
+
     void addDataSource(DATASOURCE_TYPE key, DataSource dataSource) {
         dataSources.put(key,dataSource);
     }
