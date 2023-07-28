@@ -1,16 +1,18 @@
 package com.github.vssavin.umlib;
 
-import com.github.vssavin.umlib.config.SqlScriptsConfig;
-import com.github.vssavin.umlib.config.UmConfig;
-import com.github.vssavin.umlib.config.UmTemplateResolverConfig;
+import com.github.vssavin.umlib.config.*;
 import com.github.vssavin.umlib.security.SecureService;
-import com.github.vssavin.umlib.config.ApplicationConfig;
 import com.github.vssavin.umlib.user.User;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,9 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.sql.DataSource;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,8 +41,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class AbstractTest {
     private static final String DEFAULT_SECURE_ENDPOINT = "/um/security/key";
 
+    @Rule
+    public TestName testName = new TestName();
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractTest.class);
+
+    private SettableUmRoutingDatasource settableUmRoutingDatasource;
+
     static {
-        DOMConfigurator.configure("./log4j.xml");
+        DOMConfigurator.configure("./log4j_tests.xml");
     }
 
     protected MockMvc mockMvc;
@@ -60,12 +67,27 @@ public abstract class AbstractTest {
     }
 
     @Autowired
-    public void initScripts(SqlScriptsConfig scriptsConfig, DataSource umDataSource) {
-        List<String> sourceFiles = new ArrayList<>();
-        sourceFiles.add("/init_test.sql");
-        scriptsConfig.executeSqlScripts(umDataSource, "", sourceFiles);
+    public void setRoutingDatasourceWrapper(SettableUmRoutingDatasource routingDataSource) {
+        this.settableUmRoutingDatasource = routingDataSource;
     }
 
+    @Before
+    public void initScripts() {
+        String threadName = Thread.currentThread().getName();
+        String simpleClassName = this.getClass().getSimpleName();
+        log.debug("[{}]-[{}]: Test method: [{}.{}]", threadName, simpleClassName,
+                simpleClassName, testName.getMethodName());
+        log.debug("[{}]-[{}]: Started initScripts method...", threadName, simpleClassName);
+        DataSource dataSource = new EmbeddedDatabaseBuilder()
+                .generateUniqueName(true)
+                .setType(H2)
+                .setScriptEncoding("UTF-8")
+                .addScript("/init_test.sql")
+                .ignoreFailedDrops(true)
+                .build();
+        log.debug("[{}]-[{}]: Using datasource: {}", threadName, this.getClass().getSimpleName(), dataSource);
+        settableUmRoutingDatasource.setUmDataSource(dataSource);
+    }
 
     @Before
     public void setup() {

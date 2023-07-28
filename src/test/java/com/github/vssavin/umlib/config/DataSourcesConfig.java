@@ -1,10 +1,10 @@
 package com.github.vssavin.umlib.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 
@@ -42,4 +42,28 @@ public class DataSourcesConfig {
     protected DataSource umDataSourceTest() {
         return dataSource();
     }
+
+
+    @Bean("routingDataSource")
+    @Profile("um-test")
+    @Primary
+    AbstractRoutingDataSource routingDataSource(@Autowired(required = false)
+                                                @Qualifier("appDataSource") DataSource appDataSource,
+                                                @Autowired(required = false)
+                                                @Qualifier("dataSource") DataSource dataSource,
+                                                @Autowired DataSource umDataSource) {
+        RoutingDataSource routingDataSource = new RoutingDataSource();
+        DataSource ds = appDataSource != null ? appDataSource : dataSource;
+        routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
+        if (ds == null) {
+            routingDataSource.setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
+            routingDataSource.setDefaultTargetDataSource(umDataSource);
+        } else {
+            routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
+            routingDataSource.setDefaultTargetDataSource(ds);
+        }
+
+        return new SettableUmRoutingDatasource(routingDataSource);
+    }
+
 }
