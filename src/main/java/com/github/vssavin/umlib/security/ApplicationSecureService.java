@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.security;
 
-import io.github.vssavin.securelib.PlatformSpecificSecureImpl;
+import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
  * @author vssavin on 21.01.22
  */
 @Service
-class ApplicationSecureService extends PlatformSpecificSecureImpl {
+class ApplicationSecureService extends OSPlatformCrypt {
 }

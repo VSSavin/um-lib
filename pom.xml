@@ -44,10 +44,11 @@
     </repositories>
 
     <dependencies>
+
         <dependency>
             <groupId>com.github.vssavin</groupId>
-            <artifactId>secure-lib</artifactId>
-            <version>1.0.3</version>
+            <artifactId>jcrypt</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

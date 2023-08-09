@@ -18,6 +18,8 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -34,9 +36,17 @@ public class ApplicationConfig {
 
     @Bean
     public UmConfigurer umConfigurer() {
+        Map<String, String> resourceHandlers = new HashMap<>();
+        resourceHandlers.put("/js/**", "classpath:/static/js/");
+        resourceHandlers.put("/css/**", "classpath:/static/css/");
+        resourceHandlers.put("/flags/**", "classpath:/static/flags/");
+        resourceHandlers.put("/img/**", "classpath:/static/img/");
+        resourceHandlers.put("/**", "classpath:/template/um/");
+
         return new UmConfigurer().successUrl("/index.html")
                 .permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
                 .permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER))
+                .resourceHandlers(resourceHandlers)
                 .configure();
     }
 

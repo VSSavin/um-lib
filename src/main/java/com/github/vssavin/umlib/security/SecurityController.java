@@ -32,7 +32,7 @@ class SecurityController {
     @GetMapping(value = "/key")
     public ResponseEntity<String> key(HttpServletRequest request) {
         String addr = request.getRemoteAddr();
-        return new ResponseEntity<>(secureService.getSecureKey(addr), HttpStatus.OK);
+        return new ResponseEntity<>(secureService.getPublicKey(addr), HttpStatus.OK);
     }
 
     @GetMapping(value = "/algorithm")

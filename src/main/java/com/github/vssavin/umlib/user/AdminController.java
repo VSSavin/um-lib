@@ -1,5 +1,7 @@
 package com.github.vssavin.umlib.user;
 
+import com.github.vssavin.jcrypt.DefaultStringSafety;
+import com.github.vssavin.jcrypt.StringSafety;
 import com.github.vssavin.umlib.base.controller.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
@@ -7,7 +9,6 @@ import com.github.vssavin.umlib.email.EmailNotFoundException;
 import com.github.vssavin.umlib.language.MessageKey;
 import com.github.vssavin.umlib.language.UmLanguage;
 import com.github.vssavin.umlib.security.SecureService;
-import io.github.vssavin.securelib.Utils;
 import com.github.vssavin.umlib.data.pagination.Paged;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,8 @@ final class AdminController extends UmControllerBase {
     private final SecureService secureService;
     private final PasswordEncoder passwordEncoder;
 
+    private final StringSafety stringSafety = new DefaultStringSafety();
+
     @Autowired
     AdminController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
                     UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
@@ -97,7 +100,7 @@ final class AdminController extends UmControllerBase {
             response.setStatus(500);
         }
 
-        addObjectsToModelAndView(modelAndView, pageAdminParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageAdminParams, secureService.getEncryptMethodName(), lang);
 
         return modelAndView;
     }
@@ -116,7 +119,7 @@ final class AdminController extends UmControllerBase {
         }
 
         addObjectsToModelAndView(modelAndView, pageAdminConfirmUserParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
 
         return modelAndView;
     }
@@ -139,7 +142,7 @@ final class AdminController extends UmControllerBase {
         }
 
         addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
 
@@ -164,20 +167,20 @@ final class AdminController extends UmControllerBase {
         if (!userService.accessGrantedForRegistration(registerRole, authorizedName)) {
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             response.setStatus(500);
             return modelAndView;
         }
 
         try {
-            String key = secureService.getSecureKey(request.getRemoteAddr());
+            String key = secureService.getPrivateKey(request.getRemoteAddr());
             String decodedPassword = secureService.decrypt(password, key);
             String decodedConfirmPassword = secureService.decrypt(confirmPassword, key);
             if (!decodedPassword.equals(decodedConfirmPassword)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION,
                         MessageKey.PASSWORDS_MUST_BE_IDENTICAL_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                        secureService.getEncryptMethodNameForView(), lang);
+                        secureService.getEncryptMethodName(), lang);
                 response.setStatus(400);
                 return modelAndView;
             }
@@ -185,7 +188,7 @@ final class AdminController extends UmControllerBase {
             if (!isValidUserEmail(email)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.EMAIL_NOT_VALID_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                        secureService.getEncryptMethodNameForView(), lang);
+                        secureService.getEncryptMethodName(), lang);
                 response.setStatus(400);
                 return modelAndView;
             }
@@ -201,28 +204,28 @@ final class AdminController extends UmControllerBase {
             if (isEmailExist(email)) {
                 modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.EMAIL_EXISTS_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                        secureService.getEncryptMethodNameForView(), lang);
+                        secureService.getEncryptMethodName(), lang);
                 response.setStatus(400);
                 return modelAndView;
             }
 
             newUser = userService.registerUser(login, username,
                     passwordEncoder.encode(decodedPassword), email, registerRole);
-            Utils.clearString(decodedPassword);
-            Utils.clearString(decodedConfirmPassword);
+            stringSafety.clearString(decodedPassword);
+            stringSafety.clearString(decodedConfirmPassword);
             userService.confirmUser(login, "", true);
         } catch (UserExistsException e) {
             log.error("User exists! ", e);
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.USER_EXISTS_PATTERN, lang, username);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             response.setStatus(400);
             return modelAndView;
         } catch (Exception e) {
             log.error("User registration error! ", e);
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.CREATE_USER_ERROR_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             response.setStatus(500);
             return modelAndView;
         }
@@ -230,7 +233,7 @@ final class AdminController extends UmControllerBase {
         modelAndView = getSuccessModelAndView(PAGE_REGISTRATION,
                 MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN, lang, newUser.getLogin());
         addObjectsToModelAndView(modelAndView, pageRegistrationParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
 
         return modelAndView;
     }
@@ -246,7 +249,7 @@ final class AdminController extends UmControllerBase {
         }
 
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
         return modelAndView;
     }
@@ -261,16 +264,16 @@ final class AdminController extends UmControllerBase {
             if (isAuthorizedUser(authorizedUserName)) {
                 User user = userService.getUserByLogin(userName);
                 String realNewPassword = secureService.decrypt(newPassword,
-                        secureService.getSecureKey(request.getRemoteAddr()));
+                        secureService.getPrivateKey(request.getRemoteAddr()));
                 if (user != null) {
                     user.setPassword(passwordEncoder.encode(realNewPassword));
-                    Utils.clearString(realNewPassword);
+                    stringSafety.clearString(realNewPassword);
                     userService.updateUser(user);
                 } else {
                     modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                             MessageKey.USER_NOT_FOUND_MESSAGE, lang);
                     addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                            secureService.getEncryptMethodNameForView(), lang);
+                            secureService.getEncryptMethodName(), lang);
                     response.setStatus(404);
                     return modelAndView;
                 }
@@ -278,7 +281,7 @@ final class AdminController extends UmControllerBase {
                 modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                         MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                        secureService.getEncryptMethodNameForView(), lang);
+                        secureService.getEncryptMethodName(), lang);
                 response.setStatus(403);
                 return modelAndView;
             }
@@ -288,7 +291,7 @@ final class AdminController extends UmControllerBase {
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKey.USER_NOT_FOUND_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             response.setStatus(404);
             return modelAndView;
         } catch (Exception ex) {
@@ -296,7 +299,7 @@ final class AdminController extends UmControllerBase {
             modelAndView = getErrorModelAndView(PAGE_CHANGE_USER_PASSWORD,
                     MessageKey.REQUEST_PROCESSING_ERROR, lang);
             addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             response.setStatus(500);
             return modelAndView;
         }
@@ -305,7 +308,7 @@ final class AdminController extends UmControllerBase {
                 MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE, lang);
         response.setStatus(200);
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;
@@ -325,11 +328,11 @@ final class AdminController extends UmControllerBase {
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
-            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodName(), lang);
             response.setStatus(403);
         }
 
-        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;
@@ -353,13 +356,13 @@ final class AdminController extends UmControllerBase {
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
-            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodName(), lang);
             response.setStatus(403);
             addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
             return modelAndView;
         }
 
-        addObjectsToModelAndView(modelAndView, pageUserEditParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageUserEditParams, secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         if (successMsg != null) {
@@ -386,7 +389,7 @@ final class AdminController extends UmControllerBase {
                     modelAndView = getErrorModelAndView(PAGE_USERS,
                             MessageKey.EMAIL_NOT_VALID_MESSAGE, lang);
                     addObjectsToModelAndView(modelAndView, pageUsersParams,
-                            secureService.getEncryptMethodNameForView(), lang);
+                            secureService.getEncryptMethodName(), lang);
                     response.setStatus(400);
                     return modelAndView;
                 }
@@ -395,7 +398,7 @@ final class AdminController extends UmControllerBase {
                     modelAndView = getErrorModelAndView(PAGE_USERS,
                             MessageKey.USER_EXISTS_PATTERN, lang, userDto.getLogin());
                     addObjectsToModelAndView(modelAndView, pageUsersParams,
-                            secureService.getEncryptMethodNameForView(), lang);
+                            secureService.getEncryptMethodName(), lang);
                     response.setStatus(400);
                     return modelAndView;
                 }
@@ -421,7 +424,7 @@ final class AdminController extends UmControllerBase {
                 modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                         MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
                 addObjectsToModelAndView(modelAndView, pageLoginParams,
-                        secureService.getEncryptMethodNameForView(), lang);
+                        secureService.getEncryptMethodName(), lang);
                 response.setStatus(403);
                 return modelAndView;
             }
@@ -429,7 +432,7 @@ final class AdminController extends UmControllerBase {
             log.error("User update error! ", e);
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL, MessageKey.USER_EDIT_ERROR_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageUserEditParams,
-                    secureService.getEncryptMethodNameForView(), lang);
+                    secureService.getEncryptMethodName(), lang);
             return modelAndView;
         }
 
@@ -437,7 +440,7 @@ final class AdminController extends UmControllerBase {
                 "/" + PAGE_USER_EDIT + "/" + userDto.getId());
 
         addObjectsToModelAndView(modelAndView, PAGE_EDIT, pageUserEditParams,
-                secureService.getEncryptMethodNameForView(), lang);
+                secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         String successMsg = LocaleConfig.getMessage(PAGE_EDIT, MessageKey.USER_EDIT_SUCCESS_MESSAGE.getKey(), lang);
@@ -474,7 +477,7 @@ final class AdminController extends UmControllerBase {
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
-            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
+            addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodName(), lang);
             response.setStatus(403);
             return modelAndView;
         }
@@ -482,7 +485,7 @@ final class AdminController extends UmControllerBase {
         Paged<User> users = userService.getUsers(UserFilter.emptyUserFilter(), page, size);
         modelAndView.addObject(USERS_ATTRIBUTE, users);
 
-        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageUsersParams, secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
         return modelAndView;

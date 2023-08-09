@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.security.spring;
 
-import io.github.vssavin.securelib.Utils;
+import com.github.vssavin.jcrypt.DefaultStringSafety;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -26,7 +26,7 @@ class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenti
     public void eraseCredentials() {
         Object credentials = super.getCredentials();
         if (credentials instanceof String) {
-            Utils.clearString((String) credentials);
+            new DefaultStringSafety().clearString((String) credentials);
         }
         super.eraseCredentials();
     }

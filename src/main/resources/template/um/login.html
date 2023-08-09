@@ -12,9 +12,7 @@
     <!-- JQuery -->
     <script th:src="@{/js/jquery-1.10.0.min.js}"></script>
 
-    <script th:src="@{/js/crypt.js}"></script>
-    <script th:src="@{/js/AES.js}"></script>
-    <script th:src="@{/js/jsencrypt.min.js}"></script>
+    <script th:each="secureScript:${secureScripts}" th:src="${secureScript}"></script>
 
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/css/signin.css}" rel="stylesheet"/>
@@ -53,10 +51,6 @@
     <div class="container" align="right">
         <label class="sr-only" th:text="${language}">Язык</label>
         <select id="langPicker" class="selectpicker" data-width="fit">
-            <!--
-            <option data-content='<span class="flag-icon flag-icon-rus"></span> Русский'>Русский</option>
-            <option data-content='<span class="flag-icon flag-icon-usa"></span> English'>English</option>
-            -->
             <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
                     th:text="${langObject.getLanguageText(lang.key)}">Language
             </option>

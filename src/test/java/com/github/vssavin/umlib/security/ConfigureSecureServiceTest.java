@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.security;
 
-import io.github.vssavin.securelib.platformSecure.PlatformSpecificSecure;
+import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.UmConfigurer;
@@ -112,8 +112,8 @@ public class ConfigureSecureServiceTest extends AbstractTest {
     }
 
     private UmConfig createUmConfig() {
-        PlatformSpecificSecure applicationSecureService =
-                (PlatformSpecificSecure) context.getBean("applicationSecureService");
+        OSPlatformCrypt applicationSecureService =
+                (OSPlatformCrypt) context.getBean("applicationSecureService");
         return new UmConfig(context, secureService, defaultConfigurer, applicationSecureService);
     }
 

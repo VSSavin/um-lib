@@ -53,7 +53,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     addr = ((WebAuthenticationDetails) details).getRemoteAddress();
                 }
 
-                String password = secureService.decrypt(credentials.toString(), secureService.getSecureKey(addr));
+                String password = secureService.decrypt(credentials.toString(), secureService.getPrivateKey(addr));
                 if (passwordEncoder.matches(password, user.getPassword())) {
                     List<GrantedAuthority> authorities = new ArrayList<>(user.getAuthorities());
                     return new CustomUsernamePasswordAuthenticationToken(authentication.getPrincipal(),

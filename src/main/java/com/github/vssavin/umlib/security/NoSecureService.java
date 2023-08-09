@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.security;
 
-import io.github.vssavin.securelib.NoSecure;
+import com.github.vssavin.jcrypt.js.JsJCryptStub;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,30 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Primary
-class NoSecureService extends NoSecure implements SecureService {
+class NoSecureService extends JsJCryptStub implements SecureService {
+
     @Override
     public String toString() {
         return "no";
+    }
+
+    @Override
+    public String getPublicKey() {
+        return "";
+    }
+
+    @Override
+    public String getPublicKey(String id) {
+        return "";
+    }
+
+    @Override
+    public String getPrivateKey() {
+        return "";
+    }
+
+    @Override
+    public String getPrivateKey(String id) {
+        return "";
     }
 }

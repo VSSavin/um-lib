@@ -19,7 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Authentication controller - allows user authentication
@@ -66,10 +68,11 @@ final class AuthController extends UmControllerBase {
         }
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGIN);
-        addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodName(), lang);
         modelAndView.addObject("registrationAllowed", umConfig.isRegistrationAllowed());
         modelAndView.addObject("googleAuthAllowed", !("".equals(oAuth2Config.getGoogleClientId())));
         modelAndView.addObject("loginTitle", umConfig.getLoginTitle());
+        modelAndView.addObject("secureScripts", normalizeScriptNames(secureService.getScriptsList()));
         return modelAndView;
     }
 
@@ -77,7 +80,7 @@ final class AuthController extends UmControllerBase {
     ModelAndView getLogout(@RequestParam(required = false) final String lang) {
 
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGOUT);
-        addObjectsToModelAndView(modelAndView, pageLogoutParams, secureService.getEncryptMethodNameForView(), lang);
+        addObjectsToModelAndView(modelAndView, pageLogoutParams, secureService.getEncryptMethodName(), lang);
         return modelAndView;
     }
 
@@ -85,5 +88,11 @@ final class AuthController extends UmControllerBase {
     ModelAndView logout(@RequestParam(required = false) final String lang) {
         String language = lang != null ? "?lang=" + lang : "";
         return new ModelAndView("redirect:" + UmConfig.LOGIN_URL + language);
+    }
+
+    private List<String> normalizeScriptNames(List<String> scripts) {
+        String jsPrefix = "/js";
+        return scripts.stream().map(scriptName ->
+                scriptName.substring(scriptName.indexOf(jsPrefix))).collect(Collectors.toList());
     }
 }

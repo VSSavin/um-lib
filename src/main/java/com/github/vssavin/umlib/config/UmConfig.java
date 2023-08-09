@@ -1,9 +1,10 @@
 package com.github.vssavin.umlib.config;
 
+import com.github.vssavin.jcrypt.DefaultStringSafety;
+import com.github.vssavin.jcrypt.StringSafety;
+import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import com.github.vssavin.umlib.security.SecureService;
 import com.github.vssavin.umlib.user.Role;
-import io.github.vssavin.securelib.Utils;
-import io.github.vssavin.securelib.platformSecure.PlatformSpecificSecure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -43,7 +44,7 @@ public class UmConfig extends StorableConfig {
     private String[] applicationArgs;
     private final ApplicationContext context;
     private final SecureService defaultSecureService;
-    private final PlatformSpecificSecure encryptPropertiesPasswordService;
+    private final OSPlatformCrypt encryptPropertiesPasswordService;
     private final UmConfigurer umConfigurer;
     private SecureService authService;
 
@@ -60,8 +61,10 @@ public class UmConfig extends StorableConfig {
 
     private boolean permissionsUpdated = false;
 
+    private final StringSafety stringSafety = new DefaultStringSafety();
+
     public UmConfig(ApplicationContext context, SecureService secureService, UmConfigurer umConfigurer,
-                    @Qualifier("applicationSecureService") PlatformSpecificSecure applicationSecureService) {
+                    @Qualifier("applicationSecureService") OSPlatformCrypt applicationSecureService) {
         super.setConfigFile(CONFIG_FILE);
         super.setNamePrefix(NAME_PREFIX);
         this.context = context;
@@ -216,9 +219,9 @@ public class UmConfig extends StorableConfig {
             String password = mappedArgs.get("ep");
             if (password != null) {
                 String encrypted = encryptPropertiesPasswordService.encrypt(password, "");
-                Utils.clearString(password);
+                stringSafety.clearString(password);
                 log.debug("Encryption for password [{}] : {}", password, encrypted);
-                Utils.clearString(password);
+                stringSafety.clearString(password);
             }
             String authServiceName = mappedArgs.get("authService");
             if (authServiceName != null) {

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.spring5.SpringTemplateEngine;
@@ -20,6 +21,12 @@ import org.thymeleaf.templatemode.TemplateMode;
 public class UmTemplateResolverConfig implements WebMvcConfigurer {
     private final Logger log = LoggerFactory.getLogger(UmTemplateResolverConfig.class);
     private static final SpringTemplateEngine SPRING_TEMPLATE_ENGINE = new SpringTemplateEngine();
+
+    private final UmConfigurer umConfigurer;
+
+    public UmTemplateResolverConfig(UmConfigurer umConfigurer) {
+        this.umConfigurer = umConfigurer;
+    }
 
     @Bean
     public SpringResourceTemplateResolver umTemplateResolver() {
@@ -51,20 +58,9 @@ public class UmTemplateResolverConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
-        registry
-                .addResourceHandler("/js/**")
-                .addResourceLocations("classpath:/static/js/");
-        registry
-                .addResourceHandler("/css/**")
-                .addResourceLocations("classpath:/static/css/");
-
-        registry.addResourceHandler("/flags/**").addResourceLocations("classpath:/static/flags/");
-
-        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/static/img/");
-
-        registry.addResourceHandler("/**").addResourceLocations("classpath:/template/um/");
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
+        umConfigurer.getResourceHandlers().forEach((handler, locations) ->
+                registry.addResourceHandler(handler).addResourceLocations(locations));
     }
 
     public static SpringTemplateEngine getSpringTemplateEngine() {

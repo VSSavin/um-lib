@@ -3,7 +3,9 @@ package com.github.vssavin.umlib.config;
 import com.github.vssavin.umlib.security.SecureService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -22,6 +24,7 @@ public class UmConfigurer {
     private PasswordConfig passwordConfig;
     private String passwordDoesntMatchPatternMessage = "Wrong password!";
     private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
+    private Map<String, String> resourceHandlers = new HashMap<>();
     private boolean configured = false;
 
     public UmConfigurer loginUrl(String loginUrl) {
@@ -78,6 +81,12 @@ public class UmConfigurer {
         return this;
     }
 
+    public UmConfigurer resourceHandlers(Map<String, String> resourceHandlers) {
+        checkAccess();
+        this.resourceHandlers.putAll(resourceHandlers);
+        return this;
+    }
+
     public UmConfigurer configure() {
         this.configured = true;
         return this;
@@ -128,6 +137,10 @@ public class UmConfigurer {
     public PasswordConfig passwordConfig() {
         this.passwordConfig = new PasswordConfig();
         return this.passwordConfig;
+    }
+
+    public Map<String, String> getResourceHandlers() {
+        return resourceHandlers;
     }
 
     public static class PasswordConfig {
