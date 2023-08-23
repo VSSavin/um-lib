@@ -33,6 +33,7 @@ public class UserControllerTest extends AbstractTest {
             "user@example.com", "USER");
 
     private MockedEmailService mockedEmailService;
+    private UserGeneratorService userGeneratorService;
 
     @Autowired
     public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
@@ -47,6 +48,11 @@ public class UserControllerTest extends AbstractTest {
     @Autowired
     public void setEmailService(MockedEmailService emailService) {
         this.mockedEmailService = emailService;
+    }
+
+    @Autowired
+    public void setUserGeneratorService(UserGeneratorService userGeneratorService) {
+        this.userGeneratorService = userGeneratorService;
     }
 
     @Test
@@ -280,12 +286,16 @@ public class UserControllerTest extends AbstractTest {
     @Test
     public void userEditSuccess() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("id", "2");
-        params.add("name", "testName");
-        params.add("email", "testEmail@mail.com");
+        User user = userGeneratorService.getUserService().getUserById(4L);
+        String authority = user.getAuthority();
+        Role role = Role.getRole(authority);
+        user.setAuthority(Role.getStringRole(role));
+        params.add("id", String.valueOf(user.getId()));
+        params.add("name", user.getName());
+        params.add("email", user.getEmail());
         ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
                 .params(params)
-                .with(getRequestPostProcessorForUser(testUser))
+                .with(getRequestPostProcessorForUser(user))
                 .with(csrf()));
 
         ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
