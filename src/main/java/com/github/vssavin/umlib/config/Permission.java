@@ -11,13 +11,13 @@ import static com.github.vssavin.umlib.user.Role.ROLE_USER;
  * @author vssavin on 18.07.2023
  */
 public enum Permission {
-    USER_ADMIN(new String[]{Role.getStringRole(ROLE_USER), Role.getStringRole(ROLE_ADMIN)}),
-    ADMIN_ONLY(new String[]{Role.getStringRole(ROLE_ADMIN)}),
-    ANY_USER(new String[]{});
+    USER_ADMIN(Role.getStringRole(ROLE_USER), Role.getStringRole(ROLE_ADMIN)),
+    ADMIN_ONLY(Role.getStringRole(ROLE_ADMIN)),
+    ANY_USER();
 
     private final String[] roles;
 
-    Permission(String[] roles) {
+    Permission(String... roles) {
         this.roles = roles;
     }
 
