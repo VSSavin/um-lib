@@ -4,7 +4,6 @@ import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.user.UserServiceException;
 import org.springframework.data.domain.Page;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,96 +26,57 @@ public class UmRepositorySupport<T, R> {
     }
 
     public Page<R> execute(PagedRepositoryFunction<T, R> function, String message, Object... params) {
-        Throwable throwable = null;
-        Page<R> result = null;
-        dataSourceSwitcher.switchToUmDataSource();
-
         try {
-            result = function.apply(repository);
+            dataSourceSwitcher.switchToUmDataSource();
+            return function.apply(repository);
         } catch (Exception e) {
-            throwable = e;
+            throw new UserServiceException(String.format(message, params), e);
+        } finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format(message, params), throwable);
-        }
-
-        return result;
     }
 
     public Optional<R> execute(RepositoryOptionalFunction<T, R> function, String message, Object... params) {
-        Throwable throwable = null;
-        Optional<R> optionalResult = Optional.empty();
-        dataSourceSwitcher.switchToUmDataSource();
-
         try {
-            optionalResult = function.apply(repository);
+            dataSourceSwitcher.switchToUmDataSource();
+            return function.apply(repository);
         } catch (Exception e) {
-            throwable = e;
+            throw new UserServiceException(String.format(message, params), e);
+        } finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format(message, params), throwable);
-        }
-
-        return optionalResult;
     }
 
     public R execute(RepositoryFunction<T, R> function, String message, Object... params) {
-        Throwable throwable = null;
-        R result = null;
-        dataSourceSwitcher.switchToUmDataSource();
-
         try {
-            result = function.apply(repository);
+            dataSourceSwitcher.switchToUmDataSource();
+            return function.apply(repository);
         } catch (Exception e) {
-            throwable = e;
+            throw new UserServiceException(String.format(message, params), e);
+        } finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format(message, params), throwable);
-        }
-
-        return result;
     }
 
     public List<R> execute(RepositoryListFunction<T, R> function, String message, Object... params) {
-        Throwable throwable = null;
-        List<R> resultList = Collections.emptyList();
-        dataSourceSwitcher.switchToUmDataSource();
-
         try {
-            resultList = function.apply(repository);
+            dataSourceSwitcher.switchToUmDataSource();
+            return function.apply(repository);
         } catch (Exception e) {
-            throwable = e;
+            throw new UserServiceException(String.format(message, params), e);
+        } finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
-
-        dataSourceSwitcher.switchToPreviousDataSource();
-
-        if (throwable != null) {
-            throw new UserServiceException(String.format(message, params), throwable);
-        }
-
-        return resultList;
     }
 
     public void execute(RepositoryConsumer<T> consumer, String message, Object... params) {
-        Throwable throwable = null;
-        dataSourceSwitcher.switchToUmDataSource();
         try {
+            dataSourceSwitcher.switchToUmDataSource();
             consumer.accept(repository);
         } catch (Exception e) {
-            throwable = e;
-        }
-        dataSourceSwitcher.switchToPreviousDataSource();
-        if (throwable != null) {
-            throw new UserServiceException(String.format(message, params), throwable);
+            throw new UserServiceException(String.format(message, params), e);
+        } finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
         }
     }
 }
