@@ -158,13 +158,12 @@ final class AdminController extends UmControllerBase {
                                  @RequestParam(required = false) final String role,
                                  @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
-        String authorizedName = userSecurityService.getAuthorizedUserLogin(request);
 
         User newUser;
         Role registerRole;
         registerRole = Role.getRole(role);
 
-        if (!userService.accessGrantedForRegistration(registerRole, authorizedName)) {
+        if (!userSecurityService.isAuthorizedAdmin(request)) {
             modelAndView = getErrorModelAndView(PAGE_REGISTRATION, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageRegistrationParams,
                     secureService.getEncryptMethodName(), lang);
