@@ -33,7 +33,7 @@ public class UserControllerTest extends AbstractTest {
             "user@example.com", "USER");
 
     private MockedEmailService mockedEmailService;
-    private UserGeneratorService userGeneratorService;
+    private UserDatabaseInitService dataBaseInitServiceUser;
 
     @Autowired
     public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
@@ -51,8 +51,8 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Autowired
-    public void setUserGeneratorService(UserGeneratorService userGeneratorService) {
-        this.userGeneratorService = userGeneratorService;
+    public void setDatabaseInitService(UserDatabaseInitService dataBaseInitServiceUser) {
+        this.dataBaseInitServiceUser = dataBaseInitServiceUser;
     }
 
     @Test
@@ -286,7 +286,7 @@ public class UserControllerTest extends AbstractTest {
     @Test
     public void userEditSuccess() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        User user = userGeneratorService.getUserService().getUserById(4L);
+        User user = dataBaseInitServiceUser.getUserService().getUserById(4L);
         String authority = user.getAuthority();
         Role role = Role.getRole(authority);
         user.setAuthority(Role.getStringRole(role));

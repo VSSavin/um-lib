@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib;
 
-import com.github.vssavin.umlib.config.SqlScriptsConfig;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.config.UmTemplateResolverConfig;
 import com.github.vssavin.umlib.security.SecureService;
@@ -20,11 +19,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import javax.sql.DataSource;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
@@ -58,14 +52,6 @@ public abstract class AbstractTest {
     public void setUmConfig(UmConfig umConfig) {
         secureService = umConfig.getAuthService();
     }
-
-    @Autowired
-    public void initScripts(SqlScriptsConfig scriptsConfig, DataSource umDataSource) {
-        List<String> sourceFiles = new ArrayList<>();
-        sourceFiles.add("/init_test.sql");
-        scriptsConfig.executeSqlScripts(umDataSource, "", sourceFiles);
-    }
-
 
     @Before
     public void setup() {
