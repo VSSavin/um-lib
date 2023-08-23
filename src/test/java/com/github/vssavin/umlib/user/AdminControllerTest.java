@@ -278,6 +278,7 @@ public class AdminControllerTest extends AbstractTest {
         Assertions.assertNotNull(modelAndView);
         boolean error = modelAndView.getModel().containsKey("error");
         Assertions.assertFalse(error);
+        userDatabaseInitService.initUserDatabase();
     }
 
     @Test

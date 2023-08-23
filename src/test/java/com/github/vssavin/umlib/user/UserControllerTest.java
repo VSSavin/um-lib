@@ -4,6 +4,7 @@ import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.language.MessageKey;
 import com.github.vssavin.umlib.email.MockedEmailService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ public class UserControllerTest extends AbstractTest {
             "user@example.com", "USER");
 
     private MockedEmailService mockedEmailService;
-    private UserDatabaseInitService dataBaseInitServiceUser;
 
     @Autowired
     public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
@@ -48,11 +48,6 @@ public class UserControllerTest extends AbstractTest {
     @Autowired
     public void setEmailService(MockedEmailService emailService) {
         this.mockedEmailService = emailService;
-    }
-
-    @Autowired
-    public void setDatabaseInitService(UserDatabaseInitService dataBaseInitServiceUser) {
-        this.dataBaseInitServiceUser = dataBaseInitServiceUser;
     }
 
     @Test
@@ -286,7 +281,7 @@ public class UserControllerTest extends AbstractTest {
     @Test
     public void userEditSuccess() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        User user = dataBaseInitServiceUser.getUserService().getUserById(4L);
+        User user = userDatabaseInitService.getUserService().getUserById(4L);
         String authority = user.getAuthority();
         Role role = Role.getRole(authority);
         user.setAuthority(Role.getStringRole(role));

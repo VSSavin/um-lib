@@ -5,6 +5,7 @@ import com.github.vssavin.umlib.config.UmTemplateResolverConfig;
 import com.github.vssavin.umlib.security.SecureService;
 import com.github.vssavin.umlib.config.ApplicationConfig;
 import com.github.vssavin.umlib.user.User;
+import com.github.vssavin.umlib.user.UserDatabaseInitService;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -41,6 +42,7 @@ public abstract class AbstractTest {
 
     protected MockMvc mockMvc;
     protected SecureService secureService;
+    protected UserDatabaseInitService userDatabaseInitService;
     private WebApplicationContext context;
 
     @Autowired
@@ -51,6 +53,11 @@ public abstract class AbstractTest {
     @Autowired
     public void setUmConfig(UmConfig umConfig) {
         secureService = umConfig.getAuthService();
+    }
+
+    @Autowired
+    public void setUserDatabaseInitService(UserDatabaseInitService dataBaseInitServiceUser) {
+        this.userDatabaseInitService = dataBaseInitServiceUser;
     }
 
     @Before
