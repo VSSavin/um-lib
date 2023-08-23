@@ -266,6 +266,7 @@ public class AdminControllerTest extends AbstractTest {
         Element userElement = trElements.get(0);
         String userId = userElement.getElementsByTag("td").get(0).text();
 
+        User deletedUser = userDatabaseInitService.getUserService().getUserById(Long.parseLong(userId));
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", userId);
         resultActions = mockMvc.perform(delete(BASE_URL + "/users")
@@ -278,7 +279,8 @@ public class AdminControllerTest extends AbstractTest {
         Assertions.assertNotNull(modelAndView);
         boolean error = modelAndView.getModel().containsKey("error");
         Assertions.assertFalse(error);
-        userDatabaseInitService.initUserDatabase();
+        deletedUser = userDatabaseInitService.getUserService().updateUser(deletedUser);
+        Assertions.assertNotNull(deletedUser);
     }
 
     @Test

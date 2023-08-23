@@ -177,6 +177,8 @@ public class UserControllerTest extends AbstractTest {
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true))
                 .andExpect(model().attribute("successMsg", String.format(message, login)));
+        User user = userDatabaseInitService.getUserService().getUserByLogin(login);
+        userDatabaseInitService.getUserService().deleteUser(user);
     }
 
     @Test
