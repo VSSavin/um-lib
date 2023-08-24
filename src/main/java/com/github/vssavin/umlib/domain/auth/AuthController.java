@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.auth;
+package com.github.vssavin.umlib.domain.auth;
 
 import com.github.vssavin.umlib.base.controller.UmControllerBase;
 import com.github.vssavin.umlib.config.LocaleConfig;
