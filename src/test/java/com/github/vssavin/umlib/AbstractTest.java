@@ -2,10 +2,10 @@ package com.github.vssavin.umlib;
 
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.config.UmTemplateResolverConfig;
-import com.github.vssavin.umlib.security.SecureService;
+import com.github.vssavin.umlib.domain.security.SecureService;
 import com.github.vssavin.umlib.config.ApplicationConfig;
-import com.github.vssavin.umlib.user.User;
-import com.github.vssavin.umlib.user.UserDatabaseInitService;
+import com.github.vssavin.umlib.domain.user.User;
+import com.github.vssavin.umlib.domain.user.UserDatabaseInitService;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.Before;
 import org.junit.runner.RunWith;

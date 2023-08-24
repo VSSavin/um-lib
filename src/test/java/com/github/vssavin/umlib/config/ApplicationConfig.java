@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.user.User;
+import com.github.vssavin.umlib.domain.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

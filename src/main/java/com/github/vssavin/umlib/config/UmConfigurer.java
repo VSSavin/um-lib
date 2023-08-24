@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.security.SecureService;
+import com.github.vssavin.umlib.domain.security.SecureService;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -2,8 +2,8 @@ package com.github.vssavin.umlib.base.controller;
 
 import com.github.vssavin.umlib.config.LocaleConfig;
 import com.github.vssavin.umlib.config.UmConfig;
-import com.github.vssavin.umlib.language.MessageKey;
-import com.github.vssavin.umlib.language.UmLanguage;
+import com.github.vssavin.umlib.domain.language.MessageKey;
+import com.github.vssavin.umlib.domain.language.UmLanguage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 

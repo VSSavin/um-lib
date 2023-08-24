@@ -1,7 +1,7 @@
 package com.github.vssavin.umlib.base.repository;
 
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
-import com.github.vssavin.umlib.user.UserServiceException;
+import com.github.vssavin.umlib.domain.user.UserServiceException;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

@@ -1,9 +1,9 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.user.Role;
+import com.github.vssavin.umlib.domain.user.Role;
 
-import static com.github.vssavin.umlib.user.Role.ROLE_ADMIN;
-import static com.github.vssavin.umlib.user.Role.ROLE_USER;
+import static com.github.vssavin.umlib.domain.user.Role.ROLE_ADMIN;
+import static com.github.vssavin.umlib.domain.user.Role.ROLE_USER;
 
 /**
  * Enum with available permissions.
