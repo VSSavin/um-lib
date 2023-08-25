@@ -1,6 +1,8 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
 import com.github.vssavin.umlib.config.UmConfig;
+import com.github.vssavin.umlib.domain.event.EventService;
+import com.github.vssavin.umlib.domain.event.EventType;
 import com.github.vssavin.umlib.domain.user.UserService;
 import com.github.vssavin.umlib.domain.user.Role;
 import com.github.vssavin.umlib.domain.user.User;
@@ -25,10 +27,12 @@ import java.util.Date;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserService userService;
+    private final EventService eventService;
     private final UmConfig umConfig;
 
-    public CustomAuthenticationSuccessHandler(UserService userService, UmConfig umConfig) {
+    public CustomAuthenticationSuccessHandler(UserService userService, EventService eventService, UmConfig umConfig) {
         this.userService = userService;
+        this.eventService = eventService;
         this.umConfig = umConfig;
     }
 
@@ -58,6 +62,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                     successUrl = UmConfig.LOGIN_URL + "?error=true";
                 }
             }
+        }
+
+        if (user != null) {
+            eventService.createEvent(user, EventType.LOGGED_IN,
+                    String.format("User %s logged in using IP: %s", user.getLogin(), request.getRemoteAddr()));
         }
 
         String lang = request.getParameter("lang");

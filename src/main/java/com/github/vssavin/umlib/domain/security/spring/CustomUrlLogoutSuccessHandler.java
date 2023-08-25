@@ -1,6 +1,13 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
+import com.github.vssavin.umlib.domain.event.EventService;
+import com.github.vssavin.umlib.domain.event.EventType;
+import com.github.vssavin.umlib.domain.user.User;
+import com.github.vssavin.umlib.domain.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -27,15 +34,38 @@ import java.util.Map;
 class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
         implements LogoutSuccessHandler {
 
+    private final EventService eventService;
+    private final UserService userService;
     private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
 
-    CustomUrlLogoutSuccessHandler() {
+    @Autowired
+    CustomUrlLogoutSuccessHandler(EventService eventService, UserService userService) {
+        this.eventService = eventService;
+        this.userService = userService;
         super.setRedirectStrategy(customRedirectStrategy);
     }
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
+        User user = null;
+        try {
+            OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            user = userService.processOAuthPostLogin(oAuth2User);
+
+        } catch (ClassCastException e) {
+            //ignore, it's ok
+        }
+
+        if (user == null) {
+            user = userService.getUserByLogin(authentication.getPrincipal().toString());
+        }
+
+        if (user != null) {
+            eventService.createEvent(user, EventType.LOGGED_OUT,
+                    String.format("User %s logged out using IP: %s", user.getLogin(), request.getRemoteAddr()));
+        }
+
         customRedirectStrategy.setParameterMap(request.getParameterMap());
         super.handle(request, response, authentication);
     }
