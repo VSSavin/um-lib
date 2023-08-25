@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.domain.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -28,7 +27,7 @@ import java.util.Properties;
 @Configuration
 @ComponentScan({"com.github.vssavin.umlib"})
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackageClasses = User.class)
+@EnableJpaRepositories(basePackages = "com.github.vssavin.umlib.domain")
 @EnableWebSecurity
 @Import(DefaultSecurityConfig.class)
 public class ApplicationConfig {
@@ -65,7 +64,7 @@ public class ApplicationConfig {
 
         try {
             em.setDataSource(routingDataSource);
-            em.setPackagesToScan(User.class.getPackage().getName());
+            em.setPackagesToScan("com.github.vssavin.umlib.domain");
 
             em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
             String hibernateDialect = databaseConfig.getDialect();
@@ -82,10 +81,7 @@ public class ApplicationConfig {
 
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(emf);
-
-        return transactionManager;
+        return new JpaTransactionManager(emf);
     }
 
     @Bean
