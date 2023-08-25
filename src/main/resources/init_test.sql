@@ -1,5 +1,5 @@
-DROP table IF EXISTS users;
 DROP table IF EXISTS events;
+DROP table IF EXISTS users;
 
 create table IF NOT EXISTS users(
  id SERIAL primary key,
