@@ -33,7 +33,9 @@ public class EventService {
         RepositoryOptionalFunction<EventRepository, Event> function = repo -> Optional.of(repo.save(event));
         Optional<Event> optional =
                 repositorySupport.execute(function, "Error occurred while saving event entity!");
-        if (optional.isPresent()) return optional.get();
+        if (optional.isPresent()) {
+            return optional.get();
+        }
         throw new CreateEventException("The database did not return an event entity!");
     }
 
