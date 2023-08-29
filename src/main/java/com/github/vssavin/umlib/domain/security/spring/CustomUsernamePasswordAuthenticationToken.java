@@ -11,13 +11,13 @@ import java.util.Collection;
  *
  * @author vssavin on 01.08.2022.
  */
-class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
+public class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
+    public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
         super(principal, credentials);
     }
 
-    CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials,
+    public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials,
                                               Collection<? extends GrantedAuthority> authorities) {
         super(principal, credentials, authorities);
     }
