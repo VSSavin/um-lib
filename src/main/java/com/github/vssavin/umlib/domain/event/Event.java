@@ -4,7 +4,6 @@ import com.github.vssavin.umlib.domain.user.User;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * @author vssavin on 24.08.2023
@@ -29,7 +28,7 @@ public class Event {
     @Column(name = "event_message")
     private String eventMessage;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
@@ -110,24 +109,20 @@ public class Event {
 
         Event event = (Event) o;
 
-        if (!Objects.equals(id, event.id)) {
-            return false;
-        }
         if (!userId.equals(event.userId)) {
             return false;
         }
-        if (!eventTimestamp.equals(event.eventTimestamp)) {
+        if (eventType != event.eventType) {
             return false;
         }
-        return eventMessage.equals(event.eventMessage);
+        return eventTimestamp.equals(event.eventTimestamp);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + userId.hashCode();
+        int result = userId.hashCode();
+        result = 31 * result + eventType.hashCode();
         result = 31 * result + eventTimestamp.hashCode();
-        result = 31 * result + eventMessage.hashCode();
         return result;
     }
 
