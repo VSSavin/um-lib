@@ -1,7 +1,7 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
+import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.config.UmConfig;
-import com.github.vssavin.umlib.domain.event.EventService;
 import com.github.vssavin.umlib.domain.event.EventType;
 import com.github.vssavin.umlib.domain.user.UserExpiredException;
 import com.github.vssavin.umlib.domain.user.UserService;
@@ -24,13 +24,14 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
+    private final DataSourceSwitcher dataSourceSwitcher;
     private final UserService userService;
-    private final EventService eventService;
     private final UmConfig umConfig;
 
-    public CustomAuthenticationSuccessHandler(UserService userService, EventService eventService, UmConfig umConfig) {
+    public CustomAuthenticationSuccessHandler(DataSourceSwitcher dataSourceSwitcher, UserService userService,
+                                              UmConfig umConfig) {
+        this.dataSourceSwitcher = dataSourceSwitcher;
         this.userService = userService;
-        this.eventService = eventService;
         this.umConfig = umConfig;
     }
 
@@ -41,17 +42,16 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         User user = null;
         try {
-            user = userService.processSuccessAuthentication(authentication);
+            dataSourceSwitcher.switchToUmDataSource();
+            user = userService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
+            dataSourceSwitcher.switchToPreviousDataSource();
         } catch (UserExpiredException e) {
             successUrl = UmConfig.LOGIN_URL + "?error=true";
         }
 
-        if (user != null) {
-            if (user.getAuthority().equals(Role.ROLE_ADMIN.name())) {
+        if (user != null && (user.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
                 successUrl = umConfig.getAdminSuccessUrl();
-            }
-            eventService.createEvent(user, EventType.LOGGED_IN,
-                    String.format("User %s logged in using IP: %s", user.getLogin(), request.getRemoteAddr()));
+
         }
 
         String lang = request.getParameter("lang");
