@@ -23,7 +23,7 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<Event>> getAllEvents() {
+    public ResponseEntity<Iterable<EventDto>> getAllEvents() {
         return new ResponseEntity<>(eventService.findAllEvents(), HttpStatus.OK);
     }
 
