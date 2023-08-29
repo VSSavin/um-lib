@@ -68,16 +68,19 @@ final class AdminController extends UmControllerBase {
     private final SecureService secureService;
     private final PasswordEncoder passwordEncoder;
 
+    private final UserMapper userMapper;
+
     private final StringSafety stringSafety = new DefaultStringSafety();
 
     @Autowired
     AdminController(LocaleConfig localeConfig, UserService userService, UserSecurityService userSecurityService,
-                    UmConfig umConfig, PasswordEncoder passwordEncoder, UmLanguage language) {
+                    UmConfig umConfig, PasswordEncoder passwordEncoder, UserMapper userMapper, UmLanguage language) {
         super(language, umConfig);
         this.userService = userService;
         this.userSecurityService = userSecurityService;
         this.secureService = umConfig.getAuthService();
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageUsersParams = localeConfig.forPage(PAGE_USERS).getKeys();
         pageUserEditParams = localeConfig.forPage(PAGE_EDIT).getKeys();
@@ -85,6 +88,7 @@ final class AdminController extends UmControllerBase {
         pageRegistrationParams = localeConfig.forPage(PAGE_REGISTRATION).getKeys();
         pageChangeUserPasswordParams = localeConfig.forPage(PAGE_CHANGE_USER_PASSWORD).getKeys();
         this.pageAdminConfirmUserParams = localeConfig.forPage(PAGE_CONFIRM_USER).getKeys();
+
     }
 
     @GetMapping()
@@ -350,7 +354,7 @@ final class AdminController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_EDIT);
         if (userSecurityService.isAuthorizedAdmin(request)) {
             User user = userService.getUserById(id);
-            UserDto userDto = UserDto.toDto(user);
+            UserDto userDto = userMapper.toDto(user);
             modelAndView.addObject(USER_ATTRIBUTE, userDto);
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
