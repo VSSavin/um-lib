@@ -1,7 +1,6 @@
 package com.github.vssavin.umlib.domain.user;
 
 import com.github.vssavin.umlib.base.repository.*;
-import com.github.vssavin.umlib.domain.event.Event;
 import com.github.vssavin.umlib.domain.event.EventDto;
 import com.github.vssavin.umlib.domain.event.EventService;
 import com.github.vssavin.umlib.domain.event.EventType;
