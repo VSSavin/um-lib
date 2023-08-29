@@ -43,7 +43,9 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         umConfig = createUmConfig();
         Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
 
-        if (defaultApplicationArgs != null) replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        if (defaultApplicationArgs != null) {
+            replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        }
         umConfig = createUmConfig();
         Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
     }
@@ -63,7 +65,9 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
         System.clearProperty("authService");
 
-        if (defaultApplicationArgs != null) replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        if (defaultApplicationArgs != null) {
+            replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        }
         umConfig = createUmConfig();
         Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
     }
@@ -85,7 +89,9 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         umConfig = createUmConfig();
         Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
 
-        if (defaultApplicationArgs != null) replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        if (defaultApplicationArgs != null) {
+            replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
+        }
         umConfig = createUmConfig();
         Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
     }
@@ -128,12 +134,16 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         try {
             oldBean = context.getBean(beanName);
             ((DefaultListableBeanFactory) beanRegistry).destroySingleton(beanName);
-        } catch (NoSuchBeanDefinitionException ignore) {}
+        } catch (NoSuchBeanDefinitionException ignore) {
+            //ignore
+        }
 
         try {
             context.getBean(beanName);
             throw new IllegalStateException("Can't remove the bean with name: " + beanName);
-        } catch (NoSuchBeanDefinitionException ignore) {}
+        } catch (NoSuchBeanDefinitionException ignore) {
+            //ignore
+        }
 
         ((DefaultListableBeanFactory) beanRegistry).registerSingleton(beanName, replacement);
         return oldBean;

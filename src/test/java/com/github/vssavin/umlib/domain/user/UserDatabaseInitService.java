@@ -46,7 +46,7 @@ public class UserDatabaseInitService {
     @PostConstruct
     public void initUserDatabase() {
         initScripts();
-        for(int i = 0; i < countUsers; i++) {
+        for (int i = 0; i < countUsers; i++) {
             String login = String.valueOf(i);
             String name = String.valueOf(i);
             String password = passwordEncoder.encode(login);

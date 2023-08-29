@@ -52,7 +52,7 @@ public class UserControllerTest extends AbstractTest {
     }
 
     @Test
-    public void registrationNotAllowedForAuthenticatedUser() throws Exception{
+    public void registrationNotAllowedForAuthenticatedUser() throws Exception {
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
         String login = "user2";
         String encodedPassword = encrypt("", "user2");

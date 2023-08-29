@@ -27,7 +27,9 @@ class MockedEmailServiceImpl implements MockedEmailService {
 
     @Override
     public EmailMessage getLastEmailMessage() {
-        if (messages.size() == 0) throw new IllegalStateException("Emails list is empty!");
+        if (messages.size() == 0) {
+            throw new IllegalStateException("Emails list is empty!");
+        }
         return messages.get(messages.size() - 1);
     }
 }

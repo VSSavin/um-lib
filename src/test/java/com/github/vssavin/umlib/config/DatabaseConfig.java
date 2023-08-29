@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = DatabaseConfig.NAME_PREFIX)
 @PropertySource("file:./" + DatabaseConfig.CONFIG_FILE)
 public class DatabaseConfig extends StorableConfig {
-    @IgnoreField public static final String CONFIG_FILE = "conf.properties" ;
+    @IgnoreField public static final String CONFIG_FILE = "conf.properties";
     @IgnoreField public static final String NAME_PREFIX = "db";
 
     @IgnoreField private String url;

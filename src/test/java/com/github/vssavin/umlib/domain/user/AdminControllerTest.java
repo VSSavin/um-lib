@@ -152,7 +152,7 @@ public class AdminControllerTest extends AbstractTest {
         params.add("login", userLogin);
         params.add("name", "name");
         params.add("email", newUserEmail);
-        resultActions = mockMvc.perform(patch(BASE_URL+ "/users")
+        resultActions = mockMvc.perform(patch(BASE_URL + "/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testUser))
                 .with(csrf()));
