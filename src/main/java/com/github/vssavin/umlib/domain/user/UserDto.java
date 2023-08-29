@@ -30,11 +30,6 @@ public class UserDto {
     public UserDto() {
     }
 
-    public static UserDto toDto(User user) {
-        return new UserDto(user.getId(), user.getLogin(), user.getName(), user.getEmail(),
-                !user.isAccountNonLocked(), !user.isCredentialsNonExpired(), user.isEnabled());
-    }
-
     public Long getId() {
         return id;
     }
