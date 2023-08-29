@@ -1,6 +1,6 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.domain.security.spring.BannedIpFilter;
+import com.github.vssavin.umlib.domain.security.spring.BlackListFilter;
 import com.github.vssavin.umlib.domain.security.spring.CustomOAuth2UserService;
 import com.github.vssavin.umlib.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +72,9 @@ public class DefaultSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, UmConfig umConfig) throws Exception {
-        http.addFilterBefore(
-                new BannedIpFilter(), BasicAuthenticationFilter.class);
+    public SecurityFilterChain filterChain(HttpSecurity http, UmConfig umConfig, BlackListFilter blackListFilter)
+            throws Exception {
+        http.addFilterBefore(blackListFilter, BasicAuthenticationFilter.class);
 
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);

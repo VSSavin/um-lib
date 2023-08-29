@@ -19,8 +19,8 @@ import java.io.IOException;
  * @author vssavin on 18.12.2021
  */
 @Component
-public class BannedIpFilter extends GenericFilterBean {
-    private static final Logger log = LoggerFactory.getLogger(BannedIpFilter.class);
+public class BlackListFilter extends GenericFilterBean {
+    private static final Logger log = LoggerFactory.getLogger(BlackListFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
