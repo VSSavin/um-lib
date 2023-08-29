@@ -29,7 +29,7 @@ public class Event {
     @Column(name = "event_message")
     private String eventMessage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 

@@ -1,5 +1,6 @@
 package com.github.vssavin.umlib.domain.user;
 
+import com.github.vssavin.umlib.domain.event.Event;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +34,8 @@ public class User implements UserDetails {
     @Column(name = "credentials_expired")
     private int credentialsExpired = 0;
     private int enabled = 1;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private final List<Event> events = new ArrayList<>();
 
     public User(String login, String name, String password, String email, String authority) {
         this.login = login;
@@ -111,6 +114,10 @@ public class User implements UserDetails {
         return verificationId;
     }
 
+    public List<Event> getEvents() {
+        return events;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -153,6 +160,11 @@ public class User implements UserDetails {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled ? 1 : 0;
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events.retainAll(events);
+        this.events.addAll(events);
     }
 
     public static UserBuilder builder() {
