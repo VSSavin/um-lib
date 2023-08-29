@@ -301,7 +301,11 @@
                         </goals>
                         <configuration>
                             <configLocation>src/main/resources/checkstyle_base.xml</configLocation>
-                            <excludes>**/com/github/vssavin/umlib/user/User.java</excludes>
+                            <sourceDirectories>
+                                <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                                <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+                            </sourceDirectories>
+                            <excludes>**/com/github/vssavin/umlib/domain/user/User.java</excludes>
                         </configuration>
                     </execution>
                     <execution>
