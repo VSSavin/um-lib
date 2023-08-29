@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -281,6 +283,33 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             user = registerUser(email, email, generateRandomPassword(10), email, Role.ROLE_USER);
             confirmUser(user.getLogin(), user.getVerificationId(), true);
+        }
+
+        return user;
+    }
+
+    @Override
+    public User processSuccessAuthentication(Authentication authentication) {
+        User user = null;
+        try {
+            OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            user = processOAuthPostLogin(oAuth2User);
+        } catch (ClassCastException e) {
+            //ignore, it's ok
+        }
+
+        if (user == null) {
+            user = getUserByLogin(authentication.getPrincipal().toString());
+        }
+
+        if (user == null) {
+            throw new UserNotFoundException(
+                    String.format("User [%s] not found!", authentication.getPrincipal().toString()));
+        }
+
+        if (user.getExpirationDate().before(new Date())) {
+                deleteUser(user);
+                throw new UserExpiredException(String.format("User [%s] has been expired!", user.getLogin()));
         }
 
         return user;
