@@ -305,7 +305,10 @@
                                 <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                                 <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
                             </sourceDirectories>
-                            <excludes>**/com/github/vssavin/umlib/domain/user/User.java</excludes>
+                            <excludes>
+                                **/com/github/vssavin/umlib/domain/user/User.java,
+                                **/com/github/vssavin/umlib/Launcher.java
+                            </excludes>
                         </configuration>
                     </execution>
                     <execution>

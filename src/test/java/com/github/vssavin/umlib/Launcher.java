@@ -8,14 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Created by vssavin on 16.05.2022.
  */
 @SpringBootApplication
-public final class Launcher {
+public class Launcher {
 
     static {
         System.setProperty("um.templateResolver.order", "1");
-    }
-
-    private Launcher() {
-
     }
 
     public static void main(String[] args) {
