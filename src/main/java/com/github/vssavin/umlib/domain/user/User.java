@@ -34,7 +34,7 @@ public class User implements UserDetails {
     @Column(name = "credentials_expired")
     private int credentialsExpired = 0;
     private int enabled = 1;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final List<Event> events = new ArrayList<>();
 
     public User(String login, String name, String password, String email, String authority) {
