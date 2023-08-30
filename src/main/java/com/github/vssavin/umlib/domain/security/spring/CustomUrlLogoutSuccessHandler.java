@@ -1,9 +1,8 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
-import com.github.vssavin.umlib.domain.event.EventService;
+import com.github.vssavin.umlib.domain.auth.AuthService;
 import com.github.vssavin.umlib.domain.event.EventType;
-import com.github.vssavin.umlib.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -24,7 +23,7 @@ import java.util.Map;
 
 /**
  * An {@link org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler} implementation
- * that generates a url to redirect after the user logs out.
+ * that generates an url to redirect after the user logs out.
  *
  * @author vssavin on 15.08.2022.
  */
@@ -33,13 +32,13 @@ class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlReque
         implements LogoutSuccessHandler {
 
     private final DataSourceSwitcher dataSourceSwitcher;
-    private final UserService userService;
+    private final AuthService authService;
     private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
 
     @Autowired
-    CustomUrlLogoutSuccessHandler(EventService eventService, DataSourceSwitcher dataSourceSwitcher, UserService userService) {
+    CustomUrlLogoutSuccessHandler(DataSourceSwitcher dataSourceSwitcher, AuthService authService) {
         this.dataSourceSwitcher = dataSourceSwitcher;
-        this.userService = userService;
+        this.authService = authService;
         super.setRedirectStrategy(customRedirectStrategy);
     }
 
@@ -47,7 +46,7 @@ class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlReque
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         dataSourceSwitcher.switchToUmDataSource();
-        userService.processSuccessAuthentication(authentication, request, EventType.LOGGED_OUT);
+        authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_OUT);
         dataSourceSwitcher.switchToPreviousDataSource();
         customRedirectStrategy.setParameterMap(request.getParameterMap());
         super.handle(request, response, authentication);
