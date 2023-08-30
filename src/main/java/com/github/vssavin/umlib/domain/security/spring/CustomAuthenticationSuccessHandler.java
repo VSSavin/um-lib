@@ -2,36 +2,38 @@ package com.github.vssavin.umlib.domain.security.spring;
 
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.config.UmConfig;
+import com.github.vssavin.umlib.domain.auth.AuthService;
 import com.github.vssavin.umlib.domain.event.EventType;
 import com.github.vssavin.umlib.domain.user.UserExpiredException;
-import com.github.vssavin.umlib.domain.user.UserService;
 import com.github.vssavin.umlib.domain.user.Role;
-import com.github.vssavin.umlib.domain.user.User;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler} implementation
- * that attempts to authenticate the user using o2Auth or user/password mechanism.
+ * that attempts to authenticate using corresponding authentication service.
  *
  * @author vssavin on 22.12.21
  */
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
+    private final AuthService authService;
     private final DataSourceSwitcher dataSourceSwitcher;
-    private final UserService userService;
     private final UmConfig umConfig;
 
-    public CustomAuthenticationSuccessHandler(DataSourceSwitcher dataSourceSwitcher, UserService userService,
+    public CustomAuthenticationSuccessHandler(AuthService authService, DataSourceSwitcher dataSourceSwitcher,
                                               UmConfig umConfig) {
+        this.authService = authService;
         this.dataSourceSwitcher = dataSourceSwitcher;
-        this.userService = userService;
         this.umConfig = umConfig;
     }
 
@@ -40,18 +42,17 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         Authentication authentication) throws IOException {
         String successUrl = umConfig.getSuccessUrl();
 
-        User user = null;
+        Collection<GrantedAuthority> authorities = Collections.emptyList();
         try {
             dataSourceSwitcher.switchToUmDataSource();
-            user = userService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
+            authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
             dataSourceSwitcher.switchToPreviousDataSource();
         } catch (UserExpiredException e) {
             successUrl = UmConfig.LOGIN_URL + "?error=true";
         }
 
-        if (user != null && (user.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
-                successUrl = umConfig.getAdminSuccessUrl();
-
+        if (authorities.stream().anyMatch(authority -> authority.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
+            successUrl = umConfig.getAdminSuccessUrl();
         }
 
         String lang = request.getParameter("lang");
