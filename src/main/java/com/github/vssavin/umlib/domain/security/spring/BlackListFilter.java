@@ -1,7 +1,7 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.vssavin.umlib.domain.auth.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -14,23 +14,28 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Security filter to check if user ip was locked.
+ * Security filter to check if user ip was blocked.
  *
  * @author vssavin on 18.12.2021
  */
 @Component
 public class BlackListFilter extends GenericFilterBean {
-    private static final Logger log = LoggerFactory.getLogger(BlackListFilter.class);
+    private final AuthService authService;
+
+    @Autowired
+    public BlackListFilter(AuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String userIp = request.getRemoteAddr();
-        if (CustomAuthenticationFailureHandler.isBannedIp(userIp)) {
-            log.info("Trying to access from banned IP: {}", userIp);
+        if (!authService.isAuthenticationAllowed(userIp)) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Доступ запрещен");
+            httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Access denied!");
             return;
         }
+
         chain.doFilter(request, response);
     }
 }

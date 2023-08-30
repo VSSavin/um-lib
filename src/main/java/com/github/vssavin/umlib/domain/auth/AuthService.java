@@ -18,7 +18,7 @@ public interface AuthService {
     Authentication authenticate(Authentication authentication);
     Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
                                                               EventType eventType);
-    boolean authenticationAllowed(String ipAddress);
+    boolean isAuthenticationAllowed(String ipAddress);
     void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
                                       AuthenticationException exception);
     Class<? extends Authentication> authenticationClass();

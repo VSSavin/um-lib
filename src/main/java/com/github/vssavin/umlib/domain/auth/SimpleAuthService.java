@@ -132,7 +132,7 @@ public class SimpleAuthService implements AuthService {
     }
 
     @Override
-    public boolean authenticationAllowed(String ipAddress) {
+    public boolean isAuthenticationAllowed(String ipAddress) {
         Integer failureCounts = blackList.get(ipAddress);
         if (failureCounts == null) {
             return true;
