@@ -35,6 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
+ * An {@link com.github.vssavin.umlib.domain.auth.AuthService} implementation that:
+ * 1. Attempts to authenticate the user using o2Auth or user/password mechanism.
+ * 2. Handling success authentication and creating the corresponding user event.
+ * 3. Handling failed authentication adds the current IP address to the blacklist.
+ * 4. Checks if authentication is allowed for the specified ip address uses a blacklist.
+ *
  * @author vssavin on 29.08.2023
  */
 @Service
