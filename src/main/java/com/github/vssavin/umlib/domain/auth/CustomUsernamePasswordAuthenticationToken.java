@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.domain.security.spring;
+package com.github.vssavin.umlib.domain.auth;
 
 import com.github.vssavin.jcrypt.DefaultStringSafety;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,7 +11,7 @@ import java.util.Collection;
  *
  * @author vssavin on 01.08.2022.
  */
-public class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
+class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
     public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
         super(principal, credentials);

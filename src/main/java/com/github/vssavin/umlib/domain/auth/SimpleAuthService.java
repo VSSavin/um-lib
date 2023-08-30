@@ -4,7 +4,6 @@ import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.domain.event.EventService;
 import com.github.vssavin.umlib.domain.event.EventType;
 import com.github.vssavin.umlib.domain.security.SecureService;
-import com.github.vssavin.umlib.domain.security.spring.CustomUsernamePasswordAuthenticationToken;
 import com.github.vssavin.umlib.domain.user.User;
 import com.github.vssavin.umlib.domain.user.UserExpiredException;
 import com.github.vssavin.umlib.domain.user.UserNotFoundException;
