@@ -34,6 +34,8 @@ public class UmConfig extends StorableConfig {
     @IgnoreField public static final String REGISTRATION_URL = "/um/users/registration";
     @IgnoreField public static final String PERFORM_REGISTER_URL = "/um/users/perform-register";
 
+    @IgnoreField public static final String AUTH_SERVICE_PROP_NAME = "authService";
+
     @IgnoreField private final String adminSuccessUrl;
     @IgnoreField private final String successUrl;
 
@@ -184,7 +186,10 @@ public class UmConfig extends StorableConfig {
         if (secureServiceName != null && !secureServiceName.isEmpty()) {
             authService = getSecureServiceByName(secureServiceName);
         } else {
-            String authServiceName = System.getProperty("authService");
+            String authServiceName = System.getProperty(AUTH_SERVICE_PROP_NAME);
+            if (authServiceName == null || authServiceName.isEmpty()) {
+                authServiceName = System.getenv(AUTH_SERVICE_PROP_NAME);
+            }
             if (authServiceName != null && !authServiceName.isEmpty()) {
                 authService = getSecureServiceByName(authServiceName);
             } else {
@@ -223,7 +228,7 @@ public class UmConfig extends StorableConfig {
                 log.debug("Encryption for password [{}] : {}", password, encrypted);
                 stringSafety.clearString(password);
             }
-            String authServiceName = mappedArgs.get("authService");
+            String authServiceName = mappedArgs.get(AUTH_SERVICE_PROP_NAME);
             if (authServiceName != null) {
                 initSecureService(authServiceName);
             }
