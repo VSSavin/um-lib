@@ -45,10 +45,11 @@ import java.util.stream.Collectors;
 @Service
 public class SimpleAuthService implements AuthService {
     private static final Logger log = LoggerFactory.getLogger(SimpleAuthService.class);
-    private static final Class<? extends Authentication> authenticationClass = CustomUsernamePasswordAuthenticationToken.class;
+    private static final Class<? extends Authentication>
+            authenticationClass = CustomUsernamePasswordAuthenticationToken.class;
 
     private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
-    private static final ConcurrentHashMap<String, Long> banExpireTimes = new ConcurrentHashMap<>(50);
+    private static final ConcurrentHashMap<String, Long> banExpirationTime = new ConcurrentHashMap<>(50);
 
     private static final int MAX_FAILURE_COUNTS = 3;
     private static final int BLOCKING_TIME_MINUTES = 60;
@@ -57,7 +58,6 @@ public class SimpleAuthService implements AuthService {
     private final EventService eventService;
     private final SecureService secureService;
     private final PasswordEncoder passwordEncoder;
-
 
     @Autowired
     public SimpleAuthService(UserService userService, EventService eventService, UmConfig umConfig, PasswordEncoder passwordEncoder) {
@@ -76,13 +76,9 @@ public class SimpleAuthService implements AuthService {
             if (user != null) {
                 checkUserDetails(user);
 
-                Object details = authentication.getDetails();
-                String addr = "";
-                if (details instanceof WebAuthenticationDetails) {
-                    addr = ((WebAuthenticationDetails) details).getRemoteAddress();
-                }
-
+                String addr = getRemoteAddress(authentication);
                 String password = secureService.decrypt(credentials.toString(), secureService.getPrivateKey(addr));
+
                 if (passwordEncoder.matches(password, user.getPassword())) {
                     List<GrantedAuthority> authorities = new ArrayList<>(user.getAuthorities());
                     return new CustomUsernamePasswordAuthenticationToken(authentication.getPrincipal(),
@@ -102,7 +98,8 @@ public class SimpleAuthService implements AuthService {
 
     @Override
     @Transactional
-    public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request, EventType eventType) {
+    public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication,
+                                                                     HttpServletRequest request, EventType eventType) {
         User user = null;
         try {
             OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
@@ -132,45 +129,34 @@ public class SimpleAuthService implements AuthService {
 
     @Override
     public boolean isAuthenticationAllowed(String ipAddress) {
-        Integer failureCounts = blackList.get(ipAddress);
-        if (failureCounts == null) {
-            return true;
-        } else {
-            if (failureCounts >= MAX_FAILURE_COUNTS) {
-                Long expireTime = banExpireTimes.get(ipAddress);
-                if (expireTime != null && (Calendar.getInstance().getTimeInMillis() > expireTime)) {
-                    expireTime = 0L;
-                    banExpireTimes.put(ipAddress, expireTime);
-                    failureCounts = 0;
-                    blackList.put(ipAddress, failureCounts);
-                    return true;
-                }
+        int failureCounts = getFailureCount(ipAddress);
+        if (failureCounts >= MAX_FAILURE_COUNTS) {
+            long expireTime = getBanExpirationTime(ipAddress);
+            if (expireTime > 0 && System.currentTimeMillis() < expireTime) {
                 return false;
-            } else {
-                return true;
             }
         }
+        return true;
     }
 
     @Override
     public void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
                                              AuthenticationException exception) {
         String userIp = request.getRemoteAddr();
-        Integer failureCounts = blackList.get(userIp);
+        int failureCount = getFailureCount(userIp);
 
-        if (failureCounts == null) {
-            blackList.put(userIp, 1);
-        } else {
-            if (failureCounts < MAX_FAILURE_COUNTS) {
-                failureCounts++;
-                blackList.put(userIp, failureCounts);
-                if (failureCounts >= MAX_FAILURE_COUNTS) {
-                    banExpireTimes.put(userIp,
-                            Calendar.getInstance().getTimeInMillis() + (BLOCKING_TIME_MINUTES * 60 * 1000));
-                    log.info("IP {} has ben blocked!", userIp);
-                    throw new AuthenticationForbiddenException("Sorry! You has been blocked! Try again later!");
-                }
+        if (failureCount >= MAX_FAILURE_COUNTS) {
+            long expirationTime = getBanExpirationTime(userIp);
+            if (expirationTime == 0) {
+                blockIp(userIp);
+                log.info("IP {} has been blocked!", userIp);
+                throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
+            } else if (expirationTime < System.currentTimeMillis()) {
+                resetFailureCount(userIp);
+                incrementFailureCount(userIp);
             }
+        } else {
+            incrementFailureCount(userIp);
         }
     }
 
@@ -193,6 +179,29 @@ public class SimpleAuthService implements AuthService {
         eventService.createEvent(user, eventType, message);
     }
 
+    private int getFailureCount(String userIp) {
+        return blackList.getOrDefault(userIp, 1);
+    }
+
+    private void incrementFailureCount(String userIp) {
+        int failureCounts = getFailureCount(userIp) + 1;
+        blackList.put(userIp, failureCounts);
+    }
+
+    private void resetFailureCount(String userIp) {
+        blackList.put(userIp, 1);
+        banExpirationTime.remove(userIp);
+    }
+
+    private long getBanExpirationTime(String userIp) {
+        return banExpirationTime.getOrDefault(userIp, 0L);
+    }
+
+    private void blockIp(String ip) {
+        banExpirationTime.put(ip,
+                Calendar.getInstance().getTimeInMillis() + (BLOCKING_TIME_MINUTES * 60 * 1000));
+    }
+
     private void checkUserDetails(UserDetails userDetails) {
         if (!userDetails.isAccountNonExpired()) {
             throw new AccountExpiredException("Account is expired!");
@@ -203,5 +212,15 @@ public class SimpleAuthService implements AuthService {
         if (!userDetails.isEnabled()) {
             throw new DisabledException("Account is disabled!");
         }
+    }
+
+    private String getRemoteAddress(Authentication authentication) {
+        Object details = authentication.getDetails();
+
+        if (details instanceof WebAuthenticationDetails) {
+            return ((WebAuthenticationDetails) details).getRemoteAddress();
+        }
+
+        return "";
     }
 }
