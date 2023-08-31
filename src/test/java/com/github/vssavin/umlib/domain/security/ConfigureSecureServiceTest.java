@@ -4,9 +4,6 @@ import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.UmConfigurer;
-import com.github.vssavin.umlib.domain.security.AESSecureService;
-import com.github.vssavin.umlib.domain.security.NoSecureService;
-import com.github.vssavin.umlib.domain.security.RSASecureService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -33,21 +30,21 @@ public class ConfigureSecureServiceTest extends AbstractTest {
 
         Object defaultApplicationArgs = prepareAESServiceData();
         UmConfig umConfig = createUmConfig();
-        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getSecureService());
 
         prepareRSAServiceData();
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getSecureService());
 
         prepareNoSecureServiceData();
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getSecureService());
 
         if (defaultApplicationArgs != null) {
             replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
         }
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
+        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getSecureService());
     }
 
     @Test
@@ -56,20 +53,20 @@ public class ConfigureSecureServiceTest extends AbstractTest {
 
         System.setProperty("authService", "aes");
         UmConfig umConfig = createUmConfig();
-        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getSecureService());
         System.setProperty("authService", "rsa");
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getSecureService());
         System.setProperty("authService", "no");
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getSecureService());
         System.clearProperty("authService");
 
         if (defaultApplicationArgs != null) {
             replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
         }
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
+        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getSecureService());
     }
 
     @Test
@@ -77,23 +74,23 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         Object defaultApplicationArgs = prepareAESServiceData();
         System.setProperty("authService", "rsa");
         UmConfig umConfig = createUmConfig();
-        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(AESSecureService.class, umConfig.getSecureService());
 
         prepareRSAServiceData();
         System.setProperty("authService", "aes");
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(RSASecureService.class, umConfig.getSecureService());
 
         prepareNoSecureServiceData();
         System.setProperty("authService", "rsa");
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getAuthService());
+        Assertions.assertInstanceOf(NoSecureService.class, umConfig.getSecureService());
 
         if (defaultApplicationArgs != null) {
             replaceSingletonBean(defaultApplicationArgsBeanName, defaultApplicationArgs);
         }
         umConfig = createUmConfig();
-        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getAuthService());
+        Assertions.assertInstanceOf(secureService.getClass(), umConfig.getSecureService());
     }
 
     private Object prepareNoArgsData() {

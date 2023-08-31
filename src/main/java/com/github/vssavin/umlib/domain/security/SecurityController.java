@@ -25,7 +25,7 @@ class SecurityController {
 
     @Autowired
     public SecurityController(UmConfig umConfig, List<SecureService> secureServices) {
-        this.secureService = umConfig.getAuthService();
+        this.secureService = umConfig.getSecureService();
         this.secureServiceNames = secureServices.stream().map(Object::toString).collect(Collectors.toList());
     }
 

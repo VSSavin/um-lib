@@ -78,7 +78,7 @@ final class AdminController extends UmControllerBase {
         super(language, umConfig);
         this.userService = userService;
         this.userSecurityService = userSecurityService;
-        this.secureService = umConfig.getAuthService();
+        this.secureService = umConfig.getSecureService();
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();

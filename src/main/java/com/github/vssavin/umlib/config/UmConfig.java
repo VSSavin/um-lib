@@ -49,7 +49,7 @@ public class UmConfig extends StorableConfig {
     private final SecureService defaultSecureService;
     private final OSPlatformCrypt encryptPropertiesPasswordService;
     private final UmConfigurer umConfigurer;
-    private SecureService authService;
+    private SecureService secureService;
 
     @Value("${" + NAME_PREFIX + ".url}")
     private String applicationUrl;
@@ -71,7 +71,7 @@ public class UmConfig extends StorableConfig {
         super.setNamePrefix(NAME_PREFIX);
         this.context = context;
         this.defaultSecureService = secureService;
-        this.authService = defaultSecureService;
+        this.secureService = defaultSecureService;
         this.umConfigurer = umConfigurer;
         this.encryptPropertiesPasswordService = applicationSecureService;
 
@@ -90,7 +90,7 @@ public class UmConfig extends StorableConfig {
 
         initSecureService("");
         processArgs(applicationArgs);
-        log.debug("Using auth service: {}", authService);
+        log.debug("Using auth service: {}", this.secureService);
     }
 
     @PostConstruct
@@ -101,8 +101,8 @@ public class UmConfig extends StorableConfig {
         }
     }
 
-    public SecureService getAuthService() {
-        return authService;
+    public SecureService getSecureService() {
+        return secureService;
     }
 
     public List<AuthorizedUrlPermission> getAuthorizedUrlPermissions() {
@@ -181,16 +181,16 @@ public class UmConfig extends StorableConfig {
         }
 
         if (secureServiceName != null && !secureServiceName.isEmpty()) {
-            authService = getSecureServiceByName(secureServiceName);
+            secureService = getSecureServiceByName(secureServiceName);
         } else {
             String authServiceName = System.getProperty(AUTH_SERVICE_PROP_NAME);
             if (authServiceName == null || authServiceName.isEmpty()) {
                 authServiceName = System.getenv(AUTH_SERVICE_PROP_NAME);
             }
             if (authServiceName != null && !authServiceName.isEmpty()) {
-                authService = getSecureServiceByName(authServiceName);
+                secureService = getSecureServiceByName(authServiceName);
             } else {
-                authService = umConfigurer.getSecureService();
+                secureService = umConfigurer.getSecureService();
             }
         }
     }

@@ -78,7 +78,7 @@ final class UserController extends UmControllerBase {
         super(language, umConfig);
         this.userService = userService;
         this.userSecurityService = userSecurityService;
-        this.secureService = umConfig.getAuthService();
+        this.secureService = umConfig.getSecureService();
         this.emailService = emailService;
         this.pageUserEditParams = localeConfig.forPage(PAGE_USER_EDIT).getKeys();
         this.pageUserControlPanelParams = localeConfig.forPage(PAGE_USER_CONTROL_PANEL).getKeys();

@@ -63,7 +63,7 @@ public class SimpleAuthService implements AuthService {
     public SimpleAuthService(UserService userService, EventService eventService, UmConfig umConfig, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.eventService = eventService;
-        this.secureService = umConfig.getAuthService();
+        this.secureService = umConfig.getSecureService();
         this.passwordEncoder = passwordEncoder;
     }
 

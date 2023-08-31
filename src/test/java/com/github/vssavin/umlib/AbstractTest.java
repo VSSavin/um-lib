@@ -52,7 +52,7 @@ public abstract class AbstractTest {
 
     @Autowired
     public void setUmConfig(UmConfig umConfig) {
-        secureService = umConfig.getAuthService();
+        secureService = umConfig.getSecureService();
     }
 
     @Autowired

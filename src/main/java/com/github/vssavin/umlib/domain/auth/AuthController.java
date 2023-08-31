@@ -47,7 +47,7 @@ final class AuthController extends UmControllerBase {
     AuthController(LocaleConfig localeConfig, UmLanguage language, UmConfig umConfig,
                    UserSecurityService userSecurityService, OAuth2Config oAuth2Config) {
         super(language, umConfig);
-        this.secureService = umConfig.getAuthService();
+        this.secureService = umConfig.getSecureService();
         pageLoginParams = localeConfig.forPage(PAGE_LOGIN).getKeys();
         pageLogoutParams = localeConfig.forPage(PAGE_LOGOUT).getKeys();
         this.userSecurityService = userSecurityService;
