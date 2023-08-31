@@ -196,13 +196,13 @@ public class UmConfig extends StorableConfig {
     }
 
     private SecureService getSecureServiceByName(String serviceName) {
-        SecureService secureService = null;
+        SecureService service = null;
         boolean beanFound = true;
         try {
-            secureService = (SecureService) context.getBean(serviceName + "SecureService");
+            service = (SecureService) context.getBean(serviceName + "SecureService");
         } catch (NoSuchBeanDefinitionException ignore) {
             try {
-                secureService = (SecureService) context.getBean(serviceName.toUpperCase() + "SecureService");
+                service = (SecureService) context.getBean(serviceName.toUpperCase() + "SecureService");
             } catch (NoSuchBeanDefinitionException e) {
                 beanFound = false;
             }
@@ -210,7 +210,7 @@ public class UmConfig extends StorableConfig {
         if (!beanFound) {
             throw new NoSuchSecureServiceException(String.format("Service with name %s not found!", serviceName));
         }
-        return secureService;
+        return service;
     }
 
     private void processArgs(String[] args) {
@@ -247,6 +247,7 @@ public class UmConfig extends StorableConfig {
                 new AuthorizedUrlPermission("/um/users/confirmUser", Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/events/**", Permission.ADMIN_ONLY));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN));
