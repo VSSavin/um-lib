@@ -97,7 +97,7 @@ public class EventService {
                     .between(eventFilter.getStartEventTimestamp(), eventFilter.getEndEventTimestamp()));
         }
 
-        for(BooleanExpression expr : expressions) {
+        for (BooleanExpression expr : expressions) {
             if (expression == null) {
                 expression = expr;
             } else {

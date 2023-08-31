@@ -143,7 +143,7 @@ public class UmConfig extends StorableConfig {
 
     private void updatePermission(String url, Permission permission) {
         int index = getPermissionIndex(url);
-        if (index!= -1) {
+        if (index != -1) {
             authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, permission));
         }
     }
