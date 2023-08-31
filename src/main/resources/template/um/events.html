@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:form="http://www.w3.org/1999/html"
+      lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${title}">Список пользователей</title>
+
+    <!-- JQuery -->
+
+    <script th:src="@{/js/jquery-1.10.0.min.js}"></script>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/flag-icon.css}" rel="stylesheet"/>
+
+    <script th:src="@{/js/bootstrap.bundle.js}"></script>
+
+    <!--Bootstrap-select -->
+    <!-- Latest compiled and minified JavaScript -->
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap-select-1.14.0-beta2.min.css}">
+    <script th:src="@{/js/bootstrap-select-1.14.0-beta2.min.js}"></script>
+
+    <script th:src="@{/js/selectLanguage.js}"></script>
+
+    <style>
+        p.pStyle {
+        margin: auto 1em auto 1em
+        }
+
+    </style>
+</head>
+<body>
+<h1 align="center" th:text="${title}">Журнал событий</h1>
+
+<div class="alert alert-danger" th:if="${error}" role="alert" th:text="${errorMsg}">
+    Ошибка на странице
+</div>
+
+<div align="right">
+    <label class="sr-only" th:text="${language}">Язык</label>
+    <select id="langPicker" class="selectpicker" data-width="fit">
+        <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
+                th:text="${langObject.getLanguageText(lang.key)}">Language
+        </option>
+    </select>
+</div>
+
+<div class="container">
+    <form name="f" class="form-signin" method="get">
+        <input type="text" id="lang" name="lang" th:value="${urlLang}" hidden>
+        <h2 class="form-signin-heading" align="center" th:text="${searchTitle}">Поиск</h2>
+        <p>
+            <label for="eventId" class="sr-only" th:text="${eventIdTitle}">Event id</label>
+            <input type="text" id="eventId" name="eventId" class="form-control" th:placeholder="${eventIdTitle}"
+                   th:value="${eventId}?${eventId}:''" autofocus>
+        </p>
+        <p>
+            <label for="userId" class="sr-only" th:text="${userIdTitle}">User id</label>
+            <input type="text" id="userId" name="userId" class="form-control" th:placeholder="${userIdTitle}"
+                   th:value="${userId}?${userId}:''">
+        </p>
+        <p>
+            <label for="eventType" class="sr-only" th:text="${eventTypeTitle}">Event type</label>
+            <select id="eventType" name="eventType" class="form-select">
+                <option selected value="true" disabled hidden th:text="${chooseEventTypeTitle}">Choose...</option>
+                <option th:each="eventType : ${eventTypes}" th:text="${eventType}">Event type enum</option>
+            </select>
+        </p>
+        <p>
+            <label for="startEventTimestamp" class="sr-only" th:text="${startEventTimestampTitle}">Start timestamp</label>
+            <input type="text" id="startEventTimestamp" name="startEventTimestamp" class="form-control" th:placeholder="${startEventTimestampTitle}"
+                   th:value="${startEventTimestamp}?${startEventTimestamp}:''">
+        </p>
+        <p>
+            <label for="endEventTimestamp" class="sr-only" th:text="${endEventTimestampTitle}">End timestamp</label>
+            <input type="text" id="endEventTimestamp" name="endEventTimestamp" class="form-control" th:placeholder="${endEventTimestampTitle}"
+                   th:value="${endEventTimestamp}?${endEventTimestamp}:''">
+        </p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${searchEvent}">Поиск</button>
+    </form>
+</div>
+
+
+<div class="container form-signin">
+    <div class="row">
+        <div class="col-lg-10 mt-5 mb-5" style="width:auto">
+            <table id="eventsTable" class="table table-bordered table-responsive-sm">
+                <thead>
+                <tr>
+                    <th th:text="${eventIdTitle}">Event id</th>
+                    <th th:text="${userIdTitle}">User id</th>
+                    <th th:text="${eventTypeTitle}">Event type</th>
+                    <th th:text="${eventTimestampTitle}">Event timestamp</th>
+                    <th th:text="${eventMessageTitle}">Event message</th>
+                    <th th:text="${userLoginTitle}">User login</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="event : ${events.page}">
+                    <td th:text="${event.id}">Event id</td>
+                    <td th:text="${event.userId}">User id</td>
+                    <td th:text="${event.eventType}">Event type</td>
+                    <td th:text="${event.eventTimestamp}">Event timestamp</td>
+                    <td th:text="${event.eventMessage}">Event message</td>
+                    <td th:text="${event.user.login}">User login</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <nav aria-label="Page navigation" class="paging">
+                <ul class="pagination" th:if="${events.page.totalPages > 1}">
+                    <li class="page-item" th:classappend="${!events.paging.isPrevEnabled()? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{events + '?page=' + ${events.paging.pageNumber - 1}  + '&lang=' + ${urlLang}}"
+                           tabindex="-1">Previous</a>
+                    </li>
+                    <th:block th:each="item : ${events.paging.getItems()}">
+                        <li class="page-item" th:classappend="${item.index == events.paging.pageNumber? 'active' : ''}"
+                            th:if="${item.pageItemType.name() == 'PAGE'}">
+                            <a class="page-link" th:href="@{events + '?page=' + ${item.index}  + '&lang=' + ${urlLang}}"
+                               th:text="${item.index}"></a>
+                        </li>
+                        <li class="page-item disabled" th:if="${item.pageItemType.name() == 'DOTS'}">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    </th:block>
+                    <li class="page-item" th:classappend="${!events.paging.isNextEnabled()? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{events + '?page=' + ${events.paging.pageNumber + 1}  + '&lang=' + ${urlLang}}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

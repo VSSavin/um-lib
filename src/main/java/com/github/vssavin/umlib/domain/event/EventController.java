@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,6 +27,9 @@ public class EventController extends UmControllerBase {
     static final String EVENT_CONTROLLER_PATH = "/um/events";
     private static final String PAGE_EVENTS = "events";
     private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replace("/", "");
+
+    private static final String EVENTS_ATTRIBUTE = "events";
+    private static final String EVENTS_TYPES_ATTRIBUTE = "eventTypes";
 
     private static final Set<String> IGNORED_PARAMS = Collections.singleton("_csrf");
 
@@ -58,7 +62,8 @@ public class EventController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_EVENTS);
         if (userSecurityService.isAuthorizedAdmin(request)) {
             Paged<EventDto> events = eventService.findEvents(eventFilter, page, size);
-            modelAndView.addObject(USERS_ATTRIBUTE, events);
+            modelAndView.addObject(EVENTS_ATTRIBUTE, events);
+            modelAndView.addObject(EVENTS_TYPES_ATTRIBUTE, Arrays.asList(EventType.values()));
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
