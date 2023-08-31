@@ -92,8 +92,9 @@ public class EventService {
             expressions.add(event.eventType.eq(eventFilter.getEventType()));
         }
 
-        if (eventFilter.getEventTimestamp() != null) {
-            expressions.add(event.eventTimestamp.eq(eventFilter.getEventTimestamp()));
+        if (eventFilter.getStartEventTimestamp() != null) {
+            expressions.add(event.eventTimestamp
+                    .between(eventFilter.getStartEventTimestamp(), eventFilter.getEndEventTimestamp()));
         }
 
         for(BooleanExpression expr : expressions) {

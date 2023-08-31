@@ -11,15 +11,15 @@ public class EventFilter {
     private Long eventId;
     private Long userId;
     private EventType eventType;
-    private Date eventTimestamp;
-    private String eventMessage;
+    private Date startEventTimestamp;
+    private Date endEventTimestamp;
 
-    public EventFilter(Long eventId, Long userId, EventType eventType, Date eventTimestamp, String eventMessage) {
+    public EventFilter(Long eventId, Long userId, EventType eventType, Date startEventTimestamp, Date endEventTimestamp) {
         this.eventId = eventId;
         this.userId = userId;
         this.eventType = eventType;
-        this.eventTimestamp = eventTimestamp;
-        this.eventMessage = eventMessage;
+        this.startEventTimestamp = startEventTimestamp;
+        this.endEventTimestamp = endEventTimestamp;
     }
 
     public static EventFilter emptyEventFilter() {
@@ -27,7 +27,8 @@ public class EventFilter {
     }
 
     public boolean isEmpty() {
-        return eventId == null && userId == null && eventType == null && eventTimestamp == null && eventMessage == null;
+        return eventId == null && userId == null && eventType == null &&
+                startEventTimestamp == null && endEventTimestamp == null;
     }
 
     public Long getEventId() {
@@ -42,12 +43,12 @@ public class EventFilter {
         return eventType;
     }
 
-    public Date getEventTimestamp() {
-        return eventTimestamp;
+    public Date getStartEventTimestamp() {
+        return startEventTimestamp;
     }
 
-    public String getEventMessage() {
-        return eventMessage;
+    public Date getEndEventTimestamp() {
+        return endEventTimestamp;
     }
 
     public void setEventId(Long eventId) {
@@ -62,12 +63,12 @@ public class EventFilter {
         this.eventType = eventType;
     }
 
-    public void setEventTimestamp(Date eventTimestamp) {
-        this.eventTimestamp = eventTimestamp;
+    public void setStartEventTimestamp(Date startEventTimestamp) {
+        this.startEventTimestamp = startEventTimestamp;
     }
 
-    public void setEventMessage(String eventMessage) {
-        this.eventMessage = eventMessage;
+    public void setEndEventTimestamp(Date endEventTimestamp) {
+        this.endEventTimestamp = endEventTimestamp;
     }
 
     @Override
@@ -76,8 +77,8 @@ public class EventFilter {
                 "eventId=" + eventId +
                 ", userId=" + userId +
                 ", eventType=" + eventType +
-                ", eventTimestamp=" + eventTimestamp +
-                ", eventMessage='" + eventMessage + '\'' +
+                ", startEventTimestamp=" + startEventTimestamp +
+                ", endEventTimestamp=" + endEventTimestamp +
                 '}';
     }
 }
