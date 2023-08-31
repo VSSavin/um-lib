@@ -2,6 +2,7 @@ package com.github.vssavin.umlib.domain.event;
 
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,5 +14,6 @@ import java.util.List;
 @Repository
 public interface EventRepository extends PagingAndSortingRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
     @Transactional
+    @NonNull
     List<Event> findAll();
 }
