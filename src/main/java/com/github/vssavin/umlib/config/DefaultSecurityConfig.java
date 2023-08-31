@@ -81,11 +81,6 @@ public class DefaultSecurityConfig {
 
         List<AuthorizedUrlPermission> urlPermissions = umConfig.getAuthorizedUrlPermissions();
 
-        urlPermissions.add(new AuthorizedUrlPermission("/oauth/**", Permission.ANY_USER.getRoles()));
-        urlPermissions.add(new AuthorizedUrlPermission("/login/oauth2/code/google", Permission.ANY_USER.getRoles()));
-
-        umConfig.updateAuthorizedPermissions();
-
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
                 registerUrls(http, urlPermissions);
 

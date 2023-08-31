@@ -4,16 +4,17 @@ import com.github.vssavin.jcrypt.DefaultStringSafety;
 import com.github.vssavin.jcrypt.StringSafety;
 import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import com.github.vssavin.umlib.domain.security.SecureService;
-import com.github.vssavin.umlib.domain.user.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -61,10 +62,9 @@ public class UmConfig extends StorableConfig {
 
     private final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
-    private boolean permissionsUpdated = false;
-
     private final StringSafety stringSafety = new DefaultStringSafety();
 
+    @Autowired
     public UmConfig(ApplicationContext context, SecureService secureService, UmConfigurer umConfigurer,
                     @Qualifier("applicationSecureService") OSPlatformCrypt applicationSecureService) {
         super.setConfigFile(CONFIG_FILE);
@@ -91,6 +91,14 @@ public class UmConfig extends StorableConfig {
         initSecureService("");
         processArgs(applicationArgs);
         log.debug("Using auth service: {}", authService);
+    }
+
+    @PostConstruct
+    private void updateAuthorizedPermissions() {
+        if (!registrationAllowed) {
+            updatePermission(REGISTRATION_URL, Permission.ADMIN_ONLY);
+            updatePermission(PERFORM_REGISTER_URL, Permission.ADMIN_ONLY);
+        }
     }
 
     public SecureService getAuthService() {
@@ -133,32 +141,21 @@ public class UmConfig extends StorableConfig {
         return umConfigurer.getPasswordDoesntMatchPatternMessage();
     }
 
-    public void updateAuthorizedPermissions() {
-        if (!permissionsUpdated && !registrationAllowed) {
-            int registrationIndex = -1;
-            int performRegisterIndex = -1;
-
-            for (int i = 0; i < authorizedUrlPermissions.size(); i++) {
-                AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
-                if (authorizedUrlPermission.getUrl().equals(REGISTRATION_URL)) {
-                    registrationIndex = i;
-                } else if (authorizedUrlPermission.getUrl().equals(PERFORM_REGISTER_URL)) {
-                    performRegisterIndex = i;
-                }
-            }
-
-            if (registrationIndex != -1) {
-                authorizedUrlPermissions.set(registrationIndex,
-                        new AuthorizedUrlPermission(REGISTRATION_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
-            }
-
-            if (performRegisterIndex != -1) {
-                authorizedUrlPermissions.set(performRegisterIndex,
-                        new AuthorizedUrlPermission(PERFORM_REGISTER_URL, new String[]{Role.getStringRole(Role.ROLE_ADMIN)}));
-            }
-
-            permissionsUpdated = true;
+    private void updatePermission(String url, Permission permission) {
+        int index = getPermissionIndex(url);
+        if (index!= -1) {
+            authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, permission));
         }
+    }
+
+    private int getPermissionIndex(String url) {
+        for (int i = 0; i < authorizedUrlPermissions.size(); i++) {
+            AuthorizedUrlPermission authorizedUrlPermission = authorizedUrlPermissions.get(i);
+            if (authorizedUrlPermission.getUrl().equals(url)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private String[] getAppArgsFromContext(ApplicationContext context) {
@@ -238,21 +235,25 @@ public class UmConfig extends StorableConfig {
     }
 
     private void initDefaultPermissions() {
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", Permission.ANY_USER.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", Permission.ANY_USER.getRoles()));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(
-                new AuthorizedUrlPermission("/um/users/passwordRecovery", Permission.ANY_USER.getRoles()));
+                new AuthorizedUrlPermission("/um/users/passwordRecovery", Permission.ANY_USER));
         authorizedUrlPermissions.add(
-                new AuthorizedUrlPermission("/um/users/perform-password-recovery", Permission.ANY_USER.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, Permission.ANY_USER.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, Permission.ANY_USER.getRoles()));
+                new AuthorizedUrlPermission("/um/users/perform-password-recovery", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, Permission.ANY_USER));
         authorizedUrlPermissions.add(
-                new AuthorizedUrlPermission("/um/users/confirmUser", Permission.ANY_USER.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN.getRoles()));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN.getRoles()));
+                new AuthorizedUrlPermission("/um/users/confirmUser", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/oauth/**", Permission.ANY_USER));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission("/login/oauth2/code/google", Permission.ANY_USER));
     }
 
     private static Map<String, String> getMappedArgs(String[] args) {
