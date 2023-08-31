@@ -69,6 +69,7 @@ public class EventController extends UmControllerBase {
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
             addObjectsToModelAndView(modelAndView, pageLoginParams, secureService.getEncryptMethodName(), lang);
             response.setStatus(403);
+            return modelAndView;
         }
 
         addObjectsToModelAndView(modelAndView, pageEventsParams, secureService.getEncryptMethodName(), lang);
