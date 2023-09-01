@@ -60,6 +60,12 @@ public class UmConfig extends StorableConfig {
     @Value("${um.login.title:}")
     private String loginTitle;
 
+    @Value("${um.auth.maxFailureCount:3}")
+    private int maxAuthFailureCount;
+
+    @Value("${um.auth.failureBlockTimeMinutes:60}")
+    private int authFailureBlockTime;
+
     private final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
     private final StringSafety stringSafety = new DefaultStringSafety();
@@ -119,6 +125,14 @@ public class UmConfig extends StorableConfig {
 
     public String getApplicationUrl() {
         return applicationUrl;
+    }
+
+    public int getMaxAuthFailureCount() {
+        return maxAuthFailureCount;
+    }
+
+    public int getAuthFailureBlockTime() {
+        return authFailureBlockTime;
     }
 
     public void setApplicationUrl(String applicationUrl) {

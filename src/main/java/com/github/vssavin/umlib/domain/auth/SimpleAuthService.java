@@ -51,20 +51,22 @@ public class SimpleAuthService implements AuthService {
     private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
     private static final ConcurrentHashMap<String, Long> banExpirationTime = new ConcurrentHashMap<>(50);
 
-    private static final int MAX_FAILURE_COUNTS = 3;
-    private static final int BLOCKING_TIME_MINUTES = 60;
-
     private final UserService userService;
     private final EventService eventService;
     private final SecureService secureService;
     private final PasswordEncoder passwordEncoder;
+    private final int maxFailureCount;
+    private final int blockTimeMinutes;
 
     @Autowired
-    public SimpleAuthService(UserService userService, EventService eventService, UmConfig umConfig, PasswordEncoder passwordEncoder) {
+    public SimpleAuthService(UserService userService, EventService eventService,
+                             UmConfig umConfig, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.eventService = eventService;
         this.secureService = umConfig.getSecureService();
         this.passwordEncoder = passwordEncoder;
+        this.maxFailureCount = umConfig.getMaxAuthFailureCount();
+        this.blockTimeMinutes = umConfig.getAuthFailureBlockTime();
     }
 
     @Override
@@ -130,7 +132,7 @@ public class SimpleAuthService implements AuthService {
     @Override
     public boolean isAuthenticationAllowed(String ipAddress) {
         int failureCounts = getFailureCount(ipAddress);
-        if (failureCounts >= MAX_FAILURE_COUNTS) {
+        if (failureCounts >= maxFailureCount) {
             long expireTime = getBanExpirationTime(ipAddress);
             if (expireTime > 0 && System.currentTimeMillis() < expireTime) {
                 return false;
@@ -145,7 +147,7 @@ public class SimpleAuthService implements AuthService {
         String userIp = request.getRemoteAddr();
         int failureCount = getFailureCount(userIp);
 
-        if (failureCount >= MAX_FAILURE_COUNTS) {
+        if (failureCount >= maxFailureCount) {
             long expirationTime = getBanExpirationTime(userIp);
             if (expirationTime == 0) {
                 blockIp(userIp);
@@ -199,7 +201,7 @@ public class SimpleAuthService implements AuthService {
 
     private void blockIp(String ip) {
         banExpirationTime.put(ip,
-                Calendar.getInstance().getTimeInMillis() + (BLOCKING_TIME_MINUTES * 60 * 1000));
+                Calendar.getInstance().getTimeInMillis() + (blockTimeMinutes * 60 * 1000));
     }
 
     private void checkUserDetails(UserDetails userDetails) {
