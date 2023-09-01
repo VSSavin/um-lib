@@ -45,6 +45,7 @@ class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler
             authService.processFailureAuthentication(request, response, exception);
         } catch (AuthenticationForbiddenException e) {
             response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
+            return;
         }
 
         response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
