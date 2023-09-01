@@ -156,6 +156,8 @@ public class SimpleAuthService implements AuthService {
             } else if (expirationTime < System.currentTimeMillis()) {
                 resetFailureCount(userIp);
                 incrementFailureCount(userIp);
+            } else {
+                throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
             }
         } else {
             incrementFailureCount(userIp);
@@ -201,7 +203,7 @@ public class SimpleAuthService implements AuthService {
 
     private void blockIp(String ip) {
         banExpirationTime.put(ip,
-                Calendar.getInstance().getTimeInMillis() + (blockTimeMinutes * 60 * 1000));
+                Calendar.getInstance().getTimeInMillis() + ((long) blockTimeMinutes * 60 * 1000));
     }
 
     private void checkUserDetails(UserDetails userDetails) {
