@@ -10,24 +10,26 @@ import java.util.Date;
 public class EventFilter {
     private Long eventId;
     private Long userId;
+    private String userLogin;
     private EventType eventType;
     private Date startEventTimestamp;
     private Date endEventTimestamp;
 
-    public EventFilter(Long eventId, Long userId, EventType eventType, Date startEventTimestamp, Date endEventTimestamp) {
+    public EventFilter(Long eventId, Long userId, String userLogin, EventType eventType, Date startEventTimestamp, Date endEventTimestamp) {
         this.eventId = eventId;
         this.userId = userId;
+        this.userLogin = userLogin;
         this.eventType = eventType;
         this.startEventTimestamp = startEventTimestamp;
         this.endEventTimestamp = endEventTimestamp;
     }
 
     public static EventFilter emptyEventFilter() {
-        return new EventFilter(null, null, null, null, null);
+        return new EventFilter(null, null, null, null, null, null);
     }
 
     public boolean isEmpty() {
-        return eventId == null && userId == null && eventType == null &&
+        return eventId == null && userId == null && userLogin == null && eventType == null &&
                 startEventTimestamp == null && endEventTimestamp == null;
     }
 
@@ -37,6 +39,10 @@ public class EventFilter {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
     }
 
     public EventType getEventType() {
@@ -59,6 +65,10 @@ public class EventFilter {
         this.userId = userId;
     }
 
+    public void setUserLogin(String userLogin) {
+        this.userLogin = userLogin;
+    }
+
     public void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
@@ -76,6 +86,7 @@ public class EventFilter {
         return "EventFilter{" +
                 "eventId=" + eventId +
                 ", userId=" + userId +
+                ", userLogin='" + userLogin + '\'' +
                 ", eventType=" + eventType +
                 ", startEventTimestamp=" + startEventTimestamp +
                 ", endEventTimestamp=" + endEventTimestamp +

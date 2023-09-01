@@ -49,7 +49,7 @@
     </select>
 </div>
 
-<div class="container">
+<div class="container form-signin">
     <form name="f" class="form-signin" method="get">
         <input type="text" id="lang" name="lang" th:value="${urlLang}" hidden>
         <h2 class="form-signin-heading" align="center" th:text="${searchTitle}">Поиск</h2>
@@ -62,6 +62,11 @@
             <label for="userId" class="sr-only" th:text="${userIdTitle}">User id</label>
             <input type="text" id="userId" name="userId" class="form-control" th:placeholder="${userIdTitle}"
                    th:value="${userId}?${userId}:''">
+        </p>
+        <p>
+            <label for="userLogin" class="sr-only" th:text="${userLoginTitle}">User login</label>
+            <input type="text" id="userLogin" name="userLogin" class="form-control" th:placeholder="${userLoginTitle}"
+                   th:value="${userLogin}?${userLogin}:''">
         </p>
         <p>
             <label for="eventType" class="sr-only" th:text="${eventTypeTitle}">Event type</label>
@@ -82,12 +87,9 @@
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${searchEvent}">Поиск</button>
     </form>
-</div>
 
-
-<div class="container form-signin">
     <div class="row">
-        <div class="col-lg-10 mt-5 mb-5" style="width:auto">
+        <div class="col-lg-10 mt-5 mb-5" style="width:100%">
             <table id="eventsTable" class="table table-bordered table-responsive-sm">
                 <thead>
                 <tr>
@@ -135,6 +137,12 @@
 
         </div>
     </div>
+
 </div>
+
+
+<!--<div class="container form-signin">-->
+<!--    -->
+<!--</div>-->
 </body>
 </html>

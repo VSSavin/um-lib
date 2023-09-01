@@ -88,6 +88,10 @@ public class EventService {
             expressions.add(event.userId.eq(eventFilter.getUserId()));
         }
 
+        if (eventFilter.getUserLogin() != null) {
+            expressions.add(event.user.login.eq(eventFilter.getUserLogin()));
+        }
+
         if (eventFilter.getEventType() != null) {
             expressions.add(event.eventType.eq(eventFilter.getEventType()));
         }
