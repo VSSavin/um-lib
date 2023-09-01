@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
+ * Main repository of event management.
+ *
  * @author vssavin on 24.08.2023
  */
 @Repository

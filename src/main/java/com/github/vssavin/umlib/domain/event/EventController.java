@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
+ * Provides event management for administrators.
+ *
  * @author vssavin on 24.08.2023
  */
 @RestController

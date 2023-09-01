@@ -8,6 +8,8 @@ import java.time.ZoneId;
 import java.util.Date;
 
 /**
+ * Provides converting a string representation of a date into a Date object.
+ *
  * @author vssavin on 01.09.2023
  */
 @Component

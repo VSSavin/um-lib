@@ -5,6 +5,8 @@ import com.github.vssavin.umlib.domain.user.UserDto;
 import java.util.Date;
 
 /**
+ * Base user event data transfer object.
+ *
  * @author vssavin on 29.08.2023
  */
 public class EventDto {

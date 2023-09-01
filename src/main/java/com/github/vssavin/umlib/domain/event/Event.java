@@ -6,6 +6,8 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
+ * Base event entity.
+ *
  * @author vssavin on 24.08.2023
  */
 @Entity
