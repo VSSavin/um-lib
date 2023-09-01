@@ -42,8 +42,7 @@ public class EventService {
     public EventDto createEvent(User user, EventType eventType, String eventMessage) {
         Event event = new Event(user.getId(), eventType, new Timestamp(System.currentTimeMillis()), eventMessage, user);
         user.getEvents().add(event);
-        int size = user.getEvents().size();
-        return eventMapper.toDto(user.getEvents().get(size - 1));
+        return eventMapper.toDto(event);
     }
 
     @Transactional
