@@ -40,10 +40,13 @@ public abstract class AbstractTest {
         DOMConfigurator.configure("./log4j.xml");
     }
 
+    protected final User testAdminUser = new User("admin", "admin", "admin",
+            "admin@example.com", "ADMIN");
+
     protected MockMvc mockMvc;
     protected SecureService secureService;
     protected UserDatabaseInitService userDatabaseInitService;
-    private WebApplicationContext context;
+    protected WebApplicationContext context;
 
     @Autowired
     public void setContext(WebApplicationContext context) {
