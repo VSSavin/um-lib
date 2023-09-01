@@ -72,12 +72,12 @@
         </p>
         <p>
             <label for="startEventTimestamp" class="sr-only" th:text="${startEventTimestampTitle}">Start timestamp</label>
-            <input type="text" id="startEventTimestamp" name="startEventTimestamp" class="form-control" th:placeholder="${startEventTimestampTitle}"
+            <input type="datetime-local" id="startEventTimestamp" name="startEventTimestamp" class="form-control" th:placeholder="${startEventTimestampTitle}"
                    th:value="${startEventTimestamp}?${startEventTimestamp}:''">
         </p>
         <p>
             <label for="endEventTimestamp" class="sr-only" th:text="${endEventTimestampTitle}">End timestamp</label>
-            <input type="text" id="endEventTimestamp" name="endEventTimestamp" class="form-control" th:placeholder="${endEventTimestampTitle}"
+            <input type="datetime-local" id="endEventTimestamp" name="endEventTimestamp" class="form-control" th:placeholder="${endEventTimestampTitle}"
                    th:value="${endEventTimestamp}?${endEventTimestamp}:''">
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${searchEvent}">Поиск</button>
