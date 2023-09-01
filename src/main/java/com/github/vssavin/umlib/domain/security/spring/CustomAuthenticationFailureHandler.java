@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Security filter to add the user's IP address
- * to the black list if logging failed a few times.
+ * An {@link org.springframework.security.web.authentication.AuthenticationFailureHandler} implementation
+ * that handles failed authentication using corresponding authentication service.
  *
  * @author vssavin on 18.12.2021
  */
