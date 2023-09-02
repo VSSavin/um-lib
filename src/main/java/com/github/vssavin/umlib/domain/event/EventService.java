@@ -10,6 +10,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,6 +67,9 @@ public class EventService {
         } else {
             Predicate predicate = eventFilterToPredicate(eventFilter);
             function = (repository -> {
+                if (predicate == null) {
+                    return new PageImpl<>(Collections.emptyList());
+                }
                 Page<Event> list = eventRepository.findAll(predicate, pageable);
                 return list.map(eventMapper::toDto);
             });
@@ -87,7 +92,7 @@ public class EventService {
             expressions.add(event.userId.eq(eventFilter.getUserId()));
         }
 
-        if (eventFilter.getUserLogin() != null) {
+        if (eventFilter.getUserLogin() != null && !eventFilter.getUserLogin().isEmpty()) {
             expressions.add(event.user.login.eq(eventFilter.getUserLogin()));
         }
 
