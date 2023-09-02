@@ -1,14 +1,11 @@
 package com.github.vssavin.umlib.domain.user;
 
 import com.github.vssavin.umlib.data.pagination.Paged;
-import com.github.vssavin.umlib.domain.event.EventType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -33,6 +30,5 @@ public interface UserService extends UserDetailsService {
     User getUserByRecoveryId(String recoveryId);
     boolean accessGrantedForRegistration(Role role, String authorizedName);
     User processOAuthPostLogin(OAuth2User oAuth2User);
-    User processSuccessAuthentication(Authentication authentication, HttpServletRequest request, EventType eventType);
     User getUserByOAuth2Token(OAuth2AuthenticationToken token);
 }

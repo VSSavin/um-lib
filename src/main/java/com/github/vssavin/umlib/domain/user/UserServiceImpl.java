@@ -1,9 +1,6 @@
 package com.github.vssavin.umlib.domain.user;
 
 import com.github.vssavin.umlib.base.repository.*;
-import com.github.vssavin.umlib.domain.event.EventDto;
-import com.github.vssavin.umlib.domain.event.EventService;
-import com.github.vssavin.umlib.domain.event.EventType;
 import com.querydsl.core.types.Predicate;
 import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.domain.email.EmailNotFoundException;
@@ -16,18 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -44,14 +37,12 @@ import java.util.stream.IntStream;
 public class UserServiceImpl implements UserService {
     private static final Map<String, UserRecoveryParams> passwordRecoveryIds = new ConcurrentHashMap<>();
 
-    private final EventService eventService;
     private final PasswordEncoder passwordEncoder;
     private final UmRepositorySupport<UserRepository, User> repositorySupport;
 
     @Autowired
-    public UserServiceImpl(EventService eventService, UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
                            DataSourceSwitcher dataSourceSwitcher) {
-        this.eventService = eventService;
         this.passwordEncoder = passwordEncoder;
         this.repositorySupport = new UmRepositorySupport<>(userRepository, dataSourceSwitcher);
     }
@@ -295,38 +286,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public User processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
-                                             EventType eventType) {
-        User user = null;
-        try {
-            OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-            user = processOAuthPostLogin(oAuth2User);
-        } catch (ClassCastException e) {
-            //ignore, it's ok
-        }
-
-        if (user == null) {
-            user = getUserByLogin(authentication.getPrincipal().toString());
-        }
-
-        if (user == null) {
-            throw new UserNotFoundException(
-                    String.format("User [%s] not found!", authentication.getPrincipal().toString()));
-        }
-
-        if (user.getExpirationDate().before(new Date())) {
-            deleteUser(user);
-            throw new UserExpiredException(String.format("User [%s] has been expired!", user.getLogin()));
-        }
-
-
-        saveUserEvent(user, request, eventType);
-        return user;
-    }
-
-
-    @Override
     public User getUserByOAuth2Token(OAuth2AuthenticationToken token) {
         OAuth2User oAuth2User = token.getPrincipal();
         String email = oAuth2User.getAttribute("email");
@@ -335,20 +294,6 @@ public class UserServiceImpl implements UserService {
         } catch (EmailNotFoundException e) {
             return null;
         }
-    }
-
-    private EventDto saveUserEvent(User user, HttpServletRequest request,
-                                   EventType eventType) {
-        String message = "";
-        switch (eventType) {
-            case LOGGED_IN:
-                message = String.format("User [%s] logged in using IP: %s", user.getLogin(), request.getRemoteAddr());
-                break;
-            case LOGGED_OUT:
-                message = String.format("User [%s] logged out using IP: %s", user.getLogin(), request.getRemoteAddr());
-                break;
-        }
-        return eventService.createEvent(user, eventType, message);
     }
 
     private static String generateRandomPassword(int length) {
