@@ -42,6 +42,8 @@ public abstract class AbstractTest {
 
     protected final User testAdminUser = new User("admin", "admin", "admin",
             "admin@example.com", "ADMIN");
+    protected final User testUser = new User("user", "user", "user",
+            "user@example.com", "USER");
 
     protected MockMvc mockMvc;
     protected SecureService secureService;

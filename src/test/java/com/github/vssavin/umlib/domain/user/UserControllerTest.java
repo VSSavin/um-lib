@@ -31,9 +31,6 @@ public class UserControllerTest extends AbstractTest {
     private LocaleConfig.LocaleSpringMessageSource registrationMessageSource;
     private LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource;
 
-    private final User testUser = new User("user", "user", "user",
-            "user@example.com", "USER");
-
     private MockedEmailService mockedEmailService;
 
     @Autowired
