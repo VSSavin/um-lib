@@ -20,6 +20,7 @@
         <spring.jdbc.version>5.3.16</spring.jdbc.version>
         <spring.security.version>5.8.0</spring.security.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
+        <aspectjweaver.version>1.9.7</aspectjweaver.version>
     </properties>
 
     <distributionManagement>
@@ -180,6 +181,32 @@
         </dependency>
 
         <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-sql</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectjweaver.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
@@ -246,18 +273,6 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.36</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-apt</artifactId>
-            <version>4.4.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-sql</artifactId>
-            <version>4.4.0</version>
         </dependency>
 
         <dependency>
