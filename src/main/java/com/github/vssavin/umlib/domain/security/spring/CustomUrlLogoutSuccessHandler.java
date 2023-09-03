@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
-import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.domain.auth.AuthService;
 import com.github.vssavin.umlib.domain.event.EventType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +30,11 @@ import java.util.Map;
 class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
         implements LogoutSuccessHandler {
 
-    private final DataSourceSwitcher dataSourceSwitcher;
     private final AuthService authService;
     private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
 
     @Autowired
-    CustomUrlLogoutSuccessHandler(DataSourceSwitcher dataSourceSwitcher, AuthService authService) {
-        this.dataSourceSwitcher = dataSourceSwitcher;
+    CustomUrlLogoutSuccessHandler(AuthService authService) {
         this.authService = authService;
         super.setRedirectStrategy(customRedirectStrategy);
     }
@@ -45,9 +42,7 @@ class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlReque
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
-        dataSourceSwitcher.switchToUmDataSource();
         authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_OUT);
-        dataSourceSwitcher.switchToPreviousDataSource();
         customRedirectStrategy.setParameterMap(request.getParameterMap());
         super.handle(request, response, authentication);
     }

@@ -1,6 +1,7 @@
 package com.github.vssavin.umlib.domain.auth;
 
 import com.github.vssavin.umlib.config.UmConfig;
+import com.github.vssavin.umlib.config.aspect.UmRouteDatasource;
 import com.github.vssavin.umlib.domain.event.EventService;
 import com.github.vssavin.umlib.domain.event.EventType;
 import com.github.vssavin.umlib.domain.security.SecureService;
@@ -100,6 +101,7 @@ public class SimpleAuthService implements AuthService {
 
     @Override
     @Transactional
+    @UmRouteDatasource
     public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication,
                                                                      HttpServletRequest request, EventType eventType) {
         User user = null;

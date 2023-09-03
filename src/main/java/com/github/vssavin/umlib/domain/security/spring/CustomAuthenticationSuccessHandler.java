@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.domain.security.spring;
 
-import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.domain.auth.AuthService;
 import com.github.vssavin.umlib.domain.event.EventType;
@@ -27,13 +26,10 @@ import java.util.Collections;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthService authService;
-    private final DataSourceSwitcher dataSourceSwitcher;
     private final UmConfig umConfig;
 
-    public CustomAuthenticationSuccessHandler(AuthService authService, DataSourceSwitcher dataSourceSwitcher,
-                                              UmConfig umConfig) {
+    public CustomAuthenticationSuccessHandler(AuthService authService, UmConfig umConfig) {
         this.authService = authService;
-        this.dataSourceSwitcher = dataSourceSwitcher;
         this.umConfig = umConfig;
     }
 
@@ -44,9 +40,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Collection<GrantedAuthority> authorities = Collections.emptyList();
         try {
-            dataSourceSwitcher.switchToUmDataSource();
             authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
-            dataSourceSwitcher.switchToPreviousDataSource();
         } catch (UserExpiredException e) {
             successUrl = UmConfig.LOGIN_URL + "?error=true";
         }

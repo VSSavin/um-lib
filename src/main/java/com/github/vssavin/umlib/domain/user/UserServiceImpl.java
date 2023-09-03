@@ -1,8 +1,8 @@
 package com.github.vssavin.umlib.domain.user;
 
 import com.github.vssavin.umlib.base.repository.*;
+import com.github.vssavin.umlib.config.aspect.UmRouteDatasource;
 import com.querydsl.core.types.Predicate;
-import com.github.vssavin.umlib.config.DataSourceSwitcher;
 import com.github.vssavin.umlib.domain.email.EmailNotFoundException;
 import com.github.vssavin.umlib.data.pagination.Paged;
 import com.github.vssavin.umlib.data.pagination.Paging;
@@ -41,23 +41,23 @@ public class UserServiceImpl implements UserService {
     private final UmRepositorySupport<UserRepository, User> repositorySupport;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                           DataSourceSwitcher dataSourceSwitcher) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
-        this.repositorySupport = new UmRepositorySupport<>(userRepository, dataSourceSwitcher);
+        this.repositorySupport = new UmRepositorySupport<>(userRepository, UserServiceException.class);
     }
 
+    @UmRouteDatasource
     @Override
     public Paged<User> getUsers(UserFilter userFilter, int pageNumber, int size) {
-        String message = "Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!";
-        Object[] params = {pageNumber, size, userFilter};
+        String message = String.format("Error while search user with params: pageNumber = %d, size = %d, filter: [%s]!",
+                pageNumber, size, userFilter);
         Page<User> users;
         PagedRepositoryFunction<UserRepository, User> function;
         Pageable pageable;
         try {
             pageable = PageRequest.of(pageNumber - 1, size);
         } catch (Exception e) {
-            throw new UserServiceException(String.format(message, params), e);
+            throw new UserServiceException(message, e);
         }
 
         if (userFilter == null || userFilter.isEmpty()) {
@@ -67,17 +67,17 @@ public class UserServiceImpl implements UserService {
             function = repository -> repository.findAll(predicate, pageable);
         }
 
-        users = repositorySupport.execute(function, message, params);
+        users = repositorySupport.execute(function, message);
 
         return new Paged<>(users, Paging.of(users.getTotalPages(), pageNumber, size));
     }
 
+    @UmRouteDatasource
     @Override
     public User getUserById(Long id) {
-        String message = "Getting a user by id = %d error!";
-        Object[] params = {id};
+        String message = String.format("Getting a user by id = %d error!", id);
         RepositoryOptionalFunction<UserRepository, User> function = repository -> repository.findById(id);
-        Optional<User> user = repositorySupport.execute(function, message, params);
+        Optional<User> user = repositorySupport.execute(function, message);
 
         if (!user.isPresent()) {
             throw new UserNotFoundException(String.format("User with id = %d not found!", id));
@@ -86,40 +86,40 @@ public class UserServiceImpl implements UserService {
         return user.get();
     }
 
+    @UmRouteDatasource
     @Override
     public User addUser(User user) {
-        String message = "Adding error for user [%s]!";
-        Object[] params = {user};
+        String message = String.format("Adding error for user [%s]!", user);
         RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
-        return repositorySupport.execute(function, message, params);
+        return repositorySupport.execute(function, message);
     }
 
+    @UmRouteDatasource
     @Override
     public User updateUser(User user) {
-        String message = "Update error for user [%s]";
-        Object[] params = {user};
+        String message = String.format("Update error for user [%s]", user);
         RepositoryFunction<UserRepository, User> function = repository -> repository.save(user);
-        return repositorySupport.execute(function, message, params);
+        return repositorySupport.execute(function, message);
     }
 
+    @UmRouteDatasource
     @Override
     public User getUserByName(String name) {
-        String message = "Error while getting user by name [%s]";
-        Object[] params = {name};
+        String message = String.format("Error while getting user by name [%s]", name);
         RepositoryListFunction<UserRepository, User> function = repo -> repo.findUserByName(name);
-        List<User> users = repositorySupport.execute(function, message, params);
+        List<User> users = repositorySupport.execute(function, message);
         if (!users.isEmpty()) {
             return users.get(0);
         }
         throw new UsernameNotFoundException(String.format("User: %s not found!", name));
     }
 
+    @UmRouteDatasource
     @Override
     public User getUserByLogin(String login) {
-        String message = "Error while getting user by login [%s]";
-        Object[] params = {login};
+        String message = String.format("Error while getting user by login [%s]", login);
         RepositoryListFunction<UserRepository, User> function = repo -> repo.findByLogin(login);
-        List<User> users = repositorySupport.execute(function, message, params);
+        List<User> users = repositorySupport.execute(function, message);
         if (!users.isEmpty()) {
             return users.get(0);
         }
@@ -127,27 +127,28 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @UmRouteDatasource
     @Override
     public User getUserByEmail(String email) {
-        String message = "Error while getting user by email [%s]";
-        Object[] params = {email};
+        String message = String.format("Error while getting user by email [%s]", email);
         RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(email);
-        List<User> users = repositorySupport.execute(function, message, params);
+        List<User> users = repositorySupport.execute(function, message);
         if (!users.isEmpty()) {
             return users.get(0);
         }
         throw new EmailNotFoundException(String.format("Email: %s not found!", email));
     }
 
+    @UmRouteDatasource
     @Override
     public void deleteUser(User user) {
         Objects.requireNonNull(user, "User must not be null!");
-        String message = "Error while deleting user [%s]";
-        Object[] params = {user};
+        String message = String.format("Error while deleting user [%s]", user);
         RepositoryConsumer<UserRepository> function = repo -> repo.deleteByLogin(user.getLogin());
-        repositorySupport.execute(function, message, params);
+        repositorySupport.execute(function, message);
     }
 
+    @UmRouteDatasource
     @Override
     public User registerUser(String login, String username, String password, String email, Role role) {
         User user = null;
@@ -169,6 +170,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @UmRouteDatasource
     @Override
     public void confirmUser(String login, String verificationId, boolean isAdminUser) {
         User user = null;
@@ -214,17 +216,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @UmRouteDatasource
     @Override
     public Map<String, User> getUserRecoveryId(String loginOrEmail) {
         List<User> users;
-        String message = "Error while getting recovery id, login/email = [%s]";
-        Object[] params = {loginOrEmail};
+        String message = String.format("Error while getting recovery id, login/email = [%s]", loginOrEmail);
         RepositoryListFunction<UserRepository, User> function = repo -> repo.findByEmail(loginOrEmail);
-        users = repositorySupport.execute(function, message, params);
+        users = repositorySupport.execute(function, message);
 
         if (users.isEmpty()) {
             function = repo -> repo.findByLogin(loginOrEmail);
-            users = repositorySupport.execute(function, message, params);
+            users = repositorySupport.execute(function, message);
 
             if (users.isEmpty()) {
                 throw new UserServiceException(String.format("User [%s] not found!", loginOrEmail));
@@ -267,6 +269,7 @@ public class UserServiceImpl implements UserService {
         return granted;
     }
 
+    @UmRouteDatasource
     @Override
     public User processOAuthPostLogin(OAuth2User oAuth2User) {
         User user = null;
@@ -285,6 +288,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @UmRouteDatasource
     @Override
     public User getUserByOAuth2Token(OAuth2AuthenticationToken token) {
         OAuth2User oAuth2User = token.getPrincipal();
@@ -305,6 +309,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.joining());
     }
 
+    @UmRouteDatasource
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return getUserByLogin(username);

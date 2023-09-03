@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.domain.event;
 
 import com.github.vssavin.umlib.base.repository.PagedRepositoryFunction;
 import com.github.vssavin.umlib.base.repository.UmRepositorySupport;
-import com.github.vssavin.umlib.config.DataSourceSwitcher;
+import com.github.vssavin.umlib.config.aspect.UmRouteDatasource;
 import com.github.vssavin.umlib.data.pagination.Paged;
 import com.github.vssavin.umlib.data.pagination.Paging;
 import com.github.vssavin.umlib.domain.user.User;
@@ -34,11 +34,10 @@ public class EventService {
     private final UmRepositorySupport<EventRepository, EventDto> repositorySupport;
 
     @Autowired
-    public EventService(DataSourceSwitcher dataSourceSwitcher,
-                        EventRepository eventRepository, EventMapper eventMapper) {
+    public EventService(EventRepository eventRepository, EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
-        this.repositorySupport = new UmRepositorySupport<>(eventRepository, dataSourceSwitcher);
+        this.repositorySupport = new UmRepositorySupport<>(eventRepository, EventServiceException.class);
     }
 
     public EventDto createEvent(User user, EventType eventType, String eventMessage) {
@@ -48,15 +47,17 @@ public class EventService {
     }
 
     @Transactional
+    @UmRouteDatasource
     public Paged<EventDto> findEvents(EventFilter eventFilter, int pageNumber, int pageSize) {
-        String message = "Error while search events with params: pageNumber = %d, pageSize = %d, filter: [%s]!";
-        Object[] params = {pageNumber, pageSize, eventFilter};
+        String message = String.format(
+                "Error while search events with params: pageNumber = %d, pageSize = %d, filter: [%s]!",
+                pageNumber, pageSize, eventFilter);
         PagedRepositoryFunction<EventRepository, EventDto> function;
         Pageable pageable;
         try {
             pageable = PageRequest.of(pageNumber - 1, pageSize);
         } catch (Exception e) {
-            throw new EventServiceException(String.format(message, params), e);
+            throw new EventServiceException(message, e);
         }
 
         if (eventFilter == null || eventFilter.isEmpty()) {
@@ -75,7 +76,7 @@ public class EventService {
             });
         }
 
-        Page<EventDto> events = repositorySupport.execute(function, message, params);
+        Page<EventDto> events = repositorySupport.execute(function, message);
 
         return new Paged<>(events, Paging.of(events.getTotalPages(), pageNumber, pageSize));
     }
