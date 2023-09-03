@@ -54,7 +54,7 @@ public class UserDatabaseInitService {
             Role role = Role.ROLE_USER;
             try {
                 userService.registerUser(login, name, password, email, role);
-            } catch (UserExistsException e) {
+            } catch (Exception e) {
                 log.error("Register user error: ", e);
             }
         }
