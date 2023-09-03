@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.Deque;
-import java.util.EmptyStackException;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -38,7 +38,7 @@ public class DataSourceSwitcher {
         try {
             RoutingDataSource.DATASOURCE_TYPE dsType = datasourceStack.pop();
             ((RoutingDataSource) routingDataSource).setKey(dsType);
-        } catch (EmptyStackException e) {
+        } catch (NoSuchElementException e) {
             ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
         }
     }
