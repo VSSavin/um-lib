@@ -2,10 +2,7 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.domain.security.SecureService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -24,8 +21,18 @@ public class UmConfigurer {
     private PasswordConfig passwordConfig;
     private String passwordDoesntMatchPatternMessage = "Wrong password!";
     private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
-    private Map<String, String> resourceHandlers = new HashMap<>();
+    private final Map<String, String[]> resourceHandlers = new HashMap<>();
     private boolean configured = false;
+
+    public UmConfigurer() {
+        Map<String, String[]> defaultResourceHandlers = new HashMap<>();
+        resourceHandlers.put("/js/**", new String[]{"classpath:/static/js/"});
+        resourceHandlers.put("/css/**", new String[]{"classpath:/static/css/"});
+        resourceHandlers.put("/flags/**", new String[]{"classpath:/static/flags/"});
+        resourceHandlers.put("/img/**", new String[]{"classpath:/static/img/"});
+
+        resourceHandlers(defaultResourceHandlers);
+    }
 
     public UmConfigurer loginUrl(String loginUrl) {
         checkAccess();
@@ -81,9 +88,18 @@ public class UmConfigurer {
         return this;
     }
 
-    public UmConfigurer resourceHandlers(Map<String, String> resourceHandlers) {
+    public UmConfigurer resourceHandlers(Map<String, String[]> resourceHandlers) {
         checkAccess();
-        this.resourceHandlers.putAll(resourceHandlers);
+        resourceHandlers.forEach((handler, locations) -> {
+            String[] existsLocations = this.resourceHandlers.get(handler);
+            if (existsLocations != null) {
+                String[] newLocations = Arrays.copyOf(existsLocations, existsLocations.length + locations.length);
+                System.arraycopy(locations, 0, newLocations, existsLocations.length, locations.length);
+                this.resourceHandlers.put(handler, newLocations);
+            } else {
+                this.resourceHandlers.put(handler, locations);
+            }
+        });
         return this;
     }
 
@@ -139,7 +155,7 @@ public class UmConfigurer {
         return this.passwordConfig;
     }
 
-    public Map<String, String> getResourceHandlers() {
+    public Map<String, String[]> getResourceHandlers() {
         return resourceHandlers;
     }
 

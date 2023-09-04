@@ -35,12 +35,11 @@ public class ApplicationConfig {
 
     @Bean
     public UmConfigurer umConfigurer() {
-        Map<String, String> resourceHandlers = new HashMap<>();
-        resourceHandlers.put("/js/**", "classpath:/static/js/");
-        resourceHandlers.put("/css/**", "classpath:/static/css/");
-        resourceHandlers.put("/flags/**", "classpath:/static/flags/");
-        resourceHandlers.put("/img/**", "classpath:/static/img/");
-        resourceHandlers.put("/**", "classpath:/template/um/");
+        Map<String, String[]> resourceHandlers = new HashMap<>();
+        resourceHandlers.put("/js/**", new String[]{"classpath:/static/js/"});
+        resourceHandlers.put("/css/**", new String[]{"classpath:/static/css/"});
+        resourceHandlers.put("/flags/**", new String[]{"classpath:/static/flags/"});
+        resourceHandlers.put("/img/**", new String[]{"classpath:/static/img/"});
 
         return new UmConfigurer().successUrl("/index.html")
                 .permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
