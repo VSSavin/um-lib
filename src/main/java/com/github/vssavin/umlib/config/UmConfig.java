@@ -263,12 +263,14 @@ public class UmConfig extends StorableConfig {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/events/**", Permission.ADMIN_ONLY));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGIN_URL, Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN));
 
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/oauth/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(
                 new AuthorizedUrlPermission("/login/oauth2/code/google", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/*", Permission.USER_ADMIN));
     }
 
     private static Map<String, String> getMappedArgs(String[] args) {
