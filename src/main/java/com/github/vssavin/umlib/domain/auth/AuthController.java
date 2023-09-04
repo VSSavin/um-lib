@@ -54,7 +54,7 @@ final class AuthController extends UmControllerBase {
         this.oAuth2Config = oAuth2Config;
     }
 
-    @GetMapping(value = {"/", UmConfig.LOGIN_URL, UmConfig.LOGIN_URL + ".html"})
+    @GetMapping(value = {UmConfig.LOGIN_URL, UmConfig.LOGIN_URL + ".html"})
     ModelAndView getLogin(final HttpServletRequest request, final HttpServletResponse response,
                           @RequestParam(required = false) final String lang) {
         try {
