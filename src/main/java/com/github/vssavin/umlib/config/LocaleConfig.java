@@ -9,6 +9,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,10 +136,15 @@ public class LocaleConfig {
     private List<String> getLanguageSources() {
         try {
             Resource[] resources =
-                    new PathMatchingResourcePatternResolver().getResources("classpath:language/*");
+                    new PathMatchingResourcePatternResolver().getResources("classpath:language/**");
             if (resources.length > 0) {
-                return Arrays.stream(resources).map(Resource::getFilename)
-                        .filter(filename -> !Objects.requireNonNull(filename).endsWith(".properties"))
+                return Arrays.stream(resources).map(resource -> {
+                            try {
+                                return new File((resource.getURL().toString())).getName();
+                            } catch (Exception e) {
+                                return "";
+                            }
+                        }).filter(filename -> !Objects.requireNonNull(filename).endsWith(".properties"))
                         .collect(Collectors.toList());
             }
         } catch (IOException e) {
