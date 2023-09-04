@@ -35,24 +35,10 @@
 </head>
 <body>
 <h1 align="center" th:text="${title}">Панель администрирования</h1>
-<div align="right">
-    <label class="sr-only" th:text="${language}">Язык</label>
-    <select id="langPicker" class="selectpicker" data-width="fit">
-        <!--
-        <option data-content='<span class="flag-icon flag-icon-rus"></span> Русский'>Русский</option>
-        <option data-content='<span class="flag-icon flag-icon-usa"></span> English'>English</option>
-        -->
-        <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
-                th:text="${langObject.getLanguageText(lang.key)}">Language
-        </option>
-    </select>
-</div>
-<div align="right" style="margin-top:1em">
-    <p align="right" class="pStyle" th:text="${greeting} + ${userName}"></p>
-    <p align="right" class="pStyle">
-        <a th:href="@{/logout} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${logoutTitle}">Выйти</a>
-    </p>
-</div>
+<div th:insert="~{fragments/language :: language_fragment}"></div>
+<div th:insert="~{fragments/greetingAndLogout :: greeting_logout_fragment}"></div>
+<div th:insert="~{fragments/home :: home_fragment}"></div>
+<p></p>
 <div>
     <p align="left" class="pStyle">
         <a th:href="@{/um/admin/registration} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${createUserTitle}"

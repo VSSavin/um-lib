@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="language_fragment" align="right">
+    <label class="sr-only" th:text="${language}">Язык</label>
+    <select id="langPicker" class="selectpicker" data-width="fit">
+        <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
+                th:text="${langObject.getLanguageText(lang.key)}">Language
+        </option>
+    </select>
+</div>
+</body>
+</html>

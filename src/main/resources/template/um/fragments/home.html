@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="home_fragment" align="right" style="margin-top:1em">
+    <p align="left" class="pStyle">
+        <a th:href="@{/} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${homeTitle}">Выйти</a>
+    </p>
+</div>
+</body>
+</html>

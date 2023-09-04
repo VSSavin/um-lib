@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="greeting_logout_fragment" align="right" style="margin-top:1em">
+    <p align="right" class="pStyle" th:text="${greeting} + ${userName}"></p>
+    <p align="right" class="pStyle">
+        <a th:href="@{/logout} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${logoutTitle}">Выйти</a>
+    </p>
+</div>
+</body>
+</html>
