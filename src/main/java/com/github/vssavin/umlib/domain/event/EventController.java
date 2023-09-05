@@ -66,6 +66,7 @@ public class EventController extends UmControllerBase {
             Paged<EventDto> events = eventService.findEvents(eventFilter, page, size);
             modelAndView.addObject(EVENTS_ATTRIBUTE, events);
             modelAndView.addObject(EVENTS_TYPES_ATTRIBUTE, Arrays.asList(EventType.values()));
+            modelAndView.addObject(USER_NAME_ATTRIBUTE, userSecurityService.getAuthorizedUserName(request));
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);

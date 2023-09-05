@@ -40,16 +40,10 @@
         Неправильные имя или пароль
     </div>
 
-    <div align="right">
-        <label class="sr-only" th:text="${language}">Язык</label>
-        <select id="langPicker" class="selectpicker" data-width="fit">
-            <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
-                    th:text="${langObject.getLanguageText(lang.key)}">Language
-            </option>
-        </select>
-    </div>
-
     <div class="container">
+        <div th:insert="~{fragments/language :: language_fragment}"></div>
+        <div th:insert="~{fragments/greetingAndLogout :: greeting_logout_fragment}"></div>
+
         <form name="f" class="form-signin" method="get">
             <input type="text" id="lang" name="lang" th:value="${urlLang}" hidden>
             <h2 class="form-signin-heading" align="center" th:text="${searchTitle}">Поиск</h2>

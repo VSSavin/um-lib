@@ -35,35 +35,38 @@
 </head>
 <body>
 <h1 align="center" th:text="${title}">Панель администрирования</h1>
-<div th:insert="~{fragments/language :: language_fragment}"></div>
-<div th:insert="~{fragments/greetingAndLogout :: greeting_logout_fragment}"></div>
+
+<div class="container">
+    <div th:insert="~{fragments/language :: language_fragment}"></div>
+    <div th:insert="~{fragments/greetingAndLogout :: greeting_logout_fragment}"></div>
+</div>
+
 <div th:insert="~{fragments/home :: home_fragment}"></div>
 <p></p>
-<div>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/admin/registration} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${createUserTitle}"
-           target="_blank">Создать пользователя</a>
-    </p>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/users/changePassword} + '?lang=' + ${urlLang}" class="btn-lg"
-           th:text="${changePasswordTitle}" target="_blank">Изменить пароль</a>
-    </p>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/admin/changeUserPassword} + '?lang=' + ${urlLang}" class="btn-lg"
-           th:text="${changeUserPasswordTitle}" target="_blank">Изменить пароль пользователя</a>
-    </p>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/admin/adminConfirmUser} + '?lang=' + ${urlLang}" class="btn-lg"
-           th:text="${confirmUserTitle}" target="_blank">Изменить пароль пользователя</a>
-    </p>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/admin/users} + '?lang=' + ${urlLang}" class="btn-lg"
-           th:text="${userListTitle}" target="_blank">Список пользователей</a>
-    </p>
-    <p align="left" class="pStyle">
-        <a th:href="@{/um/events} + '?lang=' + ${urlLang}" class="btn-lg"
-           th:text="${eventsTitle}" target="_blank">Журнал событий</a>
-    </p>
-</div>
+
+<p align="left" class="pStyle">
+    <a th:href="@{/um/admin/registration} + '?lang=' + ${urlLang}" class="btn-lg" th:text="${createUserTitle}"
+       target="_blank">Создать пользователя</a>
+</p>
+<p align="left" class="pStyle">
+    <a th:href="@{/um/users/changePassword} + '?lang=' + ${urlLang}" class="btn-lg"
+       th:text="${changePasswordTitle}" target="_blank">Изменить пароль</a>
+</p>
+<p align="left" class="pStyle">
+    <a th:href="@{/um/admin/changeUserPassword} + '?lang=' + ${urlLang}" class="btn-lg"
+       th:text="${changeUserPasswordTitle}" target="_blank">Изменить пароль пользователя</a>
+</p>
+<p align="left" class="pStyle">
+    <a th:href="@{/um/admin/adminConfirmUser} + '?lang=' + ${urlLang}" class="btn-lg"
+       th:text="${confirmUserTitle}" target="_blank">Изменить пароль пользователя</a>
+</p>
+<p align="left" class="pStyle">
+    <a th:href="@{/um/admin/users} + '?lang=' + ${urlLang}" class="btn-lg"
+       th:text="${userListTitle}" target="_blank">Список пользователей</a>
+</p>
+<p align="left" class="pStyle">
+    <a th:href="@{/um/events} + '?lang=' + ${urlLang}" class="btn-lg"
+       th:text="${eventsTitle}" target="_blank">Журнал событий</a>
+</p>
 
 </body>

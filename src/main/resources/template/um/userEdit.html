@@ -35,16 +35,11 @@
 </head>
 <body>
     <h1 align="center" th:text="${title}">Список пользователей</h1>
-    <div align="right">
-        <label class="sr-only" th:text="${language}">Язык</label>
-        <select id="langPicker" class="selectpicker" data-width="fit">
-            <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
-                    th:text="${langObject.getLanguageText(lang.key)}">Language
-            </option>
-        </select>
-    </div>
 
     <div class="container">
+        <div th:insert="~{fragments/language :: language_fragment}"></div>
+        <div th:insert="~{fragments/greetingAndLogout :: greeting_logout_fragment}"></div>
+
         <form name="f" class="form-signin" th:method="patch" th:action="@{../} + '?lang=' + ${urlLang}">
             <h2 class="form-signin-heading" align="center" th:text="${editTitle}">Редактирование пользователя</h2>
             <div th:if="${success}" class="alert alert-success" th:text="${successMsg}">

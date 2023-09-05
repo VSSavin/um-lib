@@ -47,15 +47,7 @@
 </head>
 <body>
 <div class="container">
-
-    <div class="container" align="right">
-        <label class="sr-only" th:text="${language}">Язык</label>
-        <select id="langPicker" class="selectpicker" data-width="fit">
-            <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
-                    th:text="${langObject.getLanguageText(lang.key)}">Language
-            </option>
-        </select>
-    </div>
+    <div th:insert="~{fragments/language :: language_fragment}"></div>
 
     <form th:if="${registrationAllowed}" name="form-register" method="get" target="_blank">
         <div class="container" align="right">

@@ -91,7 +91,7 @@ final class AdminController extends UmControllerBase {
 
     }
 
-    @GetMapping()
+    @GetMapping
     ModelAndView admin(final HttpServletResponse response, final HttpServletRequest request,
                        @RequestParam(required = false) final String lang) {
         ModelAndView modelAndView;
@@ -119,7 +119,7 @@ final class AdminController extends UmControllerBase {
             modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         } else {
             modelAndView = getErrorModelAndView(ERROR_PAGE, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
-            response.setStatus(500);
+            response.setStatus(403);
         }
 
         addObjectsToModelAndView(modelAndView, pageAdminConfirmUserParams,
@@ -251,6 +251,7 @@ final class AdminController extends UmControllerBase {
             modelAndView = getErrorModelAndView(ERROR_PAGE, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
         }
 
+        modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         addObjectsToModelAndView(modelAndView, pageChangeUserPasswordParams,
                 secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
@@ -328,6 +329,7 @@ final class AdminController extends UmControllerBase {
         if (userSecurityService.isAuthorizedAdmin(request)) {
             Paged<User> users = userService.getUsers(userFilter, page, size);
             modelAndView.addObject(USERS_ATTRIBUTE, users);
+            modelAndView.addObject(USER_NAME_ATTRIBUTE, userSecurityService.getAuthorizedUserName(request));
         } else {
             modelAndView = getErrorModelAndView(UmConfig.LOGIN_URL,
                     MessageKey.ADMIN_AUTHENTICATION_REQUIRED_MESSAGE, lang);
@@ -461,6 +463,7 @@ final class AdminController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_USERS);
         if (userSecurityService.isAuthorizedAdmin(request)) {
             try {
+                modelAndView.addObject(USER_NAME_ATTRIBUTE, userSecurityService.getAuthorizedUserName(request));
                 User user = userService.getUserById(id);
                 if (user.getLogin().isEmpty()) {
                     String errorMessage = LocaleConfig.getMessage(PAGE_USERS,

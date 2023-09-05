@@ -58,19 +58,10 @@
 
 </head>
 <body>
-<div class="container" align="right">
-    <label class="sr-only" th:text="${language}">Язык</label>
-    <select id="langPicker" class="selectpicker" data-width="fit">
-        <!--
-        <option data-content='<span class="flag-icon flag-icon-rus"></span> Русский'>Русский</option>
-        <option data-content='<span class="flag-icon flag-icon-usa"></span> English'>English</option>
-        -->
-        <option th:each="lang:${languages}" th:attr="data-content=${langObject.getLanguageSpan(lang.key)}"
-                th:text="${langObject.getLanguageText(lang.key)}">Language
-        </option>
-    </select>
-</div>
+
 <div class="container">
+    <div th:insert="~{fragments/language :: language_fragment}"></div>
+
     <form name="f" class="form-signin" method="post" th:action="@{perform-register} + '?lang=' + ${urlLang}" onSubmit="return crypt()">
         <h2 class="form-signin-heading" align="center" th:text="${title}">Регистрация</h2>
         <div class="alert alert-danger" th:if="${param.error}" role="alert">

@@ -247,6 +247,7 @@ final class UserController extends UmControllerBase {
             modelAndView = getErrorModelAndView(PAGE_CHANGE_PASSWORD, MessageKey.AUTHENTICATION_REQUIRED_MESSAGE, lang);
         }
 
+        modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         addObjectsToModelAndView(modelAndView, pageChangePasswordParams,
                 secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
@@ -433,6 +434,17 @@ final class UserController extends UmControllerBase {
                           @RequestParam(required = false) final String errorMsg,
                           @RequestParam(required = false) final String lang) {
 
+        String authorizedName;
+        try {
+            authorizedName = userSecurityService.getAuthorizedUserName(request);
+        } catch (UsernameNotFoundException e) {
+            authorizedName = "";
+        }
+
+        if (authorizedName.isEmpty()) {
+            return getForbiddenModelAndView(request);
+        }
+
         ModelAndView modelAndView = new ModelAndView(PAGE_USER_EDIT);
         User user;
         try {
@@ -456,7 +468,7 @@ final class UserController extends UmControllerBase {
         }
 
         modelAndView.addObject("user", user);
-
+        modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
         addObjectsToModelAndView(modelAndView, pageUserEditParams, secureService.getEncryptMethodName(), lang);
         addObjectsToModelAndView(modelAndView, request.getParameterMap(), IGNORED_PARAMS);
 
@@ -545,6 +557,17 @@ final class UserController extends UmControllerBase {
                                   @RequestParam(required = false) final String errorMsg,
                                   @RequestParam(required = false) final String lang) {
 
+        String authorizedName;
+        try {
+            authorizedName = userSecurityService.getAuthorizedUserName(request);
+        } catch (UsernameNotFoundException e) {
+            authorizedName = "";
+        }
+
+        if (authorizedName.isEmpty()) {
+            return getForbiddenModelAndView(request);
+        }
+
         ModelAndView modelAndView = new ModelAndView(PAGE_USER_CONTROL_PANEL);
         User user;
         try {
@@ -559,6 +582,7 @@ final class UserController extends UmControllerBase {
         }
 
         modelAndView.addObject("user", user);
+        modelAndView.addObject(USER_NAME_ATTRIBUTE, authorizedName);
 
         addObjectsToModelAndView(modelAndView, pageUserControlPanelParams,
                 secureService.getEncryptMethodName(), lang);
