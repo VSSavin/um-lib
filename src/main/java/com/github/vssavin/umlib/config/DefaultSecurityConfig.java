@@ -20,8 +20,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Provides default user management configuration for spring-security.
@@ -118,7 +117,10 @@ public class DefaultSecurityConfig {
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
                 http.authorizeHttpRequests();
 
-        for (AuthorizedUrlPermission urlPermission : urlPermissions) {
+        List<AuthorizedUrlPermission> permissions = new ArrayList<>(urlPermissions);
+        permissions.sort(Comparator.comparingInt(o -> o.getRoles().length));
+
+        for (AuthorizedUrlPermission urlPermission : permissions) {
             String[] roles = urlPermission.getRoles();
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl =
                     registry.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), null));
