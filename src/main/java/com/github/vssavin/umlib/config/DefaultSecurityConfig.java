@@ -83,7 +83,13 @@ public class DefaultSecurityConfig {
         AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
                 registerUrls(http, urlPermissions);
 
-        registry.and()
+        HttpSecurity security = registry.and();
+
+        if (!umConfig.isCsrfEnabled()) {
+            security = security.csrf().disable();
+        }
+
+        security
                 .formLogin().failureHandler(authFailureHandler)
                 .successHandler(authSuccessHandler)
                 .loginPage(configurer.getLoginUrl())
@@ -122,8 +128,8 @@ public class DefaultSecurityConfig {
 
         for (AuthorizedUrlPermission urlPermission : permissions) {
             String[] roles = urlPermission.getRoles();
-            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl =
-                    registry.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), null));
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = registry.
+                    requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
 
             if (roles != null && roles.length == 0) {
                 registry = authorizedUrl.permitAll();

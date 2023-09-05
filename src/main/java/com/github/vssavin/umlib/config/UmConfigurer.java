@@ -22,6 +22,7 @@ public class UmConfigurer {
     private String passwordDoesntMatchPatternMessage = "Wrong password!";
     private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
     private final Map<String, String[]> resourceHandlers = new HashMap<>();
+    private boolean csrfEnabled = true;
     private boolean configured = false;
 
     public UmConfigurer() {
@@ -85,6 +86,12 @@ public class UmConfigurer {
     public UmConfigurer permission(AuthorizedUrlPermission permission) {
         checkAccess();
         this.permissions.add(permission);
+        return this;
+    }
+
+    public UmConfigurer csrf(boolean enabled) {
+        checkAccess();
+        this.csrfEnabled = enabled;
         return this;
     }
 
@@ -157,6 +164,10 @@ public class UmConfigurer {
 
     public Map<String, String[]> getResourceHandlers() {
         return resourceHandlers;
+    }
+
+    public boolean isCsrfEnabled() {
+        return csrfEnabled;
     }
 
     public static class PasswordConfig {

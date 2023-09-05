@@ -68,6 +68,8 @@ public class UmConfig extends StorableConfig {
 
     private final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
+    private final boolean csrfEnabled;
+
     private final StringSafety stringSafety = new DefaultStringSafety();
 
     @Autowired
@@ -80,6 +82,7 @@ public class UmConfig extends StorableConfig {
         this.secureService = defaultSecureService;
         this.umConfigurer = umConfigurer;
         this.encryptPropertiesPasswordService = applicationSecureService;
+        this.csrfEnabled = umConfigurer.isCsrfEnabled();
 
         initDefaultPermissions();
         this.authorizedUrlPermissions.addAll(umConfigurer.getPermissions());
@@ -155,10 +158,15 @@ public class UmConfig extends StorableConfig {
         return umConfigurer.getPasswordDoesntMatchPatternMessage();
     }
 
+    public boolean isCsrfEnabled() {
+        return csrfEnabled;
+    }
+
     private void updatePermission(String url, Permission permission) {
         int index = getPermissionIndex(url);
+        String httpMethod = getPermissionHttpMethod(url);
         if (index != -1) {
-            authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, permission));
+            authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, httpMethod, permission));
         }
     }
 
@@ -170,6 +178,15 @@ public class UmConfig extends StorableConfig {
             }
         }
         return -1;
+    }
+
+    private String getPermissionHttpMethod(String url) {
+        for (AuthorizedUrlPermission authorizedUrlPermission : authorizedUrlPermissions) {
+            if (authorizedUrlPermission.getUrl().equals(url)) {
+                return authorizedUrlPermission.getHttpMethod();
+            }
+        }
+        return AuthorizedUrlPermission.getDefaultHttpMethod();
     }
 
     private String[] getAppArgsFromContext(ApplicationContext context) {
