@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -54,13 +55,14 @@ public class DefaultSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+    public AuthenticationManager authenticationManager(HttpSecurity httpSecurity, PasswordEncoder passwordEncoder,
                                                        AuthenticationProvider customAuthenticationProvider)
             throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
+
+        httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(userService)
-                .passwordEncoder(passwordEncoder)
-                .and()
+                .passwordEncoder(passwordEncoder);
+        return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
                 .authenticationProvider(customAuthenticationProvider)
                 .build();
     }
@@ -71,73 +73,65 @@ public class DefaultSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, UmConfig umConfig, BlackListFilter blackListFilter)
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, UmConfig umConfig, BlackListFilter blackListFilter)
             throws Exception {
-        http.addFilterBefore(blackListFilter, BasicAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(blackListFilter, BasicAuthenticationFilter.class);
 
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        httpSecurity.sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 
         List<AuthorizedUrlPermission> urlPermissions = umConfig.getAuthorizedUrlPermissions();
 
-        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
-                registerUrls(http, urlPermissions);
-
-        HttpSecurity security = registry.and();
+        registerUrls(httpSecurity, urlPermissions);
 
         if (!umConfig.isCsrfEnabled()) {
-            security = security.csrf().disable();
+            httpSecurity.csrf(AbstractHttpConfigurer::disable);
         }
 
-        security
-                .formLogin().failureHandler(authFailureHandler)
+        httpSecurity.formLogin(customizer -> customizer
+                .failureHandler(authFailureHandler)
                 .successHandler(authSuccessHandler)
                 .loginPage(configurer.getLoginUrl())
                 .loginProcessingUrl(configurer.getLoginProcessingUrl())
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .and()
-                .logout()
-                .permitAll()
+        );
+
+        httpSecurity.logout(customizer -> customizer.permitAll()
                 .logoutUrl(configurer.getLogoutUrl())
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .deleteCookies("JSESSIONID")
-                .invalidateHttpSession(true);
+                .invalidateHttpSession(true)
+        );
 
         if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
-            registry.and()
-                    .oauth2Login()
+            httpSecurity.oauth2Login(customizer -> customizer
                     .successHandler(authSuccessHandler)
                     .failureHandler(authFailureHandler)
                     .loginPage(configurer.getLoginUrl())
-                    .userInfoEndpoint()
-                    .userService(customOAuth2UserService);
+                    .userInfoEndpoint(userInfoEndpointConfig ->
+                            userInfoEndpointConfig.userService(customOAuth2UserService))
+                    );
         }
 
-        return http.build();
+        return httpSecurity.build();
     }
 
-    private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registerUrls(
-            HttpSecurity http, List<AuthorizedUrlPermission> urlPermissions) throws Exception {
-
-        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry =
-                http.authorizeHttpRequests();
+    private void registerUrls(HttpSecurity httpSecurity, List<AuthorizedUrlPermission> urlPermissions) throws Exception {
 
         List<AuthorizedUrlPermission> permissions = new ArrayList<>(urlPermissions);
         permissions.sort(Comparator.comparingInt(o -> o.getRoles().length));
 
         for (AuthorizedUrlPermission urlPermission : permissions) {
             String[] roles = urlPermission.getRoles();
-            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = registry.
-                    requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
-
-            if (roles != null && roles.length == 0) {
-                registry = authorizedUrl.permitAll();
-            } else if (roles != null) {
-                registry = authorizedUrl.hasAnyRole(urlPermission.getRoles());
-            }
+            httpSecurity.authorizeHttpRequests(customizer -> {
+                        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = customizer.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
+                        if (roles != null && roles.length == 0) {
+                            authorizedUrl.permitAll();
+                        } else if (roles != null) {
+                            authorizedUrl.hasAnyRole(urlPermission.getRoles());
+                        }
+                    }
+            );
         }
-
-        return registry;
     }
 }
