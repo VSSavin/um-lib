@@ -51,7 +51,7 @@ public class AdminControllerTest extends AbstractTest {
         registerParams.add("email", "user2@example.com");
         registerParams.add("password", encodedPassword);
         registerParams.add("confirmPassword", encodedPassword);
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register/")
+        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
                 .params(registerParams)
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
@@ -119,7 +119,7 @@ public class AdminControllerTest extends AbstractTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("login", testAdminUser.getLogin());
 
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
@@ -140,7 +140,7 @@ public class AdminControllerTest extends AbstractTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("login", "user");
 
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
@@ -172,7 +172,7 @@ public class AdminControllerTest extends AbstractTest {
         params = new LinkedMultiValueMap<>();
         params.add("login", "user");
 
-        resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .params(params)
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
@@ -193,7 +193,7 @@ public class AdminControllerTest extends AbstractTest {
         String newUserEmail = "test";
         String userLogin = "user";
 
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
 
@@ -226,7 +226,7 @@ public class AdminControllerTest extends AbstractTest {
     public void editUserFailedSuchLoginExists() throws Exception {
         String newUserLogin = "user_new";
 
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
 
@@ -259,7 +259,7 @@ public class AdminControllerTest extends AbstractTest {
 
     @Test
     public void deleteUserSuccessful() throws Exception {
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users/")
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/users")
                 .with(getRequestPostProcessorForUser(testAdminUser))
                 .with(csrf()));
 
