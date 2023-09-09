@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.annotation.PostConstruct;
+import org.springframework.http.HttpMethod;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -34,6 +36,8 @@ public class UmConfig extends StorableConfig {
     @IgnoreField public static final String PERFORM_LOGOUT_URL = "/perform-logout";
     @IgnoreField public static final String REGISTRATION_URL = "/um/users/registration";
     @IgnoreField public static final String PERFORM_REGISTER_URL = "/um/users/perform-register";
+
+    @IgnoreField public static final String ADMIN_PATH = "/um/admin/*";
 
     @IgnoreField public static final String AUTH_SERVICE_PROP_NAME = "authService";
 
@@ -107,6 +111,7 @@ public class UmConfig extends StorableConfig {
         if (!registrationAllowed) {
             updatePermission(REGISTRATION_URL, Permission.ADMIN_ONLY);
             updatePermission(PERFORM_REGISTER_URL, Permission.ADMIN_ONLY);
+            updatePermission(PERFORM_REGISTER_URL, HttpMethod.POST.name(), Permission.ADMIN_ONLY);
         }
     }
 
@@ -167,6 +172,18 @@ public class UmConfig extends StorableConfig {
         String httpMethod = getPermissionHttpMethod(url);
         if (index != -1) {
             authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, httpMethod, permission));
+        }
+    }
+
+    private void updatePermission(String url, String httpMethod, Permission permission) {
+        int index = getPermissionIndex(url);
+        if (index != -1) {
+            AuthorizedUrlPermission urlPermission = authorizedUrlPermissions.get(index);
+            if (urlPermission != null && urlPermission.getHttpMethod().equals(httpMethod)) {
+                authorizedUrlPermissions.set(index, new AuthorizedUrlPermission(url, httpMethod, permission));
+            } else {
+                authorizedUrlPermissions.add(new AuthorizedUrlPermission(url, httpMethod, permission));
+            }
         }
     }
 
@@ -270,23 +287,53 @@ public class UmConfig extends StorableConfig {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(
                 new AuthorizedUrlPermission("/um/users/passwordRecovery", Permission.ANY_USER));
-        authorizedUrlPermissions.add(
-                new AuthorizedUrlPermission("/um/users/perform-password-recovery", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-password-recovery",
+                HttpMethod.POST.name(), Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(REGISTRATION_URL, Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_REGISTER_URL, Permission.ANY_USER));
         authorizedUrlPermissions.add(
                 new AuthorizedUrlPermission("/um/users/confirmUser", Permission.ANY_USER));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/events/**", Permission.ADMIN_ONLY));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGIN_URL, Permission.ANY_USER));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN));
-        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN));
 
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission(PERFORM_REGISTER_URL, HttpMethod.POST.name(), Permission.ANY_USER));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/security/key", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/perform-password-recovery",
+                HttpMethod.POST.name(), Permission.ANY_USER));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/languages", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/flags/**", Permission.ANY_USER));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/img/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/oauth/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(
                 new AuthorizedUrlPermission("/login/oauth2/code/google", Permission.ANY_USER));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGIN_URL, Permission.ANY_USER));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin**", Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/admin/**", Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/events/**", Permission.ADMIN_ONLY));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(ADMIN_PATH, Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission(ADMIN_PATH, HttpMethod.PATCH.name(), Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission(ADMIN_PATH, HttpMethod.POST.name(), Permission.ADMIN_ONLY));
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission(ADMIN_PATH, HttpMethod.DELETE.name(), Permission.ADMIN_ONLY));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/**", Permission.USER_ADMIN));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(LOGOUT_URL, Permission.USER_ADMIN));
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission(PERFORM_LOGOUT_URL, Permission.USER_ADMIN));
+
+        authorizedUrlPermissions.add(new AuthorizedUrlPermission("/um/users/changePassword",
+                HttpMethod.PATCH.name(), Permission.USER_ADMIN));
+
+        authorizedUrlPermissions.add(
+                new AuthorizedUrlPermission("/um/users", HttpMethod.PATCH.name(), Permission.USER_ADMIN));
+
+
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/*", Permission.USER_ADMIN));
     }
 
