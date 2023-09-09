@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.domain.event;
 
 import com.github.vssavin.umlib.domain.user.User;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 /**

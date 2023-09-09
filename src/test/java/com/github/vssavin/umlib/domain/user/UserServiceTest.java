@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -231,7 +230,6 @@ public class UserServiceTest {
         return new DefaultOAuth2User(authorities, attributesMap, nameAttributeKey);
     }
 
-    @Nonnull
     private Predicate userFilterToPredicate(UserFilter userFilter) {
         BooleanExpression expression = null;
         QUser user = QUser.user;
@@ -242,7 +240,6 @@ public class UserServiceTest {
         return expression;
     }
 
-    @Nonnull
     private BooleanExpression processAndEqualLong(BooleanExpression expression,
                                                   SimpleExpression<Long> simpleExpression, Long value) {
         if (value != null) {
@@ -256,7 +253,6 @@ public class UserServiceTest {
         return expression;
     }
 
-    @Nonnull
     private BooleanExpression processAndLikeString(BooleanExpression expression,
                                                    StringExpression stringExpression, String value) {
         if (value != null && !value.isEmpty()) {

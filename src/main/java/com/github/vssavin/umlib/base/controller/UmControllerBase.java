@@ -7,7 +7,7 @@ import com.github.vssavin.umlib.domain.language.UmLanguage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;

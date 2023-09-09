@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.domain.user;
 
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Main interface for checking user authorization.

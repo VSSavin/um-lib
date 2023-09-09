@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Main repository of user management.
@@ -19,4 +20,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long>, 
     List<User> findByEmail(String email);
     @Transactional
     void deleteByLogin(String login);
+
+    User save(User user);
+    Optional<User> findById(Long id);
 }

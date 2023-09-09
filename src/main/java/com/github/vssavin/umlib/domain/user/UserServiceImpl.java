@@ -20,7 +20,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -315,7 +314,6 @@ public class UserServiceImpl implements UserService {
         return getUserByLogin(username);
     }
 
-    @Nonnull
     private Predicate userFilterToPredicate(UserFilter userFilter) {
         BooleanExpression expression = null;
         QUser user = QUser.user;
@@ -326,7 +324,6 @@ public class UserServiceImpl implements UserService {
         return expression;
     }
 
-    @Nonnull
     private BooleanExpression processAndEqualLong(BooleanExpression expression,
                                                   SimpleExpression<Long> simpleExpression, Long value) {
         if (value != null) {
@@ -340,7 +337,6 @@ public class UserServiceImpl implements UserService {
         return expression;
     }
 
-    @Nonnull
     private BooleanExpression processAndLikeString(BooleanExpression expression,
                                                    StringExpression stringExpression, String value) {
         if (value != null && !value.isEmpty()) {
