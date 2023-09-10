@@ -87,21 +87,21 @@ public class DefaultSecurityConfig {
             httpSecurity.csrf(AbstractHttpConfigurer::disable);
         }
 
-        httpSecurity.formLogin(customizer -> customizer
-                .failureHandler(authFailureHandler)
-                .successHandler(authSuccessHandler)
-                .loginPage(configurer.getLoginUrl())
-                .loginProcessingUrl(configurer.getLoginProcessingUrl())
-                .usernameParameter("username")
-                .passwordParameter("password")
-        );
-
-        httpSecurity.logout(customizer -> customizer.permitAll()
-                .logoutUrl(configurer.getLogoutUrl())
-                .logoutSuccessHandler(logoutSuccessHandler)
-                .deleteCookies("JSESSIONID")
-                .invalidateHttpSession(true)
-        );
+        httpSecurity
+                .formLogin(customizer -> customizer
+                        .failureHandler(authFailureHandler)
+                        .successHandler(authSuccessHandler)
+                        .loginPage(configurer.getLoginUrl())
+                        .loginProcessingUrl(configurer.getLoginProcessingUrl())
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                )
+                .logout(customizer -> customizer.permitAll()
+                        .logoutUrl(configurer.getLogoutUrl())
+                        .logoutSuccessHandler(logoutSuccessHandler)
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                );
 
         if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
             httpSecurity.oauth2Login(customizer -> customizer
@@ -123,15 +123,19 @@ public class DefaultSecurityConfig {
 
         for (AuthorizedUrlPermission urlPermission : permissions) {
             String[] roles = urlPermission.getRoles();
-            httpSecurity.authorizeHttpRequests(customizer -> {
-                        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = customizer.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
-                        if (roles != null && roles.length == 0) {
-                            authorizedUrl.permitAll();
-                        } else if (roles != null) {
-                            authorizedUrl.hasAnyRole(urlPermission.getRoles());
-                        }
-                    }
-            );
+            httpSecurity.authorizeHttpRequests(customizer -> registerUrl(customizer, roles, urlPermission));
+        }
+    }
+
+    private void registerUrl(
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry,
+            String[] roles, AuthorizedUrlPermission urlPermission) {
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = registry
+                .requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
+        if (roles != null && roles.length == 0) {
+            authorizedUrl.permitAll();
+        } else if (roles != null) {
+            authorizedUrl.hasAnyRole(urlPermission.getRoles());
         }
     }
 }
