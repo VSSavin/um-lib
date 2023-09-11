@@ -24,6 +24,13 @@ public class AppTemplateResolverConfig {
     */
 
     @Bean
+    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver umTemplateResolver) {
+        SpringTemplateEngine springTemplateEngine = new SpringTemplateEngine();
+        springTemplateEngine.addTemplateResolver(umTemplateResolver);
+        return springTemplateEngine;
+    }
+
+    @Bean
     public SpringResourceTemplateResolver appTemplateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setPrefix("classpath:/template/test/");
@@ -36,9 +43,8 @@ public class AppTemplateResolverConfig {
     }
 
     @Bean
-    public ThymeleafViewResolver appViewResolver() {
+    public ThymeleafViewResolver appViewResolver(SpringTemplateEngine templateEngine) {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        SpringTemplateEngine templateEngine = UmTemplateResolverConfig.getSpringTemplateEngine();
         templateEngine.addTemplateResolver(appTemplateResolver());
         viewResolver.setTemplateEngine(templateEngine);
         viewResolver.setOrder(0);
