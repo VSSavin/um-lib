@@ -20,7 +20,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Configuration
 public class UmTemplateResolverConfig implements WebMvcConfigurer {
     private final Logger log = LoggerFactory.getLogger(UmTemplateResolverConfig.class);
-    private static final SpringTemplateEngine SPRING_TEMPLATE_ENGINE = new SpringTemplateEngine();
 
     private final UmConfigurer umConfigurer;
 
@@ -43,17 +42,12 @@ public class UmTemplateResolverConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public SpringTemplateEngine templateEngine() {
-        SPRING_TEMPLATE_ENGINE.addTemplateResolver(umTemplateResolver());
-        return SPRING_TEMPLATE_ENGINE;
-    }
-
-    @Bean
-    public ThymeleafViewResolver viewResolver() {
+    public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(templateEngine());
+        viewResolver.setTemplateEngine(templateEngine);
         viewResolver.setOrder(getResolverOrder());
         viewResolver.setCharacterEncoding("UTF-8");
+        templateEngine.addTemplateResolver(umTemplateResolver());
         return viewResolver;
     }
 
@@ -61,10 +55,6 @@ public class UmTemplateResolverConfig implements WebMvcConfigurer {
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         umConfigurer.getResourceHandlers().forEach((handler, locations) ->
                 registry.addResourceHandler(handler).addResourceLocations(locations));
-    }
-
-    public static SpringTemplateEngine getSpringTemplateEngine() {
-        return SPRING_TEMPLATE_ENGINE;
     }
 
     private int getResolverOrder() {
