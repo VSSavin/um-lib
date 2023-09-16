@@ -14,10 +14,9 @@
         <java.version>1.8</java.version>
         <distribution.url>https://maven.pkg.github.com/vssavin/${project.artifactId}</distribution.url>
         <github.server.id>github</github.server.id>
-        <spring.version>5.3.19</spring.version>
-        <spring.security.test.version>5.6.2</spring.security.test.version>
-        <spring.boot.starter.test.version>2.6.6</spring.boot.starter.test.version>
-        <spring.jdbc.version>5.3.16</spring.jdbc.version>
+        <spring.version>5.3.24</spring.version>
+        <spring.data.version>2.6.10</spring.data.version>
+        <spring.boot.starter.test.version>2.6.14</spring.boot.starter.test.version>
         <spring.security.version>5.8.0</spring.security.version>
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <aspectjweaver.version>1.9.7</aspectjweaver.version>
@@ -73,20 +72,8 @@
 
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
-            <version>2.6.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>2.6.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.jdbc.version}</version>
+            <version>${spring.data.version}</version>
         </dependency>
 
         <dependency>
@@ -117,6 +104,7 @@
             <version>${spring.security.version}</version>
         </dependency>
 
+        <!-- dependency for using emails -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -172,6 +160,16 @@
             <artifactId>thymeleaf-extras-java8time</artifactId>
             <version>3.0.4.RELEASE</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.thymeleaf</groupId>
+                    <artifactId>thymeleaf</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -190,13 +188,6 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectjweaver.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>${spring.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -239,6 +230,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring.boot.starter.test.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -251,7 +252,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <version>${spring.security.test.version}</version>
+            <version>${spring.security.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -273,6 +274,12 @@
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
             <version>4.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
@@ -371,6 +378,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
