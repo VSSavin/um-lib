@@ -29,56 +29,56 @@ import java.util.Map;
  */
 @Component
 class CustomUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
-		implements LogoutSuccessHandler {
+        implements LogoutSuccessHandler {
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
+    private final CustomRedirectStrategy customRedirectStrategy = new CustomRedirectStrategy();
 
-	@Autowired
-	CustomUrlLogoutSuccessHandler(AuthService authService) {
-		this.authService = authService;
-		super.setRedirectStrategy(customRedirectStrategy);
-	}
+    @Autowired
+    CustomUrlLogoutSuccessHandler(AuthService authService) {
+        this.authService = authService;
+        super.setRedirectStrategy(customRedirectStrategy);
+    }
 
-	@Override
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException, ServletException {
-		authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_OUT);
-		customRedirectStrategy.setParameterMap(request.getParameterMap());
-		super.handle(request, response, authentication);
-	}
+    @Override
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+            throws IOException, ServletException {
+        authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_OUT);
+        customRedirectStrategy.setParameterMap(request.getParameterMap());
+        super.handle(request, response, authentication);
+    }
 
-	private static class CustomRedirectStrategy extends DefaultRedirectStrategy {
+    private static class CustomRedirectStrategy extends DefaultRedirectStrategy {
 
-		private Map<String, String[]> parameterMap = Collections.emptyMap();
+        private Map<String, String[]> parameterMap = Collections.emptyMap();
 
-		@Override
-		protected String calculateRedirectUrl(String contextPath, String url) {
-			String redirectUrl = super.calculateRedirectUrl(contextPath, url);
-			UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
-			uriBuilder.path(redirectUrl);
-			uriBuilder.queryParams(toMultiValueMapWithoutCsrf(parameterMap));
-			return uriBuilder.build().toASCIIString();
-		}
+        @Override
+        protected String calculateRedirectUrl(String contextPath, String url) {
+            String redirectUrl = super.calculateRedirectUrl(contextPath, url);
+            UriBuilder uriBuilder = UriComponentsBuilder.newInstance();
+            uriBuilder.path(redirectUrl);
+            uriBuilder.queryParams(toMultiValueMapWithoutCsrf(parameterMap));
+            return uriBuilder.build().toASCIIString();
+        }
 
-		private MultiValueMap<String, String> toMultiValueMapWithoutCsrf(Map<String, String[]> parameterMap) {
-			MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
-			parameterMap.forEach((key, values) -> {
-				for (String value : values) {
-					if (!key.equals("_csrf")) {
-						result.add(key, value);
-					}
-				}
-			});
+        private MultiValueMap<String, String> toMultiValueMapWithoutCsrf(Map<String, String[]> parameterMap) {
+            MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
+            parameterMap.forEach((key, values) -> {
+                for (String value : values) {
+                    if (!key.equals("_csrf")) {
+                        result.add(key, value);
+                    }
+                }
+            });
 
-			return result;
-		}
+            return result;
+        }
 
-		private void setParameterMap(Map<String, String[]> parameterMap) {
-			this.parameterMap = parameterMap;
-		}
+        private void setParameterMap(Map<String, String[]> parameterMap) {
+            this.parameterMap = parameterMap;
+        }
 
-	}
+    }
 
 }

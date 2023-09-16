@@ -8,12 +8,12 @@ package com.github.vssavin.umlib.base.repository;
  */
 public class UmRepositorySupportException extends RuntimeException {
 
-	public UmRepositorySupportException(String message) {
-		super(message);
-	}
+    public UmRepositorySupportException(String message) {
+        super(message);
+    }
 
-	public UmRepositorySupportException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public UmRepositorySupportException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

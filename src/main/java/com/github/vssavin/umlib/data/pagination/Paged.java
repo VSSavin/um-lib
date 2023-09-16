@@ -12,54 +12,54 @@ import java.util.Objects;
  */
 public class Paged<T> {
 
-	private Page<T> page;
+    private Page<T> page;
 
-	private Paging paging;
+    private Paging paging;
 
-	public Paged(Page<T> page, Paging paging) {
-		this.page = page;
-		this.paging = paging;
-	}
+    public Paged(Page<T> page, Paging paging) {
+        this.page = page;
+        this.paging = paging;
+    }
 
-	public Paged() {
-	}
+    public Paged() {
+    }
 
-	@Override
-	public String toString() {
-		return "Paged{" + "page=" + page + ", paging=" + paging + '}';
-	}
+    @Override
+    public String toString() {
+        return "Paged{" + "page=" + page + ", paging=" + paging + '}';
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		Paged<?> paged = (Paged<?>) o;
-		return page.equals(paged.page) && paging.equals(paged.paging);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Paged<?> paged = (Paged<?>) o;
+        return page.equals(paged.page) && paging.equals(paged.paging);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(page, paging);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(page, paging);
+    }
 
-	public Page<T> getPage() {
-		return page;
-	}
+    public Page<T> getPage() {
+        return page;
+    }
 
-	public Paging getPaging() {
-		return paging;
-	}
+    public Paging getPaging() {
+        return paging;
+    }
 
-	public void setPage(Page<T> page) {
-		this.page = page;
-	}
+    public void setPage(Page<T> page) {
+        this.page = page;
+    }
 
-	public void setPaging(Paging paging) {
-		this.paging = paging;
-	}
+    public void setPaging(Paging paging) {
+        this.paging = paging;
+    }
 
 }

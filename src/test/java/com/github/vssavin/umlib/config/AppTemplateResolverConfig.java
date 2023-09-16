@@ -15,40 +15,40 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Configuration
 public class AppTemplateResolverConfig {
 
-	// Add this code before starting your Spring application or set the property from the
-	// jvm args
-	// This code must be executed before creating UmTemplateResolverConfig
-	/*
-	 * static { System.setProperty("um.templateResolver.order", "1"); }
-	 */
+    // Add this code before starting your Spring application or set the property from the
+    // jvm args
+    // This code must be executed before creating UmTemplateResolverConfig
+    /*
+     * static { System.setProperty("um.templateResolver.order", "1"); }
+     */
 
-	@Bean
-	public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver umTemplateResolver) {
-		SpringTemplateEngine springTemplateEngine = new SpringTemplateEngine();
-		springTemplateEngine.addTemplateResolver(umTemplateResolver);
-		return springTemplateEngine;
-	}
+    @Bean
+    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver umTemplateResolver) {
+        SpringTemplateEngine springTemplateEngine = new SpringTemplateEngine();
+        springTemplateEngine.addTemplateResolver(umTemplateResolver);
+        return springTemplateEngine;
+    }
 
-	@Bean
-	public SpringResourceTemplateResolver appTemplateResolver() {
-		SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-		templateResolver.setPrefix("classpath:/template/test/");
-		templateResolver.setSuffix(".html");
-		templateResolver.setTemplateMode(TemplateMode.HTML);
-		templateResolver.setCharacterEncoding("UTF-8");
-		templateResolver.setOrder(0);
-		templateResolver.setCheckExistence(true);
-		return templateResolver;
-	}
+    @Bean
+    public SpringResourceTemplateResolver appTemplateResolver() {
+        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
+        templateResolver.setPrefix("classpath:/template/test/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setOrder(0);
+        templateResolver.setCheckExistence(true);
+        return templateResolver;
+    }
 
-	@Bean
-	public ThymeleafViewResolver appViewResolver(SpringTemplateEngine templateEngine) {
-		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-		templateEngine.addTemplateResolver(appTemplateResolver());
-		viewResolver.setTemplateEngine(templateEngine);
-		viewResolver.setOrder(0);
-		viewResolver.setCharacterEncoding("UTF-8");
-		return viewResolver;
-	}
+    @Bean
+    public ThymeleafViewResolver appViewResolver(SpringTemplateEngine templateEngine) {
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        templateEngine.addTemplateResolver(appTemplateResolver());
+        viewResolver.setTemplateEngine(templateEngine);
+        viewResolver.setOrder(0);
+        viewResolver.setCharacterEncoding("UTF-8");
+        return viewResolver;
+    }
 
 }

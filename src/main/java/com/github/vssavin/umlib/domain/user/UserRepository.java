@@ -15,13 +15,13 @@ import java.util.List;
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, Long>, QuerydslPredicateExecutor<User> {
 
-	List<User> findByLogin(String login);
+    List<User> findByLogin(String login);
 
-	List<User> findUserByName(String name);
+    List<User> findUserByName(String name);
 
-	List<User> findByEmail(String email);
+    List<User> findByEmail(String email);
 
-	@Transactional
-	void deleteByLogin(String login);
+    @Transactional
+    void deleteByLogin(String login);
 
 }

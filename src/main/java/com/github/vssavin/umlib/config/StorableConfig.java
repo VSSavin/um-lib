@@ -16,100 +16,100 @@ import java.util.*;
  */
 public class StorableConfig {
 
-	@IgnoreField
-	private static final Logger log = LoggerFactory.getLogger(StorableConfig.class);
+    @IgnoreField
+    private static final Logger log = LoggerFactory.getLogger(StorableConfig.class);
 
-	@IgnoreField
-	private String configFile = "";
+    @IgnoreField
+    private String configFile = "";
 
-	@IgnoreField
-	private String namePrefix = "";
+    @IgnoreField
+    private String namePrefix = "";
 
-	public void setConfigFile(String configFile) {
-		this.configFile = configFile;
-	}
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
 
-	public void setNamePrefix(String namePrefix) {
-		this.namePrefix = namePrefix;
-	}
+    public void setNamePrefix(String namePrefix) {
+        this.namePrefix = namePrefix;
+    }
 
-	public void store() {
-		store(getProperties());
-	}
+    public void store() {
+        store(getProperties());
+    }
 
-	private void store(Map<String, String> propertiesMap) {
-		SortedProperties props = new SortedProperties();
-		if (propertiesMap != null) {
+    private void store(Map<String, String> propertiesMap) {
+        SortedProperties props = new SortedProperties();
+        if (propertiesMap != null) {
 
-			try (FileReader reader = new FileReader(configFile)) {
-				props.load(reader);
-			}
-			catch (IOException e) {
-				log.error("Reading properties error!", e);
-			}
+            try (FileReader reader = new FileReader(configFile)) {
+                props.load(reader);
+            }
+            catch (IOException e) {
+                log.error("Reading properties error!", e);
+            }
 
-			props.putAll(propertiesMap);
+            props.putAll(propertiesMap);
 
-			try (FileWriter writer = new FileWriter(configFile)) {
-				props.store(writer, null);
-			}
-			catch (IOException e) {
-				log.error("Writing properties error!", e);
-			}
-		}
-	}
+            try (FileWriter writer = new FileWriter(configFile)) {
+                props.store(writer, null);
+            }
+            catch (IOException e) {
+                log.error("Writing properties error!", e);
+            }
+        }
+    }
 
-	private Map<String, String> getProperties() {
-		Map<String, String> fieldsMap = new TreeMap<>();
-		try {
-			for (Field field : this.getClass().getDeclaredFields()) {
-				field.setAccessible(true);
-				if (field.getDeclaredAnnotation(IgnoreField.class) == null) {
-					fieldsMap.put(namePrefix + "." + field.getName(), String.valueOf(field.get(this)));
-				}
-			}
-		}
-		catch (IllegalAccessException e) {
-			log.error("Field processing error!", e);
-		}
-		catch (Exception e) {
-			log.error("Getting properties error!", e);
-		}
+    private Map<String, String> getProperties() {
+        Map<String, String> fieldsMap = new TreeMap<>();
+        try {
+            for (Field field : this.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if (field.getDeclaredAnnotation(IgnoreField.class) == null) {
+                    fieldsMap.put(namePrefix + "." + field.getName(), String.valueOf(field.get(this)));
+                }
+            }
+        }
+        catch (IllegalAccessException e) {
+            log.error("Field processing error!", e);
+        }
+        catch (Exception e) {
+            log.error("Getting properties error!", e);
+        }
 
-		return fieldsMap;
-	}
+        return fieldsMap;
+    }
 
-	private static class SortedProperties extends Properties {
+    private static class SortedProperties extends Properties {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		@Override
-		public Set<Object> keySet() {
-			return Collections.unmodifiableSet(new TreeSet<>(super.keySet()));
-		}
+        @Override
+        public Set<Object> keySet() {
+            return Collections.unmodifiableSet(new TreeSet<>(super.keySet()));
+        }
 
-		@Override
-		public Set<Map.Entry<Object, Object>> entrySet() {
+        @Override
+        public Set<Map.Entry<Object, Object>> entrySet() {
 
-			Set<Map.Entry<Object, Object>> set1 = super.entrySet();
-			Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
+            Set<Map.Entry<Object, Object>> set1 = super.entrySet();
+            Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
 
-			Iterator<Map.Entry<Object, Object>> iterator = set1.stream()
-				.sorted(Comparator.comparing(o -> o.getKey().toString()))
-				.iterator();
+            Iterator<Map.Entry<Object, Object>> iterator = set1.stream()
+                .sorted(Comparator.comparing(o -> o.getKey().toString()))
+                .iterator();
 
-			while (iterator.hasNext()) {
-				set2.add(iterator.next());
-			}
+            while (iterator.hasNext()) {
+                set2.add(iterator.next());
+            }
 
-			return set2;
-		}
+            return set2;
+        }
 
-		@Override
-		public synchronized Enumeration<Object> keys() {
-			return Collections.enumeration(new TreeSet<>(super.keySet()));
-		}
+        @Override
+        public synchronized Enumeration<Object> keys() {
+            return Collections.enumeration(new TreeSet<>(super.keySet()));
+        }
 
-	}
+    }
 
 }

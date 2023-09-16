@@ -13,20 +13,20 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 public class OAuth2Config {
 
-	static final String CONFIG_FILE = "oauth2.properties";
+    static final String CONFIG_FILE = "oauth2.properties";
 
-	@Value("${spring.security.oauth2.client.registration.google.clientId:}")
-	private String googleClientId;
+    @Value("${spring.security.oauth2.client.registration.google.clientId:}")
+    private String googleClientId;
 
-	@Value("${spring.security.oauth2.client.registration.google.clientSecret:}")
-	private String googleClientSecret;
+    @Value("${spring.security.oauth2.client.registration.google.clientSecret:}")
+    private String googleClientSecret;
 
-	public String getGoogleClientId() {
-		return googleClientId;
-	}
+    public String getGoogleClientId() {
+        return googleClientId;
+    }
 
-	public String getGoogleClientSecret() {
-		return googleClientSecret;
-	}
+    public String getGoogleClientSecret() {
+        return googleClientSecret;
+    }
 
 }

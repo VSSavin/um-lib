@@ -20,25 +20,25 @@ import org.springframework.stereotype.Component;
 @Component
 class UmRoutingDatasourceAspect {
 
-	private final DataSourceSwitcher dataSourceSwitcher;
+    private final DataSourceSwitcher dataSourceSwitcher;
 
-	@Autowired
-	UmRoutingDatasourceAspect(DataSourceSwitcher dataSourceSwitcher) {
-		this.dataSourceSwitcher = dataSourceSwitcher;
-	}
+    @Autowired
+    UmRoutingDatasourceAspect(DataSourceSwitcher dataSourceSwitcher) {
+        this.dataSourceSwitcher = dataSourceSwitcher;
+    }
 
-	@Around("@annotation(UmRouteDatasource)")
-	public Object routeDatasource(ProceedingJoinPoint joinPoint) throws Throwable {
-		Object result;
-		dataSourceSwitcher.switchToUmDataSource();
-		try {
-			result = joinPoint.proceed();
-		}
-		finally {
-			dataSourceSwitcher.switchToPreviousDataSource();
-		}
+    @Around("@annotation(UmRouteDatasource)")
+    public Object routeDatasource(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object result;
+        dataSourceSwitcher.switchToUmDataSource();
+        try {
+            result = joinPoint.proceed();
+        }
+        finally {
+            dataSourceSwitcher.switchToPreviousDataSource();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
 }

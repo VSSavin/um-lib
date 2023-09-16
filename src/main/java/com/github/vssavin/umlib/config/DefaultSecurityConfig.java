@@ -29,120 +29,120 @@ import java.util.*;
  */
 public class DefaultSecurityConfig {
 
-	private final UserService userService;
+    private final UserService userService;
 
-	private final AuthenticationSuccessHandler authSuccessHandler;
+    private final AuthenticationSuccessHandler authSuccessHandler;
 
-	private final AuthenticationFailureHandler authFailureHandler;
+    private final AuthenticationFailureHandler authFailureHandler;
 
-	private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-	private final LogoutSuccessHandler logoutSuccessHandler;
+    private final LogoutSuccessHandler logoutSuccessHandler;
 
-	private final OAuth2Config oAuth2Config;
+    private final OAuth2Config oAuth2Config;
 
-	private final UmConfigurer configurer;
+    private final UmConfigurer configurer;
 
-	@Autowired
-	public DefaultSecurityConfig(UmConfigurer configurer, UserService userService,
-			AuthenticationSuccessHandler customAuthenticationSuccessHandler,
-			AuthenticationFailureHandler customAuthenticationFailureHandler,
-			CustomOAuth2UserService customOAuth2UserService, LogoutSuccessHandler customLogoutSuccessHandler,
-			OAuth2Config oAuth2Config) {
-		this.configurer = configurer;
-		this.userService = userService;
-		this.authSuccessHandler = customAuthenticationSuccessHandler;
-		this.authFailureHandler = customAuthenticationFailureHandler;
-		this.customOAuth2UserService = customOAuth2UserService;
-		this.logoutSuccessHandler = customLogoutSuccessHandler;
-		this.oAuth2Config = oAuth2Config;
-	}
+    @Autowired
+    public DefaultSecurityConfig(UmConfigurer configurer, UserService userService,
+            AuthenticationSuccessHandler customAuthenticationSuccessHandler,
+            AuthenticationFailureHandler customAuthenticationFailureHandler,
+            CustomOAuth2UserService customOAuth2UserService, LogoutSuccessHandler customLogoutSuccessHandler,
+            OAuth2Config oAuth2Config) {
+        this.configurer = configurer;
+        this.userService = userService;
+        this.authSuccessHandler = customAuthenticationSuccessHandler;
+        this.authFailureHandler = customAuthenticationFailureHandler;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.logoutSuccessHandler = customLogoutSuccessHandler;
+        this.oAuth2Config = oAuth2Config;
+    }
 
-	@Bean
-	public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
-			AuthenticationProvider customAuthenticationProvider) throws Exception {
-		return http.getSharedObject(AuthenticationManagerBuilder.class)
-			.userDetailsService(userService)
-			.passwordEncoder(passwordEncoder)
-			.and()
-			.authenticationProvider(customAuthenticationProvider)
-			.build();
-	}
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+            AuthenticationProvider customAuthenticationProvider) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+            .userDetailsService(userService)
+            .passwordEncoder(passwordEncoder)
+            .and()
+            .authenticationProvider(customAuthenticationProvider)
+            .build();
+    }
 
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return userService;
-	}
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return userService;
+    }
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, UmConfig umConfig, BlackListFilter blackListFilter)
-			throws Exception {
-		http.addFilterBefore(blackListFilter, BasicAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, UmConfig umConfig, BlackListFilter blackListFilter)
+            throws Exception {
+        http.addFilterBefore(blackListFilter, BasicAuthenticationFilter.class);
 
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 
-		List<AuthorizedUrlPermission> urlPermissions = umConfig.getAuthorizedUrlPermissions();
+        List<AuthorizedUrlPermission> urlPermissions = umConfig.getAuthorizedUrlPermissions();
 
-		AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry = registerUrls(
-				http, urlPermissions);
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry = registerUrls(
+                http, urlPermissions);
 
-		HttpSecurity security = registry.and();
+        HttpSecurity security = registry.and();
 
-		if (!umConfig.isCsrfEnabled()) {
-			security = security.csrf().disable();
-		}
+        if (!umConfig.isCsrfEnabled()) {
+            security = security.csrf().disable();
+        }
 
-		security.formLogin()
-			.failureHandler(authFailureHandler)
-			.successHandler(authSuccessHandler)
-			.loginPage(configurer.getLoginUrl())
-			.loginProcessingUrl(configurer.getLoginProcessingUrl())
-			.usernameParameter("username")
-			.passwordParameter("password")
-			.and()
-			.logout()
-			.permitAll()
-			.logoutUrl(configurer.getLogoutUrl())
-			.logoutSuccessHandler(logoutSuccessHandler)
-			.deleteCookies("JSESSIONID")
-			.invalidateHttpSession(true);
+        security.formLogin()
+            .failureHandler(authFailureHandler)
+            .successHandler(authSuccessHandler)
+            .loginPage(configurer.getLoginUrl())
+            .loginProcessingUrl(configurer.getLoginProcessingUrl())
+            .usernameParameter("username")
+            .passwordParameter("password")
+            .and()
+            .logout()
+            .permitAll()
+            .logoutUrl(configurer.getLogoutUrl())
+            .logoutSuccessHandler(logoutSuccessHandler)
+            .deleteCookies("JSESSIONID")
+            .invalidateHttpSession(true);
 
-		if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
-			registry.and()
-				.oauth2Login()
-				.successHandler(authSuccessHandler)
-				.failureHandler(authFailureHandler)
-				.loginPage(configurer.getLoginUrl())
-				.userInfoEndpoint()
-				.userService(customOAuth2UserService);
-		}
+        if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
+            registry.and()
+                .oauth2Login()
+                .successHandler(authSuccessHandler)
+                .failureHandler(authFailureHandler)
+                .loginPage(configurer.getLoginUrl())
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService);
+        }
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registerUrls(
-			HttpSecurity http, List<AuthorizedUrlPermission> urlPermissions) throws Exception {
+    private AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registerUrls(
+            HttpSecurity http, List<AuthorizedUrlPermission> urlPermissions) throws Exception {
 
-		AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry = http
-			.authorizeHttpRequests();
+        AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry = http
+            .authorizeHttpRequests();
 
-		List<AuthorizedUrlPermission> permissions = new ArrayList<>(urlPermissions);
-		permissions.sort(Comparator.comparingInt(o -> o.getRoles().length));
+        List<AuthorizedUrlPermission> permissions = new ArrayList<>(urlPermissions);
+        permissions.sort(Comparator.comparingInt(o -> o.getRoles().length));
 
-		for (AuthorizedUrlPermission urlPermission : permissions) {
-			String[] roles = urlPermission.getRoles();
-			AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = registry
-				.requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
+        for (AuthorizedUrlPermission urlPermission : permissions) {
+            String[] roles = urlPermission.getRoles();
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorizedUrl = registry
+                .requestMatchers(new AntPathRequestMatcher(urlPermission.getUrl(), urlPermission.getHttpMethod()));
 
-			if (roles != null && roles.length == 0) {
-				registry = authorizedUrl.permitAll();
-			}
-			else if (roles != null) {
-				registry = authorizedUrl.hasAnyRole(urlPermission.getRoles());
-			}
-		}
+            if (roles != null && roles.length == 0) {
+                registry = authorizedUrl.permitAll();
+            }
+            else if (roles != null) {
+                registry = authorizedUrl.hasAnyRole(urlPermission.getRoles());
+            }
+        }
 
-		return registry;
-	}
+        return registry;
+    }
 
 }

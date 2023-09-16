@@ -17,58 +17,58 @@ import javax.sql.DataSource;
  */
 public class UmDataSourceConfig {
 
-	private static final Logger log = LoggerFactory.getLogger(UmDataSourceConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(UmDataSourceConfig.class);
 
-	private final UmDatabaseConfig umDatabaseConfig;
+    private final UmDatabaseConfig umDatabaseConfig;
 
-	private DataSource umDataSource;
+    private DataSource umDataSource;
 
-	public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig) {
-		this.umDatabaseConfig = umDatabaseConfig;
-	}
+    public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig) {
+        this.umDatabaseConfig = umDatabaseConfig;
+    }
 
-	@Bean
-	protected DataSource umDataSource() {
-		if (this.umDataSource != null) {
-			return this.umDataSource;
-		}
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		try {
-			dataSource.setDriverClassName(umDatabaseConfig.getDriverClass());
-			String url = umDatabaseConfig.getUrl() + "/" + umDatabaseConfig.getName();
-			if (umDatabaseConfig.getDriverClass().equals("org.h2.Driver")) {
-				url += ";" + umDatabaseConfig.getAdditionalParams();
-			}
-			dataSource.setUrl(url);
-			dataSource.setUsername(umDatabaseConfig.getUser());
-			dataSource.setPassword(umDatabaseConfig.getPassword());
-		}
-		catch (Exception e) {
-			log.error("Creating datasource error: ", e);
-		}
-		this.umDataSource = dataSource;
+    @Bean
+    protected DataSource umDataSource() {
+        if (this.umDataSource != null) {
+            return this.umDataSource;
+        }
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        try {
+            dataSource.setDriverClassName(umDatabaseConfig.getDriverClass());
+            String url = umDatabaseConfig.getUrl() + "/" + umDatabaseConfig.getName();
+            if (umDatabaseConfig.getDriverClass().equals("org.h2.Driver")) {
+                url += ";" + umDatabaseConfig.getAdditionalParams();
+            }
+            dataSource.setUrl(url);
+            dataSource.setUsername(umDatabaseConfig.getUser());
+            dataSource.setPassword(umDatabaseConfig.getPassword());
+        }
+        catch (Exception e) {
+            log.error("Creating datasource error: ", e);
+        }
+        this.umDataSource = dataSource;
 
-		return dataSource;
-	}
+        return dataSource;
+    }
 
-	@Bean
-	AbstractRoutingDataSource routingDataSource(
-			@Autowired(required = false) @Qualifier("appDataSource") DataSource appDataSource,
-			@Autowired(required = false) @Qualifier("dataSource") DataSource dataSource,
-			@Autowired DataSource umDataSource) {
-		RoutingDataSource routingDataSource = new RoutingDataSource();
-		DataSource ds = appDataSource != null ? appDataSource : dataSource;
-		routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
-		if (ds == null) {
-			routingDataSource.setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
-			routingDataSource.setDefaultTargetDataSource(umDataSource);
-		}
-		else {
-			routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
-			routingDataSource.setDefaultTargetDataSource(ds);
-		}
+    @Bean
+    AbstractRoutingDataSource routingDataSource(
+            @Autowired(required = false) @Qualifier("appDataSource") DataSource appDataSource,
+            @Autowired(required = false) @Qualifier("dataSource") DataSource dataSource,
+            @Autowired DataSource umDataSource) {
+        RoutingDataSource routingDataSource = new RoutingDataSource();
+        DataSource ds = appDataSource != null ? appDataSource : dataSource;
+        routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE, umDataSource);
+        if (ds == null) {
+            routingDataSource.setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
+            routingDataSource.setDefaultTargetDataSource(umDataSource);
+        }
+        else {
+            routingDataSource.addDataSource(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE, ds);
+            routingDataSource.setDefaultTargetDataSource(ds);
+        }
 
-		return routingDataSource;
-	}
+        return routingDataSource;
+    }
 
 }

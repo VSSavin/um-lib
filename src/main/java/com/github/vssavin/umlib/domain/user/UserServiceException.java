@@ -8,12 +8,12 @@ package com.github.vssavin.umlib.domain.user;
  */
 public class UserServiceException extends RuntimeException {
 
-	public UserServiceException(String msg, Throwable e) {
-		super(msg, e);
-	}
+    public UserServiceException(String msg, Throwable e) {
+        super(msg, e);
+    }
 
-	public UserServiceException(String message) {
-		super(message);
-	}
+    public UserServiceException(String message) {
+        super(message);
+    }
 
 }

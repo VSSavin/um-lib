@@ -7,6 +7,6 @@ package com.github.vssavin.umlib.domain.event;
  */
 public enum EventType {
 
-	LOGGED_IN, LOGGED_OUT
+    LOGGED_IN, LOGGED_OUT
 
 }

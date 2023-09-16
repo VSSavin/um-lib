@@ -11,16 +11,16 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-	@Mapping(target = "accountLocked", expression = "java(!user.isAccountNonLocked())")
-	@Mapping(target = "credentialsExpired", expression = "java(!user.isCredentialsNonExpired())")
-	UserDto toDto(User user);
+    @Mapping(target = "accountLocked", expression = "java(!user.isAccountNonLocked())")
+    @Mapping(target = "credentialsExpired", expression = "java(!user.isCredentialsNonExpired())")
+    UserDto toDto(User user);
 
-	@Mapping(target = "accountLocked", expression = "java(userDto.isAccountLocked())")
-	@Mapping(target = "credentialsExpired", expression = "java(!userDto.isCredentialsExpired())")
-	@Mapping(target = "password", ignore = true)
-	@Mapping(target = "authority", ignore = true)
-	@Mapping(target = "expirationDate", ignore = true)
-	@Mapping(target = "verificationId", ignore = true)
-	User toEntity(UserDto userDto);
+    @Mapping(target = "accountLocked", expression = "java(userDto.isAccountLocked())")
+    @Mapping(target = "credentialsExpired", expression = "java(!userDto.isCredentialsExpired())")
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "authority", ignore = true)
+    @Mapping(target = "expirationDate", ignore = true)
+    @Mapping(target = "verificationId", ignore = true)
+    User toEntity(UserDto userDto);
 
 }

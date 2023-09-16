@@ -13,22 +13,22 @@ import java.util.Collection;
  */
 class CustomUsernamePasswordAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-	public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
-		super(principal, credentials);
-	}
+    public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
+        super(principal, credentials);
+    }
 
-	public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials,
-			Collection<? extends GrantedAuthority> authorities) {
-		super(principal, credentials, authorities);
-	}
+    public CustomUsernamePasswordAuthenticationToken(Object principal, Object credentials,
+            Collection<? extends GrantedAuthority> authorities) {
+        super(principal, credentials, authorities);
+    }
 
-	@Override
-	public void eraseCredentials() {
-		Object credentials = super.getCredentials();
-		if (credentials instanceof String) {
-			new DefaultStringSafety().clearString((String) credentials);
-		}
-		super.eraseCredentials();
-	}
+    @Override
+    public void eraseCredentials() {
+        Object credentials = super.getCredentials();
+        if (credentials instanceof String) {
+            new DefaultStringSafety().clearString((String) credentials);
+        }
+        super.eraseCredentials();
+    }
 
 }

@@ -17,30 +17,30 @@ import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.
 @Import(UmDataSourceConfig.class)
 public class DataSourcesConfig {
 
-	private DataSource appDataSource;
+    private DataSource appDataSource;
 
-	@Bean
-	public DataSource dataSource() {
-		if (appDataSource == null) {
-			appDataSource = new EmbeddedDatabaseBuilder().generateUniqueName(true)
-				.setType(H2)
-				.setScriptEncoding("UTF-8")
-				.ignoreFailedDrops(true)
-				.addScript("init.sql")
-				.build();
-		}
-		return appDataSource;
-	}
+    @Bean
+    public DataSource dataSource() {
+        if (appDataSource == null) {
+            appDataSource = new EmbeddedDatabaseBuilder().generateUniqueName(true)
+                .setType(H2)
+                .setScriptEncoding("UTF-8")
+                .ignoreFailedDrops(true)
+                .addScript("init.sql")
+                .build();
+        }
+        return appDataSource;
+    }
 
-	@Bean
-	public DataSource appDataSource() {
-		return dataSource();
-	}
+    @Bean
+    public DataSource appDataSource() {
+        return dataSource();
+    }
 
-	@Bean("umDataSource")
-	@Profile("um-test")
-	protected DataSource umDataSourceTest() {
-		return dataSource();
-	}
+    @Bean("umDataSource")
+    @Profile("um-test")
+    protected DataSource umDataSourceTest() {
+        return dataSource();
+    }
 
 }

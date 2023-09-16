@@ -7,12 +7,12 @@ package com.github.vssavin.umlib.domain.email;
  */
 public class EmailNotFoundException extends RuntimeException {
 
-	public EmailNotFoundException(String message) {
-		super(message);
-	}
+    public EmailNotFoundException(String message) {
+        super(message);
+    }
 
-	public EmailNotFoundException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public EmailNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

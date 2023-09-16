@@ -15,12 +15,12 @@ import java.util.Date;
 @Component
 public class EventDateConverter implements Converter<String, Date> {
 
-	@Override
-	public Date convert(String source) {
-		if (source.isEmpty()) {
-			return null;
-		}
-		return new Date(LocalDateTime.parse(source).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-	}
+    @Override
+    public Date convert(String source) {
+        if (source.isEmpty()) {
+            return null;
+        }
+        return new Date(LocalDateTime.parse(source).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    }
 
 }

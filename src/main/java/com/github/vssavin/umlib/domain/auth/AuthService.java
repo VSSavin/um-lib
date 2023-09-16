@@ -16,16 +16,16 @@ import java.util.Collection;
  */
 public interface AuthService {
 
-	Authentication authenticate(Authentication authentication);
+    Authentication authenticate(Authentication authentication);
 
-	Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
-			EventType eventType);
+    Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
+            EventType eventType);
 
-	boolean isAuthenticationAllowed(String ipAddress);
+    boolean isAuthenticationAllowed(String ipAddress);
 
-	void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception);
+    void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException exception);
 
-	Class<? extends Authentication> authenticationClass();
+    Class<? extends Authentication> authenticationClass();
 
 }

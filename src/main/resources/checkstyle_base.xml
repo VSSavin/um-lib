@@ -77,7 +77,7 @@
     <module name="EmptyBlock"/>
     <module name="LeftCurly"/>
     <module name="NeedBraces"/>
-    <module name="RightCurly"/>
+<!--    <module name="RightCurly"/>-->  <!-- not supported with spring-javaformat-maven-plugin -->
 
     <module name="EmptyStatement"/>
     <module name="IllegalInstantiation"/>

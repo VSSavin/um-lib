@@ -21,24 +21,24 @@ import java.io.IOException;
 @Component
 public class BlackListFilter extends GenericFilterBean {
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	@Autowired
-	public BlackListFilter(AuthService authService) {
-		this.authService = authService;
-	}
+    @Autowired
+    public BlackListFilter(AuthService authService) {
+        this.authService = authService;
+    }
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-		String userIp = request.getRemoteAddr();
-		if (!authService.isAuthenticationAllowed(userIp)) {
-			HttpServletResponse httpResponse = (HttpServletResponse) response;
-			httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Access denied!");
-			return;
-		}
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        String userIp = request.getRemoteAddr();
+        if (!authService.isAuthenticationAllowed(userIp)) {
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "Access denied!");
+            return;
+        }
 
-		chain.doFilter(request, response);
-	}
+        chain.doFilter(request, response);
+    }
 
 }

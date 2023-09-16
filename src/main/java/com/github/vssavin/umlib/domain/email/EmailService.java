@@ -7,6 +7,6 @@ package com.github.vssavin.umlib.domain.email;
  */
 public interface EmailService {
 
-	void sendSimpleMessage(String destinationEmail, String subject, String text);
+    void sendSimpleMessage(String destinationEmail, String subject, String text);
 
 }

@@ -22,37 +22,37 @@ import java.io.IOException;
 @Component
 class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
-	private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
+    private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	@Autowired
-	CustomAuthenticationFailureHandler(AuthService authService) {
-		this.authService = authService;
-	}
+    @Autowired
+    CustomAuthenticationFailureHandler(AuthService authService) {
+        this.authService = authService;
+    }
 
-	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception) throws IOException {
+    @Override
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException exception) throws IOException {
 
-		String lang = request.getParameter("lang");
-		if (lang != null) {
-			lang = "&lang=" + lang;
-		}
-		else {
-			lang = "";
-		}
+        String lang = request.getParameter("lang");
+        if (lang != null) {
+            lang = "&lang=" + lang;
+        }
+        else {
+            lang = "";
+        }
 
-		try {
-			authService.processFailureAuthentication(request, response, exception);
-		}
-		catch (AuthenticationForbiddenException e) {
-			response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
-			return;
-		}
+        try {
+            authService.processFailureAuthentication(request, response, exception);
+        }
+        catch (AuthenticationForbiddenException e) {
+            response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
+            return;
+        }
 
-		response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
+        response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
 
-	}
+    }
 
 }

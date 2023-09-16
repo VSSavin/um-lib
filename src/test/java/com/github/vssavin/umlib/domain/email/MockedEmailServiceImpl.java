@@ -13,24 +13,24 @@ import java.util.List;
 @Primary
 class MockedEmailServiceImpl implements MockedEmailService {
 
-	private final List<EmailMessage> messages = new ArrayList<>();
+    private final List<EmailMessage> messages = new ArrayList<>();
 
-	@Override
-	public void sendSimpleMessage(String destinationEmail, String subject, String text) {
-		messages.add(new EmailMessage(destinationEmail, subject, text));
-	}
+    @Override
+    public void sendSimpleMessage(String destinationEmail, String subject, String text) {
+        messages.add(new EmailMessage(destinationEmail, subject, text));
+    }
 
-	@Override
-	public List<EmailMessage> getEmailMessages() {
-		return messages;
-	}
+    @Override
+    public List<EmailMessage> getEmailMessages() {
+        return messages;
+    }
 
-	@Override
-	public EmailMessage getLastEmailMessage() {
-		if (messages.size() == 0) {
-			throw new IllegalStateException("Emails list is empty!");
-		}
-		return messages.get(messages.size() - 1);
-	}
+    @Override
+    public EmailMessage getLastEmailMessage() {
+        if (messages.size() == 0) {
+            throw new IllegalStateException("Emails list is empty!");
+        }
+        return messages.get(messages.size() - 1);
+    }
 
 }

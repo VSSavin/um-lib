@@ -13,29 +13,29 @@ import org.springframework.stereotype.Service;
 @Primary
 class NoSecureService extends JsJCryptStub implements SecureService {
 
-	@Override
-	public String toString() {
-		return "no";
-	}
+    @Override
+    public String toString() {
+        return "no";
+    }
 
-	@Override
-	public String getPublicKey() {
-		return "";
-	}
+    @Override
+    public String getPublicKey() {
+        return "";
+    }
 
-	@Override
-	public String getPublicKey(String id) {
-		return "";
-	}
+    @Override
+    public String getPublicKey(String id) {
+        return "";
+    }
 
-	@Override
-	public String getPrivateKey() {
-		return "";
-	}
+    @Override
+    public String getPrivateKey() {
+        return "";
+    }
 
-	@Override
-	public String getPrivateKey(String id) {
-		return "";
-	}
+    @Override
+    public String getPrivateKey(String id) {
+        return "";
+    }
 
 }

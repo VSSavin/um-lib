@@ -8,8 +8,8 @@ package com.github.vssavin.umlib.domain.user;
  */
 public class UserExpiredException extends RuntimeException {
 
-	public UserExpiredException(String message) {
-		super(message);
-	}
+    public UserExpiredException(String message) {
+        super(message);
+    }
 
 }

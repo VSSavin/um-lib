@@ -8,8 +8,8 @@ package com.github.vssavin.umlib.domain.auth;
  */
 public class AuthenticationForbiddenException extends RuntimeException {
 
-	public AuthenticationForbiddenException(String message) {
-		super(message);
-	}
+    public AuthenticationForbiddenException(String message) {
+        super(message);
+    }
 
 }

@@ -13,31 +13,31 @@ import org.springframework.stereotype.Service;
 @Service
 class AESSecureService extends JsJCryptAES implements SecureService {
 
-	private final JKeyStorage keyStorage = new AESKeyStorage();
+    private final JKeyStorage keyStorage = new AESKeyStorage();
 
-	@Override
-	public String toString() {
-		return "AES";
-	}
+    @Override
+    public String toString() {
+        return "AES";
+    }
 
-	@Override
-	public String getPublicKey() {
-		return keyStorage.getPublicKey();
-	}
+    @Override
+    public String getPublicKey() {
+        return keyStorage.getPublicKey();
+    }
 
-	@Override
-	public String getPublicKey(String id) {
-		return keyStorage.getPublicKey(id);
-	}
+    @Override
+    public String getPublicKey(String id) {
+        return keyStorage.getPublicKey(id);
+    }
 
-	@Override
-	public String getPrivateKey() {
-		return keyStorage.getPrivateKey();
-	}
+    @Override
+    public String getPrivateKey() {
+        return keyStorage.getPrivateKey();
+    }
 
-	@Override
-	public String getPrivateKey(String id) {
-		return keyStorage.getPrivateKey(id);
-	}
+    @Override
+    public String getPrivateKey(String id) {
+        return keyStorage.getPrivateKey(id);
+    }
 
 }

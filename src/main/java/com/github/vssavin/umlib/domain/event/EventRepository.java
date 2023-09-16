@@ -16,8 +16,8 @@ import java.util.List;
 @Repository
 public interface EventRepository extends PagingAndSortingRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
 
-	@Transactional
-	@NonNull
-	List<Event> findAll();
+    @Transactional
+    @NonNull
+    List<Event> findAll();
 
 }

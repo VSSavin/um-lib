@@ -7,6 +7,6 @@ package com.github.vssavin.umlib.data.pagination;
  */
 public enum PageItemType {
 
-	DOTS, PAGE
+    DOTS, PAGE
 
 }

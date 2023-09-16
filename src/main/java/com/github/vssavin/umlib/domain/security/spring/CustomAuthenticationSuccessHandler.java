@@ -26,45 +26,45 @@ import java.util.Collections;
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final AuthService authService;
+    private final AuthService authService;
 
-	private final UmConfig umConfig;
+    private final UmConfig umConfig;
 
-	public CustomAuthenticationSuccessHandler(AuthService authService, UmConfig umConfig) {
-		this.authService = authService;
-		this.umConfig = umConfig;
-	}
+    public CustomAuthenticationSuccessHandler(AuthService authService, UmConfig umConfig) {
+        this.authService = authService;
+        this.umConfig = umConfig;
+    }
 
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException {
-		String successUrl = umConfig.getSuccessUrl();
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException {
+        String successUrl = umConfig.getSuccessUrl();
 
-		Collection<GrantedAuthority> authorities = Collections.emptyList();
-		try {
-			authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
-		}
-		catch (UserExpiredException e) {
-			successUrl = UmConfig.LOGIN_URL + "?error=true";
-		}
+        Collection<GrantedAuthority> authorities = Collections.emptyList();
+        try {
+            authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
+        }
+        catch (UserExpiredException e) {
+            successUrl = UmConfig.LOGIN_URL + "?error=true";
+        }
 
-		if (authorities.stream().anyMatch(authority -> authority.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
-			successUrl = umConfig.getAdminSuccessUrl();
-		}
+        if (authorities.stream().anyMatch(authority -> authority.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
+            successUrl = umConfig.getAdminSuccessUrl();
+        }
 
-		String lang = request.getParameter("lang");
-		String delimiter = "?";
-		if (successUrl.contains("?")) {
-			delimiter = "&";
-		}
-		if (lang != null) {
-			lang = delimiter + "lang=" + lang;
-		}
-		else {
-			lang = "";
-		}
+        String lang = request.getParameter("lang");
+        String delimiter = "?";
+        if (successUrl.contains("?")) {
+            delimiter = "&";
+        }
+        if (lang != null) {
+            lang = delimiter + "lang=" + lang;
+        }
+        else {
+            lang = "";
+        }
 
-		response.sendRedirect(successUrl + lang);
-	}
+        response.sendRedirect(successUrl + lang);
+    }
 
 }

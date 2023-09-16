@@ -8,12 +8,12 @@ package com.github.vssavin.umlib.domain.event;
  */
 public class CreateEventException extends RuntimeException {
 
-	public CreateEventException(String message) {
-		super(message);
-	}
+    public CreateEventException(String message) {
+        super(message);
+    }
 
-	public CreateEventException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public CreateEventException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

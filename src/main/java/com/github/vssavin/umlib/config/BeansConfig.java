@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class BeansConfig {
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean()
-	public JavaMailSender emailSender() {
-		return new JavaMailSenderImpl();
-	}
+    @Bean()
+    public JavaMailSender emailSender() {
+        return new JavaMailSenderImpl();
+    }
 
 }

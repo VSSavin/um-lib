@@ -15,66 +15,66 @@ import java.util.List;
  */
 public interface SecureService extends JCrypt, JKeyStorage, JsCryptCompatible {
 
-	static SecureService defaultSecureService() {
-		return new SecureService() {
+    static SecureService defaultSecureService() {
+        return new SecureService() {
 
-			private final JsJCryptEngine engine = new JsJCryptStub();
+            private final JsJCryptEngine engine = new JsJCryptStub();
 
-			@Override
-			public String getEncryptMethodName() {
-				return engine.getEncryptMethodName();
-			}
+            @Override
+            public String getEncryptMethodName() {
+                return engine.getEncryptMethodName();
+            }
 
-			@Override
-			public String getDecryptMethodName() {
-				return engine.getDecryptMethodName();
-			}
+            @Override
+            public String getDecryptMethodName() {
+                return engine.getDecryptMethodName();
+            }
 
-			@Override
-			public List<String> getScriptsList() {
-				return engine.getScriptsList();
-			}
+            @Override
+            public List<String> getScriptsList() {
+                return engine.getScriptsList();
+            }
 
-			@Override
-			public String getPublicKey() {
-				return "";
-			}
+            @Override
+            public String getPublicKey() {
+                return "";
+            }
 
-			@Override
-			public String getPublicKey(String id) {
-				return "";
-			}
+            @Override
+            public String getPublicKey(String id) {
+                return "";
+            }
 
-			@Override
-			public String getPrivateKey() {
-				return "";
-			}
+            @Override
+            public String getPrivateKey() {
+                return "";
+            }
 
-			@Override
-			public String getPrivateKey(String id) {
-				return "";
-			}
+            @Override
+            public String getPrivateKey(String id) {
+                return "";
+            }
 
-			@Override
-			public String encrypt(String message, String key) {
-				return engine.encrypt(message, key);
-			}
+            @Override
+            public String encrypt(String message, String key) {
+                return engine.encrypt(message, key);
+            }
 
-			@Override
-			public String decrypt(String encrypted, String key) {
-				return engine.decrypt(encrypted, key);
-			}
+            @Override
+            public String decrypt(String encrypted, String key) {
+                return engine.decrypt(encrypted, key);
+            }
 
-			@Override
-			public String encrypt(String message) {
-				return engine.encrypt(message);
-			}
+            @Override
+            public String encrypt(String message) {
+                return engine.encrypt(message);
+            }
 
-			@Override
-			public String decrypt(String encrypted) {
-				return engine.decrypt(encrypted);
-			}
-		};
-	}
+            @Override
+            public String decrypt(String encrypted) {
+                return engine.decrypt(encrypted);
+            }
+        };
+    }
 
 }

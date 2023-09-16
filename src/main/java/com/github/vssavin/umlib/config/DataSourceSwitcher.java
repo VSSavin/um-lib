@@ -16,36 +16,36 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 @Component
 public class DataSourceSwitcher {
 
-	private final AbstractRoutingDataSource routingDataSource;
+    private final AbstractRoutingDataSource routingDataSource;
 
-	private final Deque<RoutingDataSource.DATASOURCE_TYPE> datasourceStack = new ConcurrentLinkedDeque<>();
+    private final Deque<RoutingDataSource.DATASOURCE_TYPE> datasourceStack = new ConcurrentLinkedDeque<>();
 
-	public DataSourceSwitcher(AbstractRoutingDataSource routingDataSource) {
-		this.routingDataSource = routingDataSource;
-	}
+    public DataSourceSwitcher(AbstractRoutingDataSource routingDataSource) {
+        this.routingDataSource = routingDataSource;
+    }
 
-	public void switchToUmDataSource() {
-		datasourceStack.push(((RoutingDataSource) routingDataSource).getDatasourceKey());
-		((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
-	}
+    public void switchToUmDataSource() {
+        datasourceStack.push(((RoutingDataSource) routingDataSource).getDatasourceKey());
+        ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.UM_DATASOURCE);
+    }
 
-	public void switchToApplicationDataSource() {
-		datasourceStack.push(((RoutingDataSource) routingDataSource).getDatasourceKey());
-		((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
-	}
+    public void switchToApplicationDataSource() {
+        datasourceStack.push(((RoutingDataSource) routingDataSource).getDatasourceKey());
+        ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
+    }
 
-	public void switchToPreviousDataSource() {
-		try {
-			RoutingDataSource.DATASOURCE_TYPE dsType = datasourceStack.pop();
-			((RoutingDataSource) routingDataSource).setKey(dsType);
-		}
-		catch (NoSuchElementException e) {
-			((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
-		}
-	}
+    public void switchToPreviousDataSource() {
+        try {
+            RoutingDataSource.DATASOURCE_TYPE dsType = datasourceStack.pop();
+            ((RoutingDataSource) routingDataSource).setKey(dsType);
+        }
+        catch (NoSuchElementException e) {
+            ((RoutingDataSource) routingDataSource).setKey(RoutingDataSource.DATASOURCE_TYPE.APPLICATION_DATASOURCE);
+        }
+    }
 
-	public DataSource getCurrentDataSource() {
-		return ((RoutingDataSource) routingDataSource).determineTargetDataSource();
-	}
+    public DataSource getCurrentDataSource() {
+        return ((RoutingDataSource) routingDataSource).determineTargetDataSource();
+    }
 
 }
