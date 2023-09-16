@@ -12,82 +12,84 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @PropertySource(value = "classpath:" + UmDatabaseConfig.CONFIG_FILE)
 public class UmDatabaseConfig {
-    static final String CONFIG_FILE = "um_db_conf.properties";
 
-    @Value("${um.db.url}")
-    private String url;
+	static final String CONFIG_FILE = "um_db_conf.properties";
 
-    @Value("${um.db.driverClass}")
-    private String driverClass;
+	@Value("${um.db.url}")
+	private String url;
 
-    @Value("${um.db.dialect}")
-    private String dialect;
+	@Value("${um.db.driverClass}")
+	private String driverClass;
 
-    @Value("${um.db.name}")
-    private String name;
+	@Value("${um.db.dialect}")
+	private String dialect;
 
-    @Value("${um.db.user}")
-    private String user;
+	@Value("${um.db.name}")
+	private String name;
 
-    @Value("${um.db.password}")
-    private String password;
+	@Value("${um.db.user}")
+	private String user;
 
-    @Value("${um.db.additionalParams}")
-    private String additionalParams;
+	@Value("${um.db.password}")
+	private String password;
 
-    public String getUrl() {
-        return url;
-    }
+	@Value("${um.db.additionalParams}")
+	private String additionalParams;
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+	public String getUrl() {
+		return url;
+	}
 
-    public String getDriverClass() {
-        return driverClass;
-    }
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-    public void setDriverClass(String driverClass) {
-        this.driverClass = driverClass;
-    }
+	public String getDriverClass() {
+		return driverClass;
+	}
 
-    public String getDialect() {
-        return dialect;
-    }
+	public void setDriverClass(String driverClass) {
+		this.driverClass = driverClass;
+	}
 
-    public void setDialect(String dialect) {
-        this.dialect = dialect;
-    }
+	public String getDialect() {
+		return dialect;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setDialect(String dialect) {
+		this.dialect = dialect;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getUser() {
-        return user;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setUser(String user) {
-        this.user = user;
-    }
+	public String getUser() {
+		return user;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public void setUser(String user) {
+		this.user = user;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public String getAdditionalParams() {
-        return additionalParams;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public void setAdditionalParams(String additionalParams) {
-        this.additionalParams = additionalParams;
-    }
+	public String getAdditionalParams() {
+		return additionalParams;
+	}
+
+	public void setAdditionalParams(String additionalParams) {
+		this.additionalParams = additionalParams;
+	}
+
 }

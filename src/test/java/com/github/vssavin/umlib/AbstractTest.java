@@ -30,74 +30,77 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles("um-test")
-@SpringBootTest(args = {"authService=rsa"}, properties = "spring.main.allow-bean-definition-overriding=true")
-@ContextConfiguration(classes = {ApplicationConfig.class, UmTemplateResolverConfig.class})
+@SpringBootTest(args = { "authService=rsa" }, properties = "spring.main.allow-bean-definition-overriding=true")
+@ContextConfiguration(classes = { ApplicationConfig.class, UmTemplateResolverConfig.class })
 @WebAppConfiguration
 public abstract class AbstractTest {
-    private static final String DEFAULT_SECURE_ENDPOINT = "/um/security/key";
 
-    static {
-        DOMConfigurator.configure("./log4j.xml");
-    }
+	private static final String DEFAULT_SECURE_ENDPOINT = "/um/security/key";
 
-    protected final User testAdminUser = new User("admin", "admin", "admin",
-            "admin@example.com", "ADMIN");
-    protected final User testUser = new User("user", "user", "user",
-            "user@example.com", "USER");
+	static {
+		DOMConfigurator.configure("./log4j.xml");
+	}
 
-    protected MockMvc mockMvc;
-    protected SecureService secureService;
-    protected UserDatabaseInitService userDatabaseInitService;
-    protected WebApplicationContext context;
+	protected final User testAdminUser = new User("admin", "admin", "admin", "admin@example.com", "ADMIN");
 
-    @Autowired
-    public void setContext(WebApplicationContext context) {
-        this.context = context;
-    }
+	protected final User testUser = new User("user", "user", "user", "user@example.com", "USER");
 
-    @Autowired
-    public void setUmConfig(UmConfig umConfig) {
-        secureService = umConfig.getSecureService();
-    }
+	protected MockMvc mockMvc;
 
-    @Autowired
-    public void setUserDatabaseInitService(UserDatabaseInitService dataBaseInitServiceUser) {
-        this.userDatabaseInitService = dataBaseInitServiceUser;
-    }
+	protected SecureService secureService;
 
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .addFilter(((request, response, chain) -> {
-                    response.setCharacterEncoding("UTF-8");
-                    chain.doFilter(request, response);
-                }))
-                .build();
-    }
+	protected UserDatabaseInitService userDatabaseInitService;
 
-    protected RequestPostProcessor getRequestPostProcessorForUser(User user) {
-        return user(user.getLogin()).password(user.getPassword()).roles(user.getAuthority());
-    }
+	protected WebApplicationContext context;
 
-    protected String encrypt(String secureEndpoint, String data) throws Exception {
-        String urlTemplate = secureEndpoint;
-        if (urlTemplate == null || urlTemplate.isEmpty()) {
-            urlTemplate = DEFAULT_SECURE_ENDPOINT;
-        }
-        ResultActions secureAction = mockMvc.perform(get(urlTemplate));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        return secureService.encrypt(data, secureKey);
-    }
+	@Autowired
+	public void setContext(WebApplicationContext context) {
+		this.context = context;
+	}
 
-    protected String decrypt(String secureEndpoint, String data) throws Exception {
-        String urlTemplate = secureEndpoint;
-        if (urlTemplate == null || urlTemplate.isEmpty()) {
-            urlTemplate = DEFAULT_SECURE_ENDPOINT;
-        }
-        ResultActions secureAction = mockMvc.perform(get(urlTemplate));
-        String secureKey = secureAction.andReturn().getResponse().getContentAsString();
-        return secureService.decrypt(data, secureKey);
-    }
+	@Autowired
+	public void setUmConfig(UmConfig umConfig) {
+		secureService = umConfig.getSecureService();
+	}
+
+	@Autowired
+	public void setUserDatabaseInitService(UserDatabaseInitService dataBaseInitServiceUser) {
+		this.userDatabaseInitService = dataBaseInitServiceUser;
+	}
+
+	@Before
+	public void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(context)
+			.apply(springSecurity())
+			.addFilter(((request, response, chain) -> {
+				response.setCharacterEncoding("UTF-8");
+				chain.doFilter(request, response);
+			}))
+			.build();
+	}
+
+	protected RequestPostProcessor getRequestPostProcessorForUser(User user) {
+		return user(user.getLogin()).password(user.getPassword()).roles(user.getAuthority());
+	}
+
+	protected String encrypt(String secureEndpoint, String data) throws Exception {
+		String urlTemplate = secureEndpoint;
+		if (urlTemplate == null || urlTemplate.isEmpty()) {
+			urlTemplate = DEFAULT_SECURE_ENDPOINT;
+		}
+		ResultActions secureAction = mockMvc.perform(get(urlTemplate));
+		String secureKey = secureAction.andReturn().getResponse().getContentAsString();
+		return secureService.encrypt(data, secureKey);
+	}
+
+	protected String decrypt(String secureEndpoint, String data) throws Exception {
+		String urlTemplate = secureEndpoint;
+		if (urlTemplate == null || urlTemplate.isEmpty()) {
+			urlTemplate = DEFAULT_SECURE_ENDPOINT;
+		}
+		ResultActions secureAction = mockMvc.perform(get(urlTemplate));
+		String secureKey = secureAction.andReturn().getResponse().getContentAsString();
+		return secureService.decrypt(data, secureKey);
+	}
+
 }

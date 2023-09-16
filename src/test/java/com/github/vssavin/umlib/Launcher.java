@@ -10,12 +10,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Launcher {
 
-    static {
-        System.setProperty("um.templateResolver.order", "1");
-    }
+	static {
+		System.setProperty("um.templateResolver.order", "1");
+	}
 
-    public static void main(String[] args) {
-        DOMConfigurator.configure("./log4j.xml");
-        SpringApplication.run(Launcher.class, args);
-    }
+	public static void main(String[] args) {
+		DOMConfigurator.configure("./log4j.xml");
+		SpringApplication.run(Launcher.class, args);
+	}
+
 }

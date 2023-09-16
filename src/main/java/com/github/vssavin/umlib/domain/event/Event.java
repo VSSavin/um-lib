@@ -13,128 +13,126 @@ import java.util.Date;
 @Entity
 @Table(name = "events")
 public class Event {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "event_type")
-    private EventType eventType;
+	@Column(name = "user_id")
+	private Long userId;
 
-    @Column(name = "event_timestamp")
-    private Date eventTimestamp;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "event_type")
+	private EventType eventType;
 
-    @Column(name = "event_message")
-    private String eventMessage;
+	@Column(name = "event_timestamp")
+	private Date eventTimestamp;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+	@Column(name = "event_message")
+	private String eventMessage;
 
-    public Event(Long id, Long userId, Date eventTimestamp, String eventMessage) {
-        this.id = id;
-        this.userId = userId;
-        this.eventTimestamp = eventTimestamp;
-        this.eventMessage = eventMessage;
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", insertable = false, updatable = false)
+	private User user;
 
-    public Event(Long userId, EventType eventType, Date eventTimestamp, String eventMessage, User user) {
-        this.userId = userId;
-        this.eventType = eventType;
-        this.eventTimestamp = eventTimestamp;
-        this.eventMessage = eventMessage;
-        this.user = user;
-    }
+	public Event(Long id, Long userId, Date eventTimestamp, String eventMessage) {
+		this.id = id;
+		this.userId = userId;
+		this.eventTimestamp = eventTimestamp;
+		this.eventMessage = eventMessage;
+	}
 
-    public Event() {
-    }
+	public Event(Long userId, EventType eventType, Date eventTimestamp, String eventMessage, User user) {
+		this.userId = userId;
+		this.eventType = eventType;
+		this.eventTimestamp = eventTimestamp;
+		this.eventMessage = eventMessage;
+		this.user = user;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Event() {
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public Date getEventTimestamp() {
-        return eventTimestamp;
-    }
+	public Long getUserId() {
+		return userId;
+	}
 
-    public String getEventMessage() {
-        return eventMessage;
-    }
+	public Date getEventTimestamp() {
+		return eventTimestamp;
+	}
 
-    public EventType getEventType() {
-        return eventType;
-    }
+	public String getEventMessage() {
+		return eventMessage;
+	}
 
-    public User getUser() {
-        return user;
-    }
+	public EventType getEventType() {
+		return eventType;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public User getUser() {
+		return user;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setEventTimestamp(Date eventTimestamp) {
-        this.eventTimestamp = eventTimestamp;
-    }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-    public void setEventMessage(String eventMessage) {
-        this.eventMessage = eventMessage;
-    }
+	public void setEventTimestamp(Date eventTimestamp) {
+		this.eventTimestamp = eventTimestamp;
+	}
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+	public void setEventMessage(String eventMessage) {
+		this.eventMessage = eventMessage;
+	}
 
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
+	public void setUser(User user) {
+		this.user = user;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType;
+	}
 
-        Event event = (Event) o;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        if (!userId.equals(event.userId)) {
-            return false;
-        }
-        if (eventType != event.eventType) {
-            return false;
-        }
-        return eventTimestamp.equals(event.eventTimestamp);
-    }
+		Event event = (Event) o;
 
-    @Override
-    public int hashCode() {
-        int result = userId.hashCode();
-        result = 31 * result + eventType.hashCode();
-        result = 31 * result + eventTimestamp.hashCode();
-        return result;
-    }
+		if (!userId.equals(event.userId)) {
+			return false;
+		}
+		if (eventType != event.eventType) {
+			return false;
+		}
+		return eventTimestamp.equals(event.eventTimestamp);
+	}
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", eventTimestamp=" + eventTimestamp +
-                ", eventMessage='" + eventMessage + '\'' +
-                '}';
-    }
+	@Override
+	public int hashCode() {
+		int result = userId.hashCode();
+		result = 31 * result + eventType.hashCode();
+		result = 31 * result + eventTimestamp.hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "Event{" + "id=" + id + ", userId=" + userId + ", eventTimestamp=" + eventTimestamp + ", eventMessage='"
+				+ eventMessage + '\'' + '}';
+	}
+
 }

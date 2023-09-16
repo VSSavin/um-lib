@@ -35,198 +35,213 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * An {@link com.github.vssavin.umlib.domain.auth.AuthService} implementation that:
- * 1. Attempts to authenticate the user using o2Auth or user/password mechanism.
- * 2. Handling success authentication and creating the corresponding user event.
- * 3. Handling failed authentication adds the current IP address to the blacklist.
- * 4. Checks if authentication is allowed for the specified ip address uses a blacklist.
+ * An {@link com.github.vssavin.umlib.domain.auth.AuthService} implementation that: 1.
+ * Attempts to authenticate the user using o2Auth or user/password mechanism. 2. Handling
+ * success authentication and creating the corresponding user event. 3. Handling failed
+ * authentication adds the current IP address to the blacklist. 4. Checks if
+ * authentication is allowed for the specified ip address uses a blacklist.
  *
  * @author vssavin on 29.08.2023
  */
 @Service
 public class SimpleAuthService implements AuthService {
-    private static final Logger log = LoggerFactory.getLogger(SimpleAuthService.class);
-    private static final Class<? extends Authentication>
-            authenticationClass = CustomUsernamePasswordAuthenticationToken.class;
 
-    private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
-    private static final ConcurrentHashMap<String, Long> banExpirationTime = new ConcurrentHashMap<>(50);
+	private static final Logger log = LoggerFactory.getLogger(SimpleAuthService.class);
 
-    private final UserService userService;
-    private final EventService eventService;
-    private final SecureService secureService;
-    private final PasswordEncoder passwordEncoder;
-    private final int maxFailureCount;
-    private final int blockTimeMinutes;
+	private static final Class<? extends Authentication> authenticationClass = CustomUsernamePasswordAuthenticationToken.class;
 
-    @Autowired
-    public SimpleAuthService(UserService userService, EventService eventService,
-                             UmConfig umConfig, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.eventService = eventService;
-        this.secureService = umConfig.getSecureService();
-        this.passwordEncoder = passwordEncoder;
-        this.maxFailureCount = umConfig.getMaxAuthFailureCount();
-        this.blockTimeMinutes = umConfig.getAuthFailureBlockTime();
-    }
+	private static final ConcurrentHashMap<String, Integer> blackList = new ConcurrentHashMap<>(50);
 
-    @Override
-    public Authentication authenticate(Authentication authentication) {
-        Object credentials = authentication.getCredentials();
-        Object userName = authentication.getPrincipal();
-        if (credentials != null) {
-            UserDetails user = userService.loadUserByUsername(userName.toString());
-            if (user != null) {
-                checkUserDetails(user);
+	private static final ConcurrentHashMap<String, Long> banExpirationTime = new ConcurrentHashMap<>(50);
 
-                String addr = getRemoteAddress(authentication);
-                String password = secureService.decrypt(credentials.toString(), secureService.getPrivateKey(addr));
+	private final UserService userService;
 
-                if (passwordEncoder.matches(password, user.getPassword())) {
-                    List<GrantedAuthority> authorities = new ArrayList<>(user.getAuthorities());
-                    return new CustomUsernamePasswordAuthenticationToken(authentication.getPrincipal(),
-                            password, authorities);
-                } else {
-                    throw new BadCredentialsException("Authentication failed");
-                }
+	private final EventService eventService;
 
-            } else {
-                return authentication;
-            }
+	private final SecureService secureService;
 
-        } else {
-            return authentication;
-        }
-    }
+	private final PasswordEncoder passwordEncoder;
 
-    @Override
-    @Transactional
-    @UmRouteDatasource
-    public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication,
-                                                                     HttpServletRequest request, EventType eventType) {
-        User user = null;
-        try {
-            OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-            user = userService.processOAuthPostLogin(oAuth2User);
-        } catch (ClassCastException e) {
-            //ignore, it's ok
-        }
+	private final int maxFailureCount;
 
-        if (user == null) {
-            user = userService.getUserByLogin(authentication.getPrincipal().toString());
-        }
+	private final int blockTimeMinutes;
 
-        if (user == null) {
-            throw new UserNotFoundException(
-                    String.format("User [%s] not found!", authentication.getPrincipal().toString()));
-        }
+	@Autowired
+	public SimpleAuthService(UserService userService, EventService eventService, UmConfig umConfig,
+			PasswordEncoder passwordEncoder) {
+		this.userService = userService;
+		this.eventService = eventService;
+		this.secureService = umConfig.getSecureService();
+		this.passwordEncoder = passwordEncoder;
+		this.maxFailureCount = umConfig.getMaxAuthFailureCount();
+		this.blockTimeMinutes = umConfig.getAuthFailureBlockTime();
+	}
 
-        if (user.getExpirationDate().before(new Date())) {
-            userService.deleteUser(user);
-            throw new UserExpiredException(String.format("User [%s] has been expired!", user.getLogin()));
-        }
+	@Override
+	public Authentication authenticate(Authentication authentication) {
+		Object credentials = authentication.getCredentials();
+		Object userName = authentication.getPrincipal();
+		if (credentials != null) {
+			UserDetails user = userService.loadUserByUsername(userName.toString());
+			if (user != null) {
+				checkUserDetails(user);
 
-        saveUserEvent(user, request, eventType);
-        return user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority())).collect(Collectors.toList());
-    }
+				String addr = getRemoteAddress(authentication);
+				String password = secureService.decrypt(credentials.toString(), secureService.getPrivateKey(addr));
 
-    @Override
-    public boolean isAuthenticationAllowed(String ipAddress) {
-        int failureCounts = getFailureCount(ipAddress);
-        if (failureCounts >= maxFailureCount) {
-            long expireTime = getBanExpirationTime(ipAddress);
-            if (expireTime > 0 && System.currentTimeMillis() < expireTime) {
-                return false;
-            }
-        }
-        return true;
-    }
+				if (passwordEncoder.matches(password, user.getPassword())) {
+					List<GrantedAuthority> authorities = new ArrayList<>(user.getAuthorities());
+					return new CustomUsernamePasswordAuthenticationToken(authentication.getPrincipal(), password,
+							authorities);
+				}
+				else {
+					throw new BadCredentialsException("Authentication failed");
+				}
 
-    @Override
-    public void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                             AuthenticationException exception) {
-        String userIp = request.getRemoteAddr();
-        int failureCount = getFailureCount(userIp);
+			}
+			else {
+				return authentication;
+			}
 
-        if (failureCount >= maxFailureCount) {
-            long expirationTime = getBanExpirationTime(userIp);
-            if (expirationTime == 0) {
-                blockIp(userIp);
-                log.info("IP {} has been blocked!", userIp);
-                throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
-            } else if (expirationTime < System.currentTimeMillis()) {
-                resetFailureCount(userIp);
-                incrementFailureCount(userIp);
-            } else {
-                throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
-            }
-        } else {
-            incrementFailureCount(userIp);
-        }
-    }
+		}
+		else {
+			return authentication;
+		}
+	}
 
-    @Override
-    public Class<? extends Authentication> authenticationClass() {
-        return authenticationClass;
-    }
+	@Override
+	@Transactional
+	@UmRouteDatasource
+	public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication,
+			HttpServletRequest request, EventType eventType) {
+		User user = null;
+		try {
+			OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+			user = userService.processOAuthPostLogin(oAuth2User);
+		}
+		catch (ClassCastException e) {
+			// ignore, it's ok
+		}
 
-    private void saveUserEvent(User user, HttpServletRequest request,
-                                   EventType eventType) {
-        String message = "";
-        switch (eventType) {
-            case LOGGED_IN:
-                message = String.format("User [%s] logged in using IP: %s", user.getLogin(), request.getRemoteAddr());
-                break;
-            case LOGGED_OUT:
-                message = String.format("User [%s] logged out using IP: %s", user.getLogin(), request.getRemoteAddr());
-                break;
-        }
-        eventService.createEvent(user, eventType, message);
-    }
+		if (user == null) {
+			user = userService.getUserByLogin(authentication.getPrincipal().toString());
+		}
 
-    private int getFailureCount(String userIp) {
-        return blackList.getOrDefault(userIp, 1);
-    }
+		if (user == null) {
+			throw new UserNotFoundException(
+					String.format("User [%s] not found!", authentication.getPrincipal().toString()));
+		}
 
-    private void incrementFailureCount(String userIp) {
-        int failureCounts = getFailureCount(userIp) + 1;
-        blackList.put(userIp, failureCounts);
-    }
+		if (user.getExpirationDate().before(new Date())) {
+			userService.deleteUser(user);
+			throw new UserExpiredException(String.format("User [%s] has been expired!", user.getLogin()));
+		}
 
-    private void resetFailureCount(String userIp) {
-        blackList.put(userIp, 1);
-        banExpirationTime.remove(userIp);
-    }
+		saveUserEvent(user, request, eventType);
+		return user.getAuthorities()
+			.stream()
+			.map(authority -> new SimpleGrantedAuthority(authority.getAuthority()))
+			.collect(Collectors.toList());
+	}
 
-    private long getBanExpirationTime(String userIp) {
-        return banExpirationTime.getOrDefault(userIp, 0L);
-    }
+	@Override
+	public boolean isAuthenticationAllowed(String ipAddress) {
+		int failureCounts = getFailureCount(ipAddress);
+		if (failureCounts >= maxFailureCount) {
+			long expireTime = getBanExpirationTime(ipAddress);
+			if (expireTime > 0 && System.currentTimeMillis() < expireTime) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private void blockIp(String ip) {
-        banExpirationTime.put(ip,
-                Calendar.getInstance().getTimeInMillis() + ((long) blockTimeMinutes * 60 * 1000));
-    }
+	@Override
+	public void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) {
+		String userIp = request.getRemoteAddr();
+		int failureCount = getFailureCount(userIp);
 
-    private void checkUserDetails(UserDetails userDetails) {
-        if (!userDetails.isAccountNonExpired()) {
-            throw new AccountExpiredException("Account is expired!");
-        }
-        if (!userDetails.isAccountNonLocked()) {
-            throw new LockedException("Account is locked!");
-        }
-        if (!userDetails.isEnabled()) {
-            throw new DisabledException("Account is disabled!");
-        }
-    }
+		if (failureCount >= maxFailureCount) {
+			long expirationTime = getBanExpirationTime(userIp);
+			if (expirationTime == 0) {
+				blockIp(userIp);
+				log.info("IP {} has been blocked!", userIp);
+				throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
+			}
+			else if (expirationTime < System.currentTimeMillis()) {
+				resetFailureCount(userIp);
+				incrementFailureCount(userIp);
+			}
+			else {
+				throw new AuthenticationForbiddenException("Sorry! You have been blocked! Try again later!");
+			}
+		}
+		else {
+			incrementFailureCount(userIp);
+		}
+	}
 
-    private String getRemoteAddress(Authentication authentication) {
-        Object details = authentication.getDetails();
+	@Override
+	public Class<? extends Authentication> authenticationClass() {
+		return authenticationClass;
+	}
 
-        if (details instanceof WebAuthenticationDetails) {
-            return ((WebAuthenticationDetails) details).getRemoteAddress();
-        }
+	private void saveUserEvent(User user, HttpServletRequest request, EventType eventType) {
+		String message = "";
+		switch (eventType) {
+			case LOGGED_IN:
+				message = String.format("User [%s] logged in using IP: %s", user.getLogin(), request.getRemoteAddr());
+				break;
+			case LOGGED_OUT:
+				message = String.format("User [%s] logged out using IP: %s", user.getLogin(), request.getRemoteAddr());
+				break;
+		}
+		eventService.createEvent(user, eventType, message);
+	}
 
-        return "";
-    }
+	private int getFailureCount(String userIp) {
+		return blackList.getOrDefault(userIp, 1);
+	}
+
+	private void incrementFailureCount(String userIp) {
+		int failureCounts = getFailureCount(userIp) + 1;
+		blackList.put(userIp, failureCounts);
+	}
+
+	private void resetFailureCount(String userIp) {
+		blackList.put(userIp, 1);
+		banExpirationTime.remove(userIp);
+	}
+
+	private long getBanExpirationTime(String userIp) {
+		return banExpirationTime.getOrDefault(userIp, 0L);
+	}
+
+	private void blockIp(String ip) {
+		banExpirationTime.put(ip, Calendar.getInstance().getTimeInMillis() + ((long) blockTimeMinutes * 60 * 1000));
+	}
+
+	private void checkUserDetails(UserDetails userDetails) {
+		if (!userDetails.isAccountNonExpired()) {
+			throw new AccountExpiredException("Account is expired!");
+		}
+		if (!userDetails.isAccountNonLocked()) {
+			throw new LockedException("Account is locked!");
+		}
+		if (!userDetails.isEnabled()) {
+			throw new DisabledException("Account is disabled!");
+		}
+	}
+
+	private String getRemoteAddress(Authentication authentication) {
+		Object details = authentication.getDetails();
+
+		if (details instanceof WebAuthenticationDetails) {
+			return ((WebAuthenticationDetails) details).getRemoteAddress();
+		}
+
+		return "";
+	}
+
 }

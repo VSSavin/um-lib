@@ -11,8 +11,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Service
 public interface UserSecurityService {
-    String getAuthorizedUserName(HttpServletRequest request);
-    String getAuthorizedUserLogin(HttpServletRequest request);
-    boolean isAuthorizedAdmin(HttpServletRequest request);
-    boolean isAuthorizedUser(HttpServletRequest request);
+
+	String getAuthorizedUserName(HttpServletRequest request);
+
+	String getAuthorizedUserLogin(HttpServletRequest request);
+
+	boolean isAuthorizedAdmin(HttpServletRequest request);
+
+	boolean isAuthorizedUser(HttpServletRequest request);
+
 }

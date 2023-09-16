@@ -15,11 +15,17 @@ import java.util.Collection;
  * @author vssavin on 29.08.2023
  */
 public interface AuthService {
-    Authentication authenticate(Authentication authentication);
-    Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
-                                                              EventType eventType);
-    boolean isAuthenticationAllowed(String ipAddress);
-    void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
-                                      AuthenticationException exception);
-    Class<? extends Authentication> authenticationClass();
+
+	Authentication authenticate(Authentication authentication);
+
+	Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication, HttpServletRequest request,
+			EventType eventType);
+
+	boolean isAuthenticationAllowed(String ipAddress);
+
+	void processFailureAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception);
+
+	Class<? extends Authentication> authenticationClass();
+
 }

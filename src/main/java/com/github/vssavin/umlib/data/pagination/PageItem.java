@@ -7,67 +7,72 @@ package com.github.vssavin.umlib.data.pagination;
  */
 public class PageItem {
 
-    private PageItemType pageItemType;
-    private int index;
-    private boolean active;
+	private PageItemType pageItemType;
 
-    public PageItem(PageItemType pageItemType, int index, boolean active) {
-        this.pageItemType = pageItemType;
-        this.index = index;
-        this.active = active;
-    }
+	private int index;
 
-    public PageItem() {
-    }
+	private boolean active;
 
-    public PageItemType getPageItemType() {
-        return pageItemType;
-    }
+	public PageItem(PageItemType pageItemType, int index, boolean active) {
+		this.pageItemType = pageItemType;
+		this.index = index;
+		this.active = active;
+	}
 
-    public int getIndex() {
-        return index;
-    }
+	public PageItem() {
+	}
 
-    public boolean isActive() {
-        return active;
-    }
+	public PageItemType getPageItemType() {
+		return pageItemType;
+	}
 
-    public void setPageItemType(PageItemType pageItemType) {
-        this.pageItemType = pageItemType;
-    }
+	public int getIndex() {
+		return index;
+	}
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
+	public boolean isActive() {
+		return active;
+	}
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+	public void setPageItemType(PageItemType pageItemType) {
+		this.pageItemType = pageItemType;
+	}
 
-    public static PageItemBuilder builder() {
-        return new PageItemBuilder();
-    }
+	public void setIndex(int index) {
+		this.index = index;
+	}
 
-    public static class PageItemBuilder {
-        private final PageItem pageItem = new PageItem();
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
-        public PageItemBuilder active(boolean active) {
-            pageItem.setActive(active);
-            return this;
-        }
+	public static PageItemBuilder builder() {
+		return new PageItemBuilder();
+	}
 
-        public PageItemBuilder index(int index) {
-            pageItem.setIndex(index);
-            return this;
-        }
+	public static class PageItemBuilder {
 
-        public PageItemBuilder pageItemType(PageItemType pageItemType) {
-            pageItem.setPageItemType(pageItemType);
-            return this;
-        }
+		private final PageItem pageItem = new PageItem();
 
-        public PageItem build() {
-            return pageItem;
-        }
-    }
+		public PageItemBuilder active(boolean active) {
+			pageItem.setActive(active);
+			return this;
+		}
+
+		public PageItemBuilder index(int index) {
+			pageItem.setIndex(index);
+			return this;
+		}
+
+		public PageItemBuilder pageItemType(PageItemType pageItemType) {
+			pageItem.setPageItemType(pageItemType);
+			return this;
+		}
+
+		public PageItem build() {
+			return pageItem;
+		}
+
+	}
+
 }

@@ -6,11 +6,13 @@ package com.github.vssavin.umlib.domain.user;
  * @author vssavin on 11.07.2022.
  */
 class RecoveryExpiredException extends RuntimeException {
-    RecoveryExpiredException(String message) {
-        super(message);
-    }
 
-    RecoveryExpiredException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	RecoveryExpiredException(String message) {
+		super(message);
+	}
+
+	RecoveryExpiredException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

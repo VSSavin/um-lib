@@ -12,19 +12,21 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:" + OAuth2Config.CONFIG_FILE, ignoreResourceNotFound = true)
 @Configuration
 public class OAuth2Config {
-    static final String CONFIG_FILE = "oauth2.properties";
 
-    @Value("${spring.security.oauth2.client.registration.google.clientId:}")
-    private String googleClientId;
+	static final String CONFIG_FILE = "oauth2.properties";
 
-    @Value("${spring.security.oauth2.client.registration.google.clientSecret:}")
-    private String googleClientSecret;
+	@Value("${spring.security.oauth2.client.registration.google.clientId:}")
+	private String googleClientId;
 
-    public String getGoogleClientId() {
-        return googleClientId;
-    }
+	@Value("${spring.security.oauth2.client.registration.google.clientSecret:}")
+	private String googleClientSecret;
 
-    public String getGoogleClientSecret() {
-        return googleClientSecret;
-    }
+	public String getGoogleClientId() {
+		return googleClientId;
+	}
+
+	public String getGoogleClientSecret() {
+		return googleClientSecret;
+	}
+
 }

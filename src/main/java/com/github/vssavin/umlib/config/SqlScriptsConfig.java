@@ -23,111 +23,121 @@ import java.util.stream.Stream;
  */
 @Component
 public class SqlScriptsConfig {
-    public static final String SCRIPTS_DEFAULT_DIRECTORY = "sqlScripts";
-    private static final Logger log = LoggerFactory.getLogger(SqlScriptsConfig.class);
 
-    @Autowired
-    public SqlScriptsConfig(@Qualifier("umDataSource") DataSource umDataSource) {
-        ArrayList<String> sqlFiles = new ArrayList<>();
-        sqlFiles.add("/init.sql");
-        executeSqlScripts(umDataSource, SCRIPTS_DEFAULT_DIRECTORY, sqlFiles);
-    }
+	public static final String SCRIPTS_DEFAULT_DIRECTORY = "sqlScripts";
 
-    public void executeSqlScripts(DataSource dataSource, String scriptsDirectory, List<String> sourceFiles) {
-        Map<String, InputStream> fileStreams = getFileStreams(scriptsDirectory);
+	private static final Logger log = LoggerFactory.getLogger(SqlScriptsConfig.class);
 
-        for (String sourceFile : sourceFiles) {
-            InputStream resourceStream;
-            if (sourceFile.endsWith(".sql")) {
-                try {
-                    resourceStream = getClass().getResourceAsStream(sourceFile);
-                    if (resourceStream == null) {
-                        log.warn("Resource is null! File: {}", sourceFile);
-                    } else {
-                        fileStreams.put(sourceFile, resourceStream);
-                    }
+	@Autowired
+	public SqlScriptsConfig(@Qualifier("umDataSource") DataSource umDataSource) {
+		ArrayList<String> sqlFiles = new ArrayList<>();
+		sqlFiles.add("/init.sql");
+		executeSqlScripts(umDataSource, SCRIPTS_DEFAULT_DIRECTORY, sqlFiles);
+	}
 
-                } catch (Exception e) {
-                    log.error("Getting resource stream error: file = " + sourceFile, e);
-                }
-            } else {
-                log.warn("Resource: {} is not sql file!", sourceFile);
-            }
-        }
+	public void executeSqlScripts(DataSource dataSource, String scriptsDirectory, List<String> sourceFiles) {
+		Map<String, InputStream> fileStreams = getFileStreams(scriptsDirectory);
 
-        fileStreams.forEach((file, inputStream) -> {
-            log.debug("Processing sql file: {}", file);
-            executeSqlScript(new InputStreamReader(inputStream), dataSource);
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                log.error("Close input stream error! File = " + file, e);
-            }
-        });
-    }
+		for (String sourceFile : sourceFiles) {
+			InputStream resourceStream;
+			if (sourceFile.endsWith(".sql")) {
+				try {
+					resourceStream = getClass().getResourceAsStream(sourceFile);
+					if (resourceStream == null) {
+						log.warn("Resource is null! File: {}", sourceFile);
+					}
+					else {
+						fileStreams.put(sourceFile, resourceStream);
+					}
 
-    private Map<String, InputStream> getFileStreams(String directory) {
-        Map<String, InputStream> fileStreams = new HashMap<>();
+				}
+				catch (Exception e) {
+					log.error("Getting resource stream error: file = " + sourceFile, e);
+				}
+			}
+			else {
+				log.warn("Resource: {} is not sql file!", sourceFile);
+			}
+		}
 
-        if (!directory.isEmpty()) {
-            Path path = null;
-            try {
-                path = Paths
-                        .get(Objects.requireNonNull(getClass().getClassLoader().getResource(directory)).toURI());
-            } catch (Exception e) {
-                log.warn("Directory {} not found!", directory);
-            }
+		fileStreams.forEach((file, inputStream) -> {
+			log.debug("Processing sql file: {}", file);
+			executeSqlScript(new InputStreamReader(inputStream), dataSource);
+			try {
+				inputStream.close();
+			}
+			catch (IOException e) {
+				log.error("Close input stream error! File = " + file, e);
+			}
+		});
+	}
 
-            if (path != null) {
-                try (Stream<Path> paths = Files.walk(path)) {
-                    paths
-                            .filter(Files::isRegularFile)
-                            .filter(p -> p.getFileName().toString().endsWith(".sql"))
-                            .forEach(p -> {
-                                try {
-                                    fileStreams.put(p.getFileName().toString(),
-                                            new FileInputStream(new File(p.toUri())));
-                                } catch (FileNotFoundException e) {
-                                    log.error("File not found: file = {}", p.getFileName());
-                                }
-                            });
-                } catch (Exception e) {
-                    log.error("Searching sql files error: ", e);
-                }
-            }
-        }
+	private Map<String, InputStream> getFileStreams(String directory) {
+		Map<String, InputStream> fileStreams = new HashMap<>();
 
-        return fileStreams;
-    }
+		if (!directory.isEmpty()) {
+			Path path = null;
+			try {
+				path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(directory)).toURI());
+			}
+			catch (Exception e) {
+				log.warn("Directory {} not found!", directory);
+			}
 
-    private void executeSqlScript(Reader reader, DataSource dataSource) {
-        StringWriter logWriter = new StringWriter();
-        try (Reader innerReader = reader) {
-            Connection connection = dataSource.getConnection();
-            ScriptRunner scriptRunner = new ScriptRunner(connection);
-            StringWriter errorWriter = new StringWriter();
-            scriptRunner.setLogWriter(new PrintWriter(logWriter));
-            scriptRunner.setErrorLogWriter(new PrintWriter(errorWriter));
-            scriptRunner.runScript(innerReader);
-            String message = logWriter.toString();
-            if (!message.isEmpty()) {
-                log.debug(message);
-            }
-            if (!errorWriter.toString().isEmpty()) {
-                throw new ExecuteSqlScriptException("Executing script error: " + errorWriter);
-            }
+			if (path != null) {
+				try (Stream<Path> paths = Files.walk(path)) {
+					paths.filter(Files::isRegularFile)
+						.filter(p -> p.getFileName().toString().endsWith(".sql"))
+						.forEach(p -> {
+							try {
+								fileStreams.put(p.getFileName().toString(), new FileInputStream(new File(p.toUri())));
+							}
+							catch (FileNotFoundException e) {
+								log.error("File not found: file = {}", p.getFileName());
+							}
+						});
+				}
+				catch (Exception e) {
+					log.error("Searching sql files error: ", e);
+				}
+			}
+		}
 
-        } catch (Exception e) {
-            if (!logWriter.toString().isEmpty()) {
-                log.debug(logWriter.toString());
-            }
-            log.error("Executing init script error: ", e);
-        }
-    }
+		return fileStreams;
+	}
 
-    private static class ExecuteSqlScriptException extends RuntimeException {
-        ExecuteSqlScriptException(String message) {
-            super(message);
-        }
-    }
+	private void executeSqlScript(Reader reader, DataSource dataSource) {
+		StringWriter logWriter = new StringWriter();
+		try (Reader innerReader = reader) {
+			Connection connection = dataSource.getConnection();
+			ScriptRunner scriptRunner = new ScriptRunner(connection);
+			StringWriter errorWriter = new StringWriter();
+			scriptRunner.setLogWriter(new PrintWriter(logWriter));
+			scriptRunner.setErrorLogWriter(new PrintWriter(errorWriter));
+			scriptRunner.runScript(innerReader);
+			String message = logWriter.toString();
+			if (!message.isEmpty()) {
+				log.debug(message);
+			}
+			if (!errorWriter.toString().isEmpty()) {
+				throw new ExecuteSqlScriptException("Executing script error: " + errorWriter);
+			}
+
+		}
+		catch (Exception e) {
+			if (!logWriter.toString().isEmpty()) {
+				log.debug(logWriter.toString());
+			}
+			log.error("Executing init script error: ", e);
+		}
+	}
+
+	private static class ExecuteSqlScriptException extends RuntimeException {
+
+		ExecuteSqlScriptException(String message) {
+			super(message);
+		}
+
+	}
+
 }

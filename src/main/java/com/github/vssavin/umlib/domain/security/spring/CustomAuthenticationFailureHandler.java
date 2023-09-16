@@ -13,42 +13,46 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * An {@link org.springframework.security.web.authentication.AuthenticationFailureHandler} implementation
- * that handles failed authentication using corresponding authentication service.
+ * An {@link org.springframework.security.web.authentication.AuthenticationFailureHandler}
+ * implementation that handles failed authentication using corresponding authentication
+ * service.
  *
  * @author vssavin on 18.12.2021
  */
 @Component
 class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
-    private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
 
-    private final AuthService authService;
+	private static final String FAILURE_REDIRECT_PAGE = "/login.html?error=true";
 
-    @Autowired
-    CustomAuthenticationFailureHandler(AuthService authService) {
-        this.authService = authService;
-    }
+	private final AuthService authService;
 
-    @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                        AuthenticationException exception)
-            throws IOException {
+	@Autowired
+	CustomAuthenticationFailureHandler(AuthService authService) {
+		this.authService = authService;
+	}
 
-        String lang = request.getParameter("lang");
-        if (lang != null) {
-            lang = "&lang=" + lang;
-        } else {
-            lang = "";
-        }
+	@Override
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException {
 
-        try {
-            authService.processFailureAuthentication(request, response, exception);
-        } catch (AuthenticationForbiddenException e) {
-            response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
-            return;
-        }
+		String lang = request.getParameter("lang");
+		if (lang != null) {
+			lang = "&lang=" + lang;
+		}
+		else {
+			lang = "";
+		}
 
-        response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
+		try {
+			authService.processFailureAuthentication(request, response, exception);
+		}
+		catch (AuthenticationForbiddenException e) {
+			response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
+			return;
+		}
 
-    }
+		response.sendRedirect(FAILURE_REDIRECT_PAGE + lang);
+
+	}
+
 }

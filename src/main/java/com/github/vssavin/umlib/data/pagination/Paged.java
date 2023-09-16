@@ -8,59 +8,58 @@ import java.util.Objects;
  * Provides data paging.
  *
  * @param <T> the type of the paged element.
- *
  * @author vssavin on 04.08.2022.
  */
 public class Paged<T> {
-    private Page<T> page;
-    private Paging paging;
 
-    public Paged(Page<T> page, Paging paging) {
-        this.page = page;
-        this.paging = paging;
-    }
+	private Page<T> page;
 
-    public Paged() {
-    }
+	private Paging paging;
 
-    @Override
-    public String toString() {
-        return "Paged{" +
-                "page=" + page +
-                ", paging=" + paging +
-                '}';
-    }
+	public Paged(Page<T> page, Paging paging) {
+		this.page = page;
+		this.paging = paging;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Paged<?> paged = (Paged<?>) o;
-        return page.equals(paged.page) && paging.equals(paged.paging);
-    }
+	public Paged() {
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(page, paging);
-    }
+	@Override
+	public String toString() {
+		return "Paged{" + "page=" + page + ", paging=" + paging + '}';
+	}
 
-    public Page<T> getPage() {
-        return page;
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Paged<?> paged = (Paged<?>) o;
+		return page.equals(paged.page) && paging.equals(paged.paging);
+	}
 
-    public Paging getPaging() {
-        return paging;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(page, paging);
+	}
 
-    public void setPage(Page<T> page) {
-        this.page = page;
-    }
+	public Page<T> getPage() {
+		return page;
+	}
 
-    public void setPaging(Paging paging) {
-        this.paging = paging;
-    }
+	public Paging getPaging() {
+		return paging;
+	}
+
+	public void setPage(Page<T> page) {
+		this.page = page;
+	}
+
+	public void setPaging(Paging paging) {
+		this.paging = paging;
+	}
+
 }

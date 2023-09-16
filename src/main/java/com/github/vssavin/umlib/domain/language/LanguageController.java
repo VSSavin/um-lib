@@ -16,8 +16,9 @@ import java.util.Map;
 @RestController
 class LanguageController {
 
-    @GetMapping("/um/languages")
-    ResponseEntity<Map<String, String>> getLanguage() {
-        return new ResponseEntity<>(LocaleConfig.getAvailableLanguages(), HttpStatus.OK);
-    }
+	@GetMapping("/um/languages")
+	ResponseEntity<Map<String, String>> getLanguage() {
+		return new ResponseEntity<>(LocaleConfig.getAvailableLanguages(), HttpStatus.OK);
+	}
+
 }

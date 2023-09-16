@@ -20,29 +20,31 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/um/security")
 class SecurityController {
-    private final SecureService secureService;
-    private final List<String> secureServiceNames;
 
-    @Autowired
-    public SecurityController(UmConfig umConfig, List<SecureService> secureServices) {
-        this.secureService = umConfig.getSecureService();
-        this.secureServiceNames = secureServices.stream().map(Object::toString).collect(Collectors.toList());
-    }
+	private final SecureService secureService;
 
-    @GetMapping(value = "/key")
-    public ResponseEntity<String> key(HttpServletRequest request) {
-        String addr = request.getRemoteAddr();
-        return new ResponseEntity<>(secureService.getPublicKey(addr), HttpStatus.OK);
-    }
+	private final List<String> secureServiceNames;
 
-    @GetMapping(value = "/algorithm")
-    public ResponseEntity<String> algorithm() {
-        return new ResponseEntity<>(secureService.toString(), HttpStatus.OK);
-    }
+	@Autowired
+	public SecurityController(UmConfig umConfig, List<SecureService> secureServices) {
+		this.secureService = umConfig.getSecureService();
+		this.secureServiceNames = secureServices.stream().map(Object::toString).collect(Collectors.toList());
+	}
 
-    @GetMapping(value = "/algorithms")
-    public ResponseEntity<List<String>> algorithms() {
-        return new ResponseEntity<>(secureServiceNames, HttpStatus.OK);
-    }
+	@GetMapping(value = "/key")
+	public ResponseEntity<String> key(HttpServletRequest request) {
+		String addr = request.getRemoteAddr();
+		return new ResponseEntity<>(secureService.getPublicKey(addr), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/algorithm")
+	public ResponseEntity<String> algorithm() {
+		return new ResponseEntity<>(secureService.toString(), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/algorithms")
+	public ResponseEntity<List<String>> algorithms() {
+		return new ResponseEntity<>(secureServiceNames, HttpStatus.OK);
+	}
 
 }

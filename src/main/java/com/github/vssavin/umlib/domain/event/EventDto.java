@@ -10,58 +10,65 @@ import java.util.Date;
  * @author vssavin on 29.08.2023
  */
 public class EventDto {
-    private Long id;
-    private Long userId;
-    private EventType eventType;
-    private Date eventTimestamp;
-    private String eventMessage;
-    private UserDto user;
 
-    public Long getId() {
-        return id;
-    }
+	private Long id;
 
-    public Long getUserId() {
-        return userId;
-    }
+	private Long userId;
 
-    public EventType getEventType() {
-        return eventType;
-    }
+	private EventType eventType;
 
-    public Date getEventTimestamp() {
-        return eventTimestamp;
-    }
+	private Date eventTimestamp;
 
-    public String getEventMessage() {
-        return eventMessage;
-    }
+	private String eventMessage;
 
-    public UserDto getUser() {
-        return user;
-    }
+	private UserDto user;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public Long getUserId() {
+		return userId;
+	}
 
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
+	public EventType getEventType() {
+		return eventType;
+	}
 
-    public void setEventTimestamp(Date eventTimestamp) {
-        this.eventTimestamp = eventTimestamp;
-    }
+	public Date getEventTimestamp() {
+		return eventTimestamp;
+	}
 
-    public void setEventMessage(String eventMessage) {
-        this.eventMessage = eventMessage;
-    }
+	public String getEventMessage() {
+		return eventMessage;
+	}
 
-    public void setUser(UserDto user) {
-        this.user = user;
-    }
+	public UserDto getUser() {
+		return user;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType;
+	}
+
+	public void setEventTimestamp(Date eventTimestamp) {
+		this.eventTimestamp = eventTimestamp;
+	}
+
+	public void setEventMessage(String eventMessage) {
+		this.eventMessage = eventMessage;
+	}
+
+	public void setUser(UserDto user) {
+		this.user = user;
+	}
+
 }

@@ -6,68 +6,67 @@ package com.github.vssavin.umlib.domain.user;
  * @author vssavin on 05.08.2022.
  */
 public class UserFilter {
-    private Long userId;
-    private String login;
-    private String name;
-    private String email;
 
-    public UserFilter(Long userId, String login, String name, String email) {
-        this.userId = userId;
-        this.login = login;
-        this.name = name;
-        this.email = email;
-    }
+	private Long userId;
 
-    public static UserFilter emptyUserFilter() {
-        return new UserFilter(null, null, null, null);
-    }
+	private String login;
 
-    public boolean isEmpty() {
-        return userId == null &&
-                (login == null || login.isEmpty()) &&
-                (name == null || name.isEmpty()) &&
-                (email == null || email.isEmpty());
-    }
+	private String name;
 
-    public Long getUserId() {
-        return userId;
-    }
+	private String email;
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+	public UserFilter(Long userId, String login, String name, String email) {
+		this.userId = userId;
+		this.login = login;
+		this.name = name;
+		this.email = email;
+	}
 
-    public String getLogin() {
-        return login;
-    }
+	public static UserFilter emptyUserFilter() {
+		return new UserFilter(null, null, null, null);
+	}
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
+	public boolean isEmpty() {
+		return userId == null && (login == null || login.isEmpty()) && (name == null || name.isEmpty())
+				&& (email == null || email.isEmpty());
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Long getUserId() {
+		return userId;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getLogin() {
+		return login;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setLogin(String login) {
+		this.login = login;
+	}
 
-    @Override
-    public String toString() {
-        return "UserFilter{" +
-                "userId=" + userId +
-                ", login='" + login + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Override
+	public String toString() {
+		return "UserFilter{" + "userId=" + userId + ", login='" + login + '\'' + ", name='" + name + '\'' + ", email='"
+				+ email + '\'' + '}';
+	}
+
 }

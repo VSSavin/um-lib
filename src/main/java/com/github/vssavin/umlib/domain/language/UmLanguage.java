@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class UmLanguage {
 
-    public String getLanguageSpan(String localeString) {
-        String availableLocale = LocaleConfig.getAvailableLocale(localeString.toLowerCase());
-        String languageName = LocaleConfig.getAvailableLanguageName(availableLocale, true);
-        String flagIconName = LocaleConfig.getFlagName(availableLocale, true);
-        return String.format("<span class=\"flag-icon %s\"></span> %s", flagIconName, languageName);
-    }
+	public String getLanguageSpan(String localeString) {
+		String availableLocale = LocaleConfig.getAvailableLocale(localeString.toLowerCase());
+		String languageName = LocaleConfig.getAvailableLanguageName(availableLocale, true);
+		String flagIconName = LocaleConfig.getFlagName(availableLocale, true);
+		return String.format("<span class=\"flag-icon %s\"></span> %s", flagIconName, languageName);
+	}
 
-    public String getLanguageText(String localeString) {
-        return LocaleConfig.getAvailableLanguageName(localeString, true);
-    }
+	public String getLanguageText(String localeString) {
+		return LocaleConfig.getAvailableLanguageName(localeString, true);
+	}
 
 }

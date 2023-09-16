@@ -26,276 +26,260 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author vssavin on 07.01.2022
  */
 public class UserControllerTest extends AbstractTest {
-    private static final String BASE_URL = "/um/users";
 
-    private LocaleConfig.LocaleSpringMessageSource registrationMessageSource;
-    private LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource;
+	private static final String BASE_URL = "/um/users";
 
-    private MockedEmailService mockedEmailService;
+	private LocaleConfig.LocaleSpringMessageSource registrationMessageSource;
 
-    @Autowired
-    public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
-        this.registrationMessageSource = registrationMessageSource;
-    }
+	private LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource;
 
-    @Autowired
-    public void setChangePasswordMessageSource(LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource) {
-        this.changePasswordMessageSource = changePasswordMessageSource;
-    }
+	private MockedEmailService mockedEmailService;
 
-    @Autowired
-    public void setEmailService(MockedEmailService emailService) {
-        this.mockedEmailService = emailService;
-    }
+	@Autowired
+	public void setRegistrationMessageSource(LocaleConfig.LocaleSpringMessageSource registrationMessageSource) {
+		this.registrationMessageSource = registrationMessageSource;
+	}
 
-    @Test
-    public void registrationNotAllowedForAuthenticatedUser() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String login = "user2";
-        String encodedPassword = encrypt("", "user2");
+	@Autowired
+	public void setChangePasswordMessageSource(LocaleConfig.LocaleSpringMessageSource changePasswordMessageSource) {
+		this.changePasswordMessageSource = changePasswordMessageSource;
+	}
 
-        registerParams.add("login", login);
-        registerParams.add("username", "user2");
-        registerParams.add("email", "user2@example.com");
-        registerParams.add("password", encodedPassword);
-        registerParams.add("confirmPassword", encodedPassword);
+	@Autowired
+	public void setEmailService(MockedEmailService emailService) {
+		this.mockedEmailService = emailService;
+	}
 
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
-                .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
+	@Test
+	public void registrationNotAllowedForAuthenticatedUser() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		String login = "user2";
+		String encodedPassword = encrypt("", "user2");
 
-        resultActions.andExpect(status().is(403));
-    }
+		registerParams.add("login", login);
+		registerParams.add("username", "user2");
+		registerParams.add("email", "user2@example.com");
+		registerParams.add("password", encodedPassword);
+		registerParams.add("confirmPassword", encodedPassword);
 
-    @Test
-    public void suchUserExists() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String login = testUser.getLogin();
-        registerParams.add("login", login);
-        registerParams.add("username", login);
-        registerParams.add("email", "test@test.com");
-        registerParams.add("password", encrypt("", testUser.getPassword()));
-        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
-                        .params(registerParams)
-                        .with(csrf()));
-        String messagePattern = registrationMessageSource.getMessage(MessageKey.USER_EXISTS_PATTERN.getKey(),
-                new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
-        resultActions.andExpect(model().attribute("error", true))
-                .andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
-                .andExpect(status().is(302));
-    }
+		ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register").params(registerParams)
+			.with(getRequestPostProcessorForUser(testUser))
+			.with(csrf()));
 
-    @Test
-    public void suchEmailExists() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String login = "user3";
-        registerParams.add("login", login);
-        registerParams.add("username", login);
-        registerParams.add("email", "user@example.com");
-        registerParams.add("password", encrypt("", testUser.getPassword()));
-        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
-                .params(registerParams)
-                .with(csrf()));
-        String messagePattern = registrationMessageSource.getMessage(MessageKey.EMAIL_EXISTS_MESSAGE.getKey(),
-                new Object[]{}, LocaleConfig.DEFAULT_LOCALE);
-        resultActions.andExpect(model().attribute("error", true))
-                .andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
-                .andExpect(status().is(302));
-    }
+		resultActions.andExpect(status().is(403));
+	}
 
-    @Test
-    public void changeUserPasswordSuccessful() throws Exception {
-        String currentPassword = testUser.getPassword();
-        String newPassword = "user2";
+	@Test
+	public void suchUserExists() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		String login = testUser.getLogin();
+		registerParams.add("login", login);
+		registerParams.add("username", login);
+		registerParams.add("email", "test@test.com");
+		registerParams.add("password", encrypt("", testUser.getPassword()));
+		registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
+		ResultActions resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-register").params(registerParams).with(csrf()));
+		String messagePattern = registrationMessageSource.getMessage(MessageKey.USER_EXISTS_PATTERN.getKey(),
+				new Object[] {}, LocaleConfig.DEFAULT_LOCALE);
+		resultActions.andExpect(model().attribute("error", true))
+			.andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
+			.andExpect(status().is(302));
+	}
 
-        String encodedCurrentPassword = encrypt("", currentPassword);
-        String encodedNewPassword = encrypt("", newPassword);
+	@Test
+	public void suchEmailExists() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		String login = "user3";
+		registerParams.add("login", login);
+		registerParams.add("username", login);
+		registerParams.add("email", "user@example.com");
+		registerParams.add("password", encrypt("", testUser.getPassword()));
+		registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
+		ResultActions resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-register").params(registerParams).with(csrf()));
+		String messagePattern = registrationMessageSource.getMessage(MessageKey.EMAIL_EXISTS_MESSAGE.getKey(),
+				new Object[] {}, LocaleConfig.DEFAULT_LOCALE);
+		resultActions.andExpect(model().attribute("error", true))
+			.andExpect(model().attribute("errorMsg", String.format(messagePattern, login)))
+			.andExpect(status().is(302));
+	}
 
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("currentPassword", encodedCurrentPassword);
-        registerParams.add("newPassword", encodedNewPassword);
+	@Test
+	public void changeUserPasswordSuccessful() throws Exception {
+		String currentPassword = testUser.getPassword();
+		String newPassword = "user2";
 
-        ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword")
-                .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
+		String encodedCurrentPassword = encrypt("", currentPassword);
+		String encodedNewPassword = encrypt("", newPassword);
 
-        String message = changePasswordMessageSource.getMessage(
-                MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getKey(), new Object[]{},
-                LocaleConfig.DEFAULT_LOCALE);
-        resultActions.andExpect(model().attribute("success", true))
-                .andExpect(model().attribute("successMsg", message));
-        testUser.setPassword(newPassword);
-    }
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		registerParams.add("currentPassword", encodedCurrentPassword);
+		registerParams.add("newPassword", encodedNewPassword);
 
-    @Test
-    public void changeUserPasswordFailed() throws Exception {
-        String currentPassword = testUser.getPassword() + "1";
-        String newPassword = "admin2";
+		ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword").params(registerParams)
+			.with(getRequestPostProcessorForUser(testUser))
+			.with(csrf()));
 
-        String encodedCurrentPassword = encrypt("", currentPassword);
-        String encodedNewPassword = encrypt("", newPassword);
+		String message = changePasswordMessageSource.getMessage(
+				MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getKey(), new Object[] {},
+				LocaleConfig.DEFAULT_LOCALE);
+		resultActions.andExpect(model().attribute("success", true)).andExpect(model().attribute("successMsg", message));
+		testUser.setPassword(newPassword);
+	}
 
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        registerParams.add("currentPassword", encodedCurrentPassword);
-        registerParams.add("newPassword", encodedNewPassword);
+	@Test
+	public void changeUserPasswordFailed() throws Exception {
+		String currentPassword = testUser.getPassword() + "1";
+		String newPassword = "admin2";
 
-        ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword")
-                .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
-        String message = changePasswordMessageSource.getMessage(
-                MessageKey.WRONG_PASSWORD_MESSAGE.getKey(), new Object[]{},
-                LocaleConfig.DEFAULT_LOCALE);
-        resultActions.andExpect(model().attribute("error", true))
-                .andExpect(model().attribute("errorMsg", message));
-    }
+		String encodedCurrentPassword = encrypt("", currentPassword);
+		String encodedNewPassword = encrypt("", newPassword);
 
-    @Test
-    public void registerUserSuccessful() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String login = "user2";
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		registerParams.add("currentPassword", encodedCurrentPassword);
+		registerParams.add("newPassword", encodedNewPassword);
 
-        String encodedPassword = encrypt("", "user2");
+		ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword").params(registerParams)
+			.with(getRequestPostProcessorForUser(testUser))
+			.with(csrf()));
+		String message = changePasswordMessageSource.getMessage(MessageKey.WRONG_PASSWORD_MESSAGE.getKey(),
+				new Object[] {}, LocaleConfig.DEFAULT_LOCALE);
+		resultActions.andExpect(model().attribute("error", true)).andExpect(model().attribute("errorMsg", message));
+	}
 
-        registerParams.add("login", login);
-        registerParams.add("username", "user2");
-        registerParams.add("email", "user2@example.com");
-        registerParams.add("password", encodedPassword);
-        registerParams.add("confirmPassword", encodedPassword);
+	@Test
+	public void registerUserSuccessful() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		String login = "user2";
 
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register")
-                .params(registerParams)
-                .with(csrf()));
-        String message = registrationMessageSource.getMessage(
-                MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN.getKey(), new Object[]{},
-                LocaleConfig.DEFAULT_LOCALE);
-        resultActions.andExpect(model().attribute("success", true))
-                .andExpect(model().attribute("successMsg", String.format(message, login)));
-        User user = userDatabaseInitService.getUserService().getUserByLogin(login);
-        userDatabaseInitService.getUserService().deleteUser(user);
-    }
+		String encodedPassword = encrypt("", "user2");
 
-    @Test
-    public void recoveryPasswordSuccessful() throws Exception {
-        MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
-        passwordRecoveryParams.add("loginOrEmail", "admin");
-        mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-password-recovery")
-                .params(passwordRecoveryParams)
-                .with(csrf()));
-        resultActions.andExpect(model().attribute("successSend", true));
+		registerParams.add("login", login);
+		registerParams.add("username", "user2");
+		registerParams.add("email", "user2@example.com");
+		registerParams.add("password", encodedPassword);
+		registerParams.add("confirmPassword", encodedPassword);
 
-        MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
-        String messageText = emailMessage.getText();
-        messageText = messageText.substring(messageText.indexOf("http"));
-        MultiValueMap<String, String> parameters =
-                UriComponentsBuilder.fromUriString(messageText).build().getQueryParams();
-        List<String> param = parameters.get("recoveryId");
-        Assertions.assertEquals(1, param.size());
+		ResultActions resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-register").params(registerParams).with(csrf()));
+		String message = registrationMessageSource.getMessage(MessageKey.USER_CREATED_SUCCESSFULLY_PATTERN.getKey(),
+				new Object[] {}, LocaleConfig.DEFAULT_LOCALE);
+		resultActions.andExpect(model().attribute("success", true))
+			.andExpect(model().attribute("successMsg", String.format(message, login)));
+		User user = userDatabaseInitService.getUserService().getUserByLogin(login);
+		userDatabaseInitService.getUserService().deleteUser(user);
+	}
 
-        String recoveryId = param.get(0);
-        mockedEmailService.getEmailMessages().clear();
-        passwordRecoveryParams.clear();
-        passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get(BASE_URL + "/passwordRecovery")
-                .params(passwordRecoveryParams)
-                .with(csrf()));
-        resultActions.andExpect(model().attribute("successSend", true));
+	@Test
+	public void recoveryPasswordSuccessful() throws Exception {
+		MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
+		passwordRecoveryParams.add("loginOrEmail", "admin");
+		mockedEmailService.getEmailMessages().clear();
+		ResultActions resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-password-recovery").params(passwordRecoveryParams).with(csrf()));
+		resultActions.andExpect(model().attribute("successSend", true));
 
-        emailMessage = mockedEmailService.getLastEmailMessage();
-        messageText = emailMessage.getText();
-        Assertions.assertFalse(messageText.isEmpty());
-    }
+		MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
+		String messageText = emailMessage.getText();
+		messageText = messageText.substring(messageText.indexOf("http"));
+		MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(messageText)
+			.build()
+			.getQueryParams();
+		List<String> param = parameters.get("recoveryId");
+		Assertions.assertEquals(1, param.size());
 
-    @Test
-    public void recoveryPasswordFailed() throws Exception {
-        MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
-        passwordRecoveryParams.add("loginOrEmail", "12345");
-        mockedEmailService.getEmailMessages().clear();
-        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-password-recovery")
-                .params(passwordRecoveryParams)
-                .with(csrf()));
-        resultActions.andExpect(model().attribute("userNotFound", true));
+		String recoveryId = param.get(0);
+		mockedEmailService.getEmailMessages().clear();
+		passwordRecoveryParams.clear();
+		passwordRecoveryParams.add("recoveryId", recoveryId);
+		resultActions = mockMvc
+			.perform(get(BASE_URL + "/passwordRecovery").params(passwordRecoveryParams).with(csrf()));
+		resultActions.andExpect(model().attribute("successSend", true));
 
-        passwordRecoveryParams = new LinkedMultiValueMap<>();
-        passwordRecoveryParams.add("loginOrEmail", "admin");
-        mockedEmailService.getEmailMessages().clear();
-        resultActions = mockMvc.perform(post(BASE_URL + "/perform-password-recovery")
-                .params(passwordRecoveryParams)
-                .with(csrf()));
-        resultActions.andExpect(model().attribute("successSend", true));
+		emailMessage = mockedEmailService.getLastEmailMessage();
+		messageText = emailMessage.getText();
+		Assertions.assertFalse(messageText.isEmpty());
+	}
 
-        MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
-        String messageText = emailMessage.getText();
-        messageText = messageText.substring(messageText.indexOf("http"));
-        MultiValueMap<String, String> parameters =
-                UriComponentsBuilder.fromUriString(messageText).build().getQueryParams();
-        List<String> param = parameters.get("recoveryId");
-        Assertions.assertEquals(1, param.size());
+	@Test
+	public void recoveryPasswordFailed() throws Exception {
+		MultiValueMap<String, String> passwordRecoveryParams = new LinkedMultiValueMap<>();
+		passwordRecoveryParams.add("loginOrEmail", "12345");
+		mockedEmailService.getEmailMessages().clear();
+		ResultActions resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-password-recovery").params(passwordRecoveryParams).with(csrf()));
+		resultActions.andExpect(model().attribute("userNotFound", true));
 
-        String recoveryId = "-----";
-        mockedEmailService.getEmailMessages().clear();
-        passwordRecoveryParams = new LinkedMultiValueMap<>();
-        passwordRecoveryParams.add("recoveryId", recoveryId);
-        resultActions = mockMvc.perform(get(BASE_URL + "/passwordRecovery")
-                .params(passwordRecoveryParams)
-                .with(csrf()));
-        resultActions.andExpect(model().attribute("userNotFound", true))
-                .andExpect(model().attribute("successSend", false));
-    }
+		passwordRecoveryParams = new LinkedMultiValueMap<>();
+		passwordRecoveryParams.add("loginOrEmail", "admin");
+		mockedEmailService.getEmailMessages().clear();
+		resultActions = mockMvc
+			.perform(post(BASE_URL + "/perform-password-recovery").params(passwordRecoveryParams).with(csrf()));
+		resultActions.andExpect(model().attribute("successSend", true));
 
-    @Test
-    public void userEditWithWrongIdFailed() throws Exception {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("id", "12345");
-        ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
-                .params(params)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
-        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
-        Assertions.assertNotNull(modelAndView);
-        boolean error = modelAndView.getModel().containsKey("error");
-        Assertions.assertTrue(error);
-    }
+		MockedEmailService.EmailMessage emailMessage = mockedEmailService.getLastEmailMessage();
+		String messageText = emailMessage.getText();
+		messageText = messageText.substring(messageText.indexOf("http"));
+		MultiValueMap<String, String> parameters = UriComponentsBuilder.fromUriString(messageText)
+			.build()
+			.getQueryParams();
+		List<String> param = parameters.get("recoveryId");
+		Assertions.assertEquals(1, param.size());
 
-    @Test
-    public void userEditWithWrongEmailFailed() throws Exception {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("id", "2");
-        params.add("name", "testName");
-        params.add("email", "testEmail.com");
-        ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
-                .params(params)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
-        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
-        Assertions.assertNotNull(modelAndView);
-        boolean error = modelAndView.getModel().containsKey("error");
-        Assertions.assertTrue(error);
-    }
+		String recoveryId = "-----";
+		mockedEmailService.getEmailMessages().clear();
+		passwordRecoveryParams = new LinkedMultiValueMap<>();
+		passwordRecoveryParams.add("recoveryId", recoveryId);
+		resultActions = mockMvc
+			.perform(get(BASE_URL + "/passwordRecovery").params(passwordRecoveryParams).with(csrf()));
+		resultActions.andExpect(model().attribute("userNotFound", true))
+			.andExpect(model().attribute("successSend", false));
+	}
 
-    @Test
-    public void userEditSuccess() throws Exception {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        User user = userDatabaseInitService.getUserService().getUserById(4L);
-        String authority = user.getAuthority();
-        Role role = Role.getRole(authority);
-        user.setAuthority(Role.getStringRole(role));
-        params.add("id", String.valueOf(user.getId()));
-        params.add("name", user.getName());
-        params.add("email", user.getEmail());
-        ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
-                .params(params)
-                .with(getRequestPostProcessorForUser(user))
-                .with(csrf()));
+	@Test
+	public void userEditWithWrongIdFailed() throws Exception {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("id", "12345");
+		ResultActions resultActions = mockMvc
+			.perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser)).with(csrf()));
+		ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+		Assertions.assertNotNull(modelAndView);
+		boolean error = modelAndView.getModel().containsKey("error");
+		Assertions.assertTrue(error);
+	}
 
-        ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
-        Assertions.assertNotNull(modelAndView);
-        boolean success = modelAndView.getModel().containsKey("success");
-        Assertions.assertTrue(success);
-    }
+	@Test
+	public void userEditWithWrongEmailFailed() throws Exception {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("id", "2");
+		params.add("name", "testName");
+		params.add("email", "testEmail.com");
+		ResultActions resultActions = mockMvc
+			.perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser)).with(csrf()));
+		ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+		Assertions.assertNotNull(modelAndView);
+		boolean error = modelAndView.getModel().containsKey("error");
+		Assertions.assertTrue(error);
+	}
+
+	@Test
+	public void userEditSuccess() throws Exception {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		User user = userDatabaseInitService.getUserService().getUserById(4L);
+		String authority = user.getAuthority();
+		Role role = Role.getRole(authority);
+		user.setAuthority(Role.getStringRole(role));
+		params.add("id", String.valueOf(user.getId()));
+		params.add("name", user.getName());
+		params.add("email", user.getEmail());
+		ResultActions resultActions = mockMvc
+			.perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(user)).with(csrf()));
+
+		ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
+		Assertions.assertNotNull(modelAndView);
+		boolean success = modelAndView.getModel().containsKey("success");
+		Assertions.assertTrue(success);
+	}
+
 }

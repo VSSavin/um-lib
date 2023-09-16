@@ -17,49 +17,54 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler} implementation
- * that attempts to authenticate using corresponding authentication service.
+ * An {@link org.springframework.security.web.authentication.AuthenticationSuccessHandler}
+ * implementation that attempts to authenticate using corresponding authentication
+ * service.
  *
  * @author vssavin on 22.12.21
  */
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final AuthService authService;
-    private final UmConfig umConfig;
+	private final AuthService authService;
 
-    public CustomAuthenticationSuccessHandler(AuthService authService, UmConfig umConfig) {
-        this.authService = authService;
-        this.umConfig = umConfig;
-    }
+	private final UmConfig umConfig;
 
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
-        String successUrl = umConfig.getSuccessUrl();
+	public CustomAuthenticationSuccessHandler(AuthService authService, UmConfig umConfig) {
+		this.authService = authService;
+		this.umConfig = umConfig;
+	}
 
-        Collection<GrantedAuthority> authorities = Collections.emptyList();
-        try {
-            authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
-        } catch (UserExpiredException e) {
-            successUrl = UmConfig.LOGIN_URL + "?error=true";
-        }
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException {
+		String successUrl = umConfig.getSuccessUrl();
 
-        if (authorities.stream().anyMatch(authority -> authority.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
-            successUrl = umConfig.getAdminSuccessUrl();
-        }
+		Collection<GrantedAuthority> authorities = Collections.emptyList();
+		try {
+			authorities = authService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
+		}
+		catch (UserExpiredException e) {
+			successUrl = UmConfig.LOGIN_URL + "?error=true";
+		}
 
-        String lang = request.getParameter("lang");
-        String delimiter = "?";
-        if (successUrl.contains("?")) {
-            delimiter = "&";
-        }
-        if (lang != null) {
-            lang = delimiter + "lang=" + lang;
-        } else {
-            lang = "";
-        }
+		if (authorities.stream().anyMatch(authority -> authority.getAuthority().equals(Role.ROLE_ADMIN.name()))) {
+			successUrl = umConfig.getAdminSuccessUrl();
+		}
 
-        response.sendRedirect(successUrl + lang);
-    }
+		String lang = request.getParameter("lang");
+		String delimiter = "?";
+		if (successUrl.contains("?")) {
+			delimiter = "&";
+		}
+		if (lang != null) {
+			lang = delimiter + "lang=" + lang;
+		}
+		else {
+			lang = "";
+		}
+
+		response.sendRedirect(successUrl + lang);
+	}
+
 }

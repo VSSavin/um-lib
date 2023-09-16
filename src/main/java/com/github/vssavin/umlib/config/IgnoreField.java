@@ -10,7 +10,8 @@ import java.lang.annotation.Target;
  *
  * @author vssavin on 17.12.21
  */
-@Target({ElementType.FIELD})
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @interface IgnoreField {
+
 }

@@ -7,10 +7,12 @@ package com.github.vssavin.umlib.domain.user;
  */
 public class UserConfirmFailedException extends RuntimeException {
 
-    public UserConfirmFailedException(String message) {
-        super(message);
-    }
-    public UserConfirmFailedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public UserConfirmFailedException(String message) {
+		super(message);
+	}
+
+	public UserConfirmFailedException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

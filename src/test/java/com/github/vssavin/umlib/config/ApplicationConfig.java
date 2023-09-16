@@ -25,66 +25,69 @@ import java.util.Properties;
  * @author vssavin on 18.12.2021
  */
 @Configuration
-@ComponentScan({"com.github.vssavin.umlib"})
+@ComponentScan({ "com.github.vssavin.umlib" })
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "com.github.vssavin.umlib.domain")
 @EnableWebSecurity
 @Import(DefaultSecurityConfig.class)
 public class ApplicationConfig {
-    private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
-    @Bean
-    public UmConfigurer umConfigurer() {
-        Map<String, String[]> resourceHandlers = new HashMap<>();
-        resourceHandlers.put("/js/**", new String[]{"classpath:/static/js/"});
-        resourceHandlers.put("/css/**", new String[]{"classpath:/static/css/"});
-        resourceHandlers.put("/flags/**", new String[]{"classpath:/static/flags/"});
-        resourceHandlers.put("/img/**", new String[]{"classpath:/static/img/"});
+	private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
-        return new UmConfigurer().successUrl("/index.html")
-                .permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
-                .permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER))
-                .resourceHandlers(resourceHandlers)
-                .configure();
-    }
+	@Bean
+	public UmConfigurer umConfigurer() {
+		Map<String, String[]> resourceHandlers = new HashMap<>();
+		resourceHandlers.put("/js/**", new String[] { "classpath:/static/js/" });
+		resourceHandlers.put("/css/**", new String[] { "classpath:/static/css/" });
+		resourceHandlers.put("/flags/**", new String[] { "classpath:/static/flags/" });
+		resourceHandlers.put("/img/**", new String[] { "classpath:/static/img/" });
 
-    @Bean
-    public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter() {
-        FilterRegistrationBean<HiddenHttpMethodFilter> filterBean =
-                new FilterRegistrationBean<>(new HiddenHttpMethodFilter());
-        filterBean.setUrlPatterns(Collections.singletonList("/*"));
-        return filterBean;
-    }
+		return new UmConfigurer().successUrl("/index.html")
+			.permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
+			.permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER))
+			.resourceHandlers(resourceHandlers)
+			.configure();
+	}
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource,
-                                                                       DatabaseConfig databaseConfig) {
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+	@Bean
+	public FilterRegistrationBean<HiddenHttpMethodFilter> hiddenHttpMethodFilter() {
+		FilterRegistrationBean<HiddenHttpMethodFilter> filterBean = new FilterRegistrationBean<>(
+				new HiddenHttpMethodFilter());
+		filterBean.setUrlPatterns(Collections.singletonList("/*"));
+		return filterBean;
+	}
 
-        try {
-            em.setDataSource(routingDataSource);
-            em.setPackagesToScan("com.github.vssavin.umlib.domain");
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource routingDataSource,
+			DatabaseConfig databaseConfig) {
+		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 
-            em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
-            String hibernateDialect = databaseConfig.getDialect();
+		try {
+			em.setDataSource(routingDataSource);
+			em.setPackagesToScan("com.github.vssavin.umlib.domain");
 
-            Properties additionalProperties = new Properties();
-            additionalProperties.put("hibernate.dialect", hibernateDialect);
-            em.setJpaProperties(additionalProperties);
-        } catch (Exception e) {
-            log.error("Creating LocalContainerEntityManagerFactoryBean error!", e);
-        }
+			em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+			String hibernateDialect = databaseConfig.getDialect();
 
-        return em;
-    }
+			Properties additionalProperties = new Properties();
+			additionalProperties.put("hibernate.dialect", hibernateDialect);
+			em.setJpaProperties(additionalProperties);
+		}
+		catch (Exception e) {
+			log.error("Creating LocalContainerEntityManagerFactoryBean error!", e);
+		}
 
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        return new JpaTransactionManager(emf);
-    }
+		return em;
+	}
 
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-        return new PersistenceExceptionTranslationPostProcessor();
-    }
+	@Bean
+	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+		return new JpaTransactionManager(emf);
+	}
+
+	@Bean
+	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+		return new PersistenceExceptionTranslationPostProcessor();
+	}
+
 }

@@ -25,92 +25,94 @@ import java.util.Collection;
  * @author vssavin on 01.09.2023
  */
 public class SimpleAuthServiceTest extends AbstractTest {
-    private static final Logger log = LoggerFactory.getLogger(SimpleAuthServiceTest.class);
 
-    private final User incorrectAdminUser = new User("admin", "admin", "notadmin",
-            "admin@example.com", "ADMIN");
+	private static final Logger log = LoggerFactory.getLogger(SimpleAuthServiceTest.class);
 
-    private final User correctAdminUser = testAdminUser;
+	private final User incorrectAdminUser = new User("admin", "admin", "notadmin", "admin@example.com", "ADMIN");
 
-    private final HttpServletRequest request = new MockHttpServletRequest();
-    private final HttpServletResponse response = new MockHttpServletResponse();
+	private final User correctAdminUser = testAdminUser;
 
-    private AuthService simpleAuthService;
+	private final HttpServletRequest request = new MockHttpServletRequest();
 
-    private int maxAuthFailureCount;
+	private final HttpServletResponse response = new MockHttpServletResponse();
 
-    @Autowired
-    public void setSimpleAuthService(AuthService simpleAuthService) {
-        this.simpleAuthService = simpleAuthService;
-    }
+	private AuthService simpleAuthService;
 
-    @Autowired
-    @Override
-    public void setUmConfig(UmConfig umConfig) {
-        super.setUmConfig(umConfig);
-        this.maxAuthFailureCount = umConfig.getMaxAuthFailureCount();
-    }
+	private int maxAuthFailureCount;
 
-    @Test(expected = BadCredentialsException.class)
-    public void shouldThrowExceptionForIncorrectCredentials() throws Exception {
-        Authentication authentication = getUserAuthentication(incorrectAdminUser, request);
-        simpleAuthService.authenticate(authentication);
-    }
+	@Autowired
+	public void setSimpleAuthService(AuthService simpleAuthService) {
+		this.simpleAuthService = simpleAuthService;
+	}
 
-    @Test
-    public void shouldReturnAuthenticationForCorrectCredentials() throws Exception {
-        log.info("Using user password: " + correctAdminUser.getPassword());
-        Authentication authentication = getUserAuthentication(correctAdminUser, request);
-        Authentication returnedAuthentication = simpleAuthService.authenticate(authentication);
-        Assertions.assertNotNull(returnedAuthentication);
-        Assertions.assertEquals(returnedAuthentication.getCredentials(), correctAdminUser.getPassword());
-    }
+	@Autowired
+	@Override
+	public void setUmConfig(UmConfig umConfig) {
+		super.setUmConfig(umConfig);
+		this.maxAuthFailureCount = umConfig.getMaxAuthFailureCount();
+	}
 
-    @Test
-    public void shouldAuthoritiesNotEmptyWhenLoggedIn() throws Exception {
-        Authentication authentication = getUserAuthentication(correctAdminUser, request);
-        Collection<GrantedAuthority> authorities =
-                simpleAuthService.processSuccessAuthentication(authentication, request, EventType.LOGGED_IN);
-        Assertions.assertNotNull(authorities);
-        Assertions.assertFalse(authorities.isEmpty());
-    }
+	@Test(expected = BadCredentialsException.class)
+	public void shouldThrowExceptionForIncorrectCredentials() throws Exception {
+		Authentication authentication = getUserAuthentication(incorrectAdminUser, request);
+		simpleAuthService.authenticate(authentication);
+	}
 
-    @Test(expected = AuthenticationForbiddenException.class)
-    public void shouldThrowExceptionForTooManyFailedAuthentication() {
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest();
-        HttpServletResponse mockResponse = new MockHttpServletResponse();
-        mockRequest.setRemoteAddr("10.5.0.1");
-        for (int i = 0; i < maxAuthFailureCount; i++) {
-            simpleAuthService.processFailureAuthentication(mockRequest, mockResponse, new BadCredentialsException(""));
-        }
-    }
+	@Test
+	public void shouldReturnAuthenticationForCorrectCredentials() throws Exception {
+		log.info("Using user password: " + correctAdminUser.getPassword());
+		Authentication authentication = getUserAuthentication(correctAdminUser, request);
+		Authentication returnedAuthentication = simpleAuthService.authenticate(authentication);
+		Assertions.assertNotNull(returnedAuthentication);
+		Assertions.assertEquals(returnedAuthentication.getCredentials(), correctAdminUser.getPassword());
+	}
 
-    @Test
-    public void shouldAuthenticationNotAllowedForTooManyFailedAuthentication() {
-        MockHttpServletRequest mockRequest = new MockHttpServletRequest();
-        HttpServletResponse mockResponse = new MockHttpServletResponse();
-        mockRequest.setRemoteAddr("10.5.0.1");
-        for (int i = 0; i < maxAuthFailureCount; i++) {
-            try {
-                simpleAuthService.processFailureAuthentication(
-                        mockRequest, mockResponse, new BadCredentialsException(""));
-            } catch (AuthenticationForbiddenException e) {
-                //ignore
-                break;
-            }
-        }
+	@Test
+	public void shouldAuthoritiesNotEmptyWhenLoggedIn() throws Exception {
+		Authentication authentication = getUserAuthentication(correctAdminUser, request);
+		Collection<GrantedAuthority> authorities = simpleAuthService.processSuccessAuthentication(authentication,
+				request, EventType.LOGGED_IN);
+		Assertions.assertNotNull(authorities);
+		Assertions.assertFalse(authorities.isEmpty());
+	}
 
-        Assertions.assertFalse(simpleAuthService.isAuthenticationAllowed(mockRequest.getRemoteAddr()));
-    }
+	@Test(expected = AuthenticationForbiddenException.class)
+	public void shouldThrowExceptionForTooManyFailedAuthentication() {
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+		HttpServletResponse mockResponse = new MockHttpServletResponse();
+		mockRequest.setRemoteAddr("10.5.0.1");
+		for (int i = 0; i < maxAuthFailureCount; i++) {
+			simpleAuthService.processFailureAuthentication(mockRequest, mockResponse, new BadCredentialsException(""));
+		}
+	}
 
-    private Authentication getUserAuthentication(User user, HttpServletRequest request) throws Exception {
-        String principal = user.getLogin();
-        String encryptedCredentials = encrypt("", user.getPassword());
-        Object authenticationDetails = new WebAuthenticationDetails(request.getRemoteAddr(), "");
-        UsernamePasswordAuthenticationToken authentication =
-                new CustomUsernamePasswordAuthenticationToken(principal, encryptedCredentials);
-        authentication.setDetails(authenticationDetails);
-        return authentication;
-    }
+	@Test
+	public void shouldAuthenticationNotAllowedForTooManyFailedAuthentication() {
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+		HttpServletResponse mockResponse = new MockHttpServletResponse();
+		mockRequest.setRemoteAddr("10.5.0.1");
+		for (int i = 0; i < maxAuthFailureCount; i++) {
+			try {
+				simpleAuthService.processFailureAuthentication(mockRequest, mockResponse,
+						new BadCredentialsException(""));
+			}
+			catch (AuthenticationForbiddenException e) {
+				// ignore
+				break;
+			}
+		}
+
+		Assertions.assertFalse(simpleAuthService.isAuthenticationAllowed(mockRequest.getRemoteAddr()));
+	}
+
+	private Authentication getUserAuthentication(User user, HttpServletRequest request) throws Exception {
+		String principal = user.getLogin();
+		String encryptedCredentials = encrypt("", user.getPassword());
+		Object authenticationDetails = new WebAuthenticationDetails(request.getRemoteAddr(), "");
+		UsernamePasswordAuthenticationToken authentication = new CustomUsernamePasswordAuthenticationToken(principal,
+				encryptedCredentials);
+		authentication.setDetails(authenticationDetails);
+		return authentication;
+	}
 
 }

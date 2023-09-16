@@ -21,175 +21,191 @@ import java.util.stream.Collectors;
  */
 @Configuration
 public class LocaleConfig {
-    private static final Logger log = LoggerFactory.getLogger(LocaleConfig.class);
-    private static final LocaleSpringMessageSource EMPTY = new LocaleSpringMessageSource();
-    private static final String DEFAULT_LANGUAGE = "ru";
-    public static final Locale DEFAULT_LOCALE = Locale.forLanguageTag(DEFAULT_LANGUAGE);
-    private static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
-    private static final Map<String, String> FLAGS_MAP = new HashMap<>();
 
-    private static final Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
+	private static final Logger log = LoggerFactory.getLogger(LocaleConfig.class);
 
-    static {
-        initFlagsMap();
-        initAvailableLanguagesMap();
-    }
+	private static final LocaleSpringMessageSource EMPTY = new LocaleSpringMessageSource();
 
-    private final ConfigurableBeanFactory beanFactory;
-    private final Map<String, LocaleSpringMessageSource> languageBeans = new HashMap<>();
+	private static final String DEFAULT_LANGUAGE = "ru";
 
-    @Autowired
-    public LocaleConfig(ConfigurableBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-        createLanguageBeans();
-    }
+	public static final Locale DEFAULT_LOCALE = Locale.forLanguageTag(DEFAULT_LANGUAGE);
 
-    public LocaleSpringMessageSource forPage(String page) {
-        return languageBeans.getOrDefault(page + "MessageSource", EMPTY);
-    }
+	private static final Map<String, String> AVAILABLE_LANGUAGES = new LinkedHashMap<>();
 
-    public static class LocaleSpringMessageSource extends ReloadableResourceBundleMessageSource {
+	private static final Map<String, String> FLAGS_MAP = new HashMap<>();
 
-        public Set<String> getKeys() {
-            HashSet<String> keySet = new HashSet<>();
-            PropertiesHolder holder = super.getMergedProperties(DEFAULT_LOCALE);
-            Properties props = holder.getProperties();
-            if (props == null) {
-                return new HashSet<>();
-            } else {
-                for (Object key : props.keySet()) {
-                    if (key instanceof String) {
-                        keySet.add((String) key);
-                    }
-                }
-                return keySet;
-            }
-        }
-    }
+	private static final Map<String, LocaleSpringMessageSource> messageSourceMap = new HashMap<>();
 
-    public static String getFlagName(String localeString, boolean returnFirstValueIfNotExists) {
-        String flagName = FLAGS_MAP.get(localeString);
-        if (flagName == null) {
-            if (returnFirstValueIfNotExists) {
-                flagName = FLAGS_MAP.values().iterator().next();
-                if (flagName == null) {
-                    return "";
-                }
-            } else {
-                 return "";
-            }
-        }
+	static {
+		initFlagsMap();
+		initAvailableLanguagesMap();
+	}
 
-        return flagName;
-    }
+	private final ConfigurableBeanFactory beanFactory;
 
-    public static String getAvailableLanguageName(String localeString, boolean returnDefaultIfNotExists) {
-        String languageName = AVAILABLE_LANGUAGES.get(localeString);
-        if (languageName == null) {
-            if (returnDefaultIfNotExists) {
-                languageName = AVAILABLE_LANGUAGES.get(DEFAULT_LANGUAGE);
-                if (languageName == null) {
-                    return "";
-                }
-            } else {
-                return "";
-            }
-        }
-         return languageName;
-    }
+	private final Map<String, LocaleSpringMessageSource> languageBeans = new HashMap<>();
 
-    public static String getAvailableLocale(String localeString) {
-        String availableLanguage = AVAILABLE_LANGUAGES.get(localeString);
-        String availableLocale;
-        if (availableLanguage == null) {
-            availableLocale = DEFAULT_LANGUAGE;
-        } else {
-            availableLocale = localeString;
-        }
-        return availableLocale;
-    }
+	@Autowired
+	public LocaleConfig(ConfigurableBeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
+		createLanguageBeans();
+	}
 
-    public static String getMessage(String page, String key, String localeString) {
-        LocaleSpringMessageSource messageSource = messageSourceMap.get(page);
-        String locale = localeString == null ? DEFAULT_LANGUAGE : localeString;
-        return messageSource.getMessage(key, new Object[]{}, Locale.forLanguageTag(locale));
-    }
+	public LocaleSpringMessageSource forPage(String page) {
+		return languageBeans.getOrDefault(page + "MessageSource", EMPTY);
+	}
 
-    public static Map<String, String> getAvailableLanguages() {
-        return AVAILABLE_LANGUAGES;
-    }
+	public static class LocaleSpringMessageSource extends ReloadableResourceBundleMessageSource {
 
-    public Map<String, LocaleSpringMessageSource> getLanguageBeans() {
-        return languageBeans;
-    }
+		public Set<String> getKeys() {
+			HashSet<String> keySet = new HashSet<>();
+			PropertiesHolder holder = super.getMergedProperties(DEFAULT_LOCALE);
+			Properties props = holder.getProperties();
+			if (props == null) {
+				return new HashSet<>();
+			}
+			else {
+				for (Object key : props.keySet()) {
+					if (key instanceof String) {
+						keySet.add((String) key);
+					}
+				}
+				return keySet;
+			}
+		}
 
-    private void createLanguageBeans() {
-        List<String> sources = getLanguageSources();
-        sources.forEach(source -> {
-            String sourceName = source + "MessageSource";
-            LocaleSpringMessageSource languageMessageSource = createMessageSource(source);
-            beanFactory.registerSingleton(sourceName, languageMessageSource);
-            languageBeans.put(sourceName, languageMessageSource);
-        });
-    }
+	}
 
-    private List<String> getLanguageSources() {
-        try {
-            Resource[] resources =
-                    new PathMatchingResourcePatternResolver().getResources("classpath:language/**");
-            if (resources.length > 0) {
-                return Arrays.stream(resources).map(resource -> {
-                            try {
-                                return new File((resource.getURL().toString())).getName();
-                            } catch (Exception e) {
-                                return "";
-                            }
-                        }).filter(filename -> !Objects.requireNonNull(filename).endsWith(".properties"))
-                        .collect(Collectors.toList());
-            }
-        } catch (IOException e) {
-            log.error("Error getting language resource: ", e);
-        }
-        return new ArrayList<>();
-    }
+	public static String getFlagName(String localeString, boolean returnFirstValueIfNotExists) {
+		String flagName = FLAGS_MAP.get(localeString);
+		if (flagName == null) {
+			if (returnFirstValueIfNotExists) {
+				flagName = FLAGS_MAP.values().iterator().next();
+				if (flagName == null) {
+					return "";
+				}
+			}
+			else {
+				return "";
+			}
+		}
 
-    private static void initFlagsMap() {
-        ResourceBundle bundle;
-        try {
-            bundle = ResourceBundle.getBundle("language.config");
-            String flags = bundle.getString("flags");
+		return flagName;
+	}
 
-            String[] flagsArray = flags.split(";");
-            for (String flagParams : flagsArray) {
-                String[] flag = flagParams.split(":");
-                if (flag.length > 1) {
-                    FLAGS_MAP.put(flag[0].trim(), flag[1].trim());
-                }
-            }
-        } catch (MissingResourceException e) {
-            FLAGS_MAP.put("en", "flag-icon-usa");
-        }
-    }
+	public static String getAvailableLanguageName(String localeString, boolean returnDefaultIfNotExists) {
+		String languageName = AVAILABLE_LANGUAGES.get(localeString);
+		if (languageName == null) {
+			if (returnDefaultIfNotExists) {
+				languageName = AVAILABLE_LANGUAGES.get(DEFAULT_LANGUAGE);
+				if (languageName == null) {
+					return "";
+				}
+			}
+			else {
+				return "";
+			}
+		}
+		return languageName;
+	}
 
-    private static void initAvailableLanguagesMap() {
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasename("classpath:language/config");
-        messageSource.setDefaultEncoding("UTF-8");
-        String messageLanguages = messageSource.getMessage("languages", new Object[]{}, Locale.getDefault());
-        String[] languagesArray = messageLanguages.split(";");
-        for (String flagParams : languagesArray) {
-            String[] language = flagParams.split(":");
-            if (language.length > 1) {
-                AVAILABLE_LANGUAGES.put(language[0].trim(), language[1].trim());
-            }
-        }
-    }
+	public static String getAvailableLocale(String localeString) {
+		String availableLanguage = AVAILABLE_LANGUAGES.get(localeString);
+		String availableLocale;
+		if (availableLanguage == null) {
+			availableLocale = DEFAULT_LANGUAGE;
+		}
+		else {
+			availableLocale = localeString;
+		}
+		return availableLocale;
+	}
 
-    private LocaleSpringMessageSource createMessageSource(String page) {
-        LocaleSpringMessageSource messageSource = new LocaleSpringMessageSource();
-        messageSource.setBasename(String.format("classpath:language/%s/language", page));
-        messageSource.setDefaultEncoding("UTF-8");
-        messageSourceMap.put(page, messageSource);
-        return messageSource;
-    }
+	public static String getMessage(String page, String key, String localeString) {
+		LocaleSpringMessageSource messageSource = messageSourceMap.get(page);
+		String locale = localeString == null ? DEFAULT_LANGUAGE : localeString;
+		return messageSource.getMessage(key, new Object[] {}, Locale.forLanguageTag(locale));
+	}
+
+	public static Map<String, String> getAvailableLanguages() {
+		return AVAILABLE_LANGUAGES;
+	}
+
+	public Map<String, LocaleSpringMessageSource> getLanguageBeans() {
+		return languageBeans;
+	}
+
+	private void createLanguageBeans() {
+		List<String> sources = getLanguageSources();
+		sources.forEach(source -> {
+			String sourceName = source + "MessageSource";
+			LocaleSpringMessageSource languageMessageSource = createMessageSource(source);
+			beanFactory.registerSingleton(sourceName, languageMessageSource);
+			languageBeans.put(sourceName, languageMessageSource);
+		});
+	}
+
+	private List<String> getLanguageSources() {
+		try {
+			Resource[] resources = new PathMatchingResourcePatternResolver().getResources("classpath:language/**");
+			if (resources.length > 0) {
+				return Arrays.stream(resources).map(resource -> {
+					try {
+						return new File((resource.getURL().toString())).getName();
+					}
+					catch (Exception e) {
+						return "";
+					}
+				})
+					.filter(filename -> !Objects.requireNonNull(filename).endsWith(".properties"))
+					.collect(Collectors.toList());
+			}
+		}
+		catch (IOException e) {
+			log.error("Error getting language resource: ", e);
+		}
+		return new ArrayList<>();
+	}
+
+	private static void initFlagsMap() {
+		ResourceBundle bundle;
+		try {
+			bundle = ResourceBundle.getBundle("language.config");
+			String flags = bundle.getString("flags");
+
+			String[] flagsArray = flags.split(";");
+			for (String flagParams : flagsArray) {
+				String[] flag = flagParams.split(":");
+				if (flag.length > 1) {
+					FLAGS_MAP.put(flag[0].trim(), flag[1].trim());
+				}
+			}
+		}
+		catch (MissingResourceException e) {
+			FLAGS_MAP.put("en", "flag-icon-usa");
+		}
+	}
+
+	private static void initAvailableLanguagesMap() {
+		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+		messageSource.setBasename("classpath:language/config");
+		messageSource.setDefaultEncoding("UTF-8");
+		String messageLanguages = messageSource.getMessage("languages", new Object[] {}, Locale.getDefault());
+		String[] languagesArray = messageLanguages.split(";");
+		for (String flagParams : languagesArray) {
+			String[] language = flagParams.split(":");
+			if (language.length > 1) {
+				AVAILABLE_LANGUAGES.put(language[0].trim(), language[1].trim());
+			}
+		}
+	}
+
+	private LocaleSpringMessageSource createMessageSource(String page) {
+		LocaleSpringMessageSource messageSource = new LocaleSpringMessageSource();
+		messageSource.setBasename(String.format("classpath:language/%s/language", page));
+		messageSource.setDefaultEncoding("UTF-8");
+		messageSourceMap.put(page, messageSource);
+		return messageSource;
+	}
+
 }

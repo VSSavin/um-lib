@@ -12,11 +12,13 @@ import org.mapstruct.factory.Mappers;
  */
 @Mapper(componentModel = "spring")
 interface EventMapper {
-    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(target = "user", expression = "java(userMapper.toDto(event.getUser()))")
-    EventDto toDto(Event event);
+	UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(target = "user", expression = "java(userMapper.toEntity(eventDto.getUser()))")
-    Event toEntity(EventDto eventDto);
+	@Mapping(target = "user", expression = "java(userMapper.toDto(event.getUser()))")
+	EventDto toDto(Event event);
+
+	@Mapping(target = "user", expression = "java(userMapper.toEntity(eventDto.getUser()))")
+	Event toEntity(EventDto eventDto);
+
 }

@@ -14,38 +14,41 @@ import java.util.Map;
  */
 class RoutingDataSource extends AbstractRoutingDataSource {
 
-    enum DATASOURCE_TYPE {
-        UM_DATASOURCE,
-        APPLICATION_DATASOURCE
-    }
+	enum DATASOURCE_TYPE {
 
-    private DATASOURCE_TYPE datasourceKey = DATASOURCE_TYPE.APPLICATION_DATASOURCE;
-    private final Map<Object,Object> dataSources = new HashMap<>();
+		UM_DATASOURCE, APPLICATION_DATASOURCE
 
-    void setKey(DATASOURCE_TYPE key) {
-        this.datasourceKey = key;
-    }
+	}
 
-    public DATASOURCE_TYPE getDatasourceKey() {
-        return datasourceKey;
-    }
+	private DATASOURCE_TYPE datasourceKey = DATASOURCE_TYPE.APPLICATION_DATASOURCE;
 
-    RoutingDataSource() {
-        setTargetDataSources(dataSources);
-    }
+	private final Map<Object, Object> dataSources = new HashMap<>();
 
-    void addDataSource(DATASOURCE_TYPE key, DataSource dataSource) {
-        dataSources.put(key,dataSource);
-    }
+	void setKey(DATASOURCE_TYPE key) {
+		this.datasourceKey = key;
+	}
 
-    @Override
-    protected Object determineCurrentLookupKey() {
-        return datasourceKey;
-    }
+	public DATASOURCE_TYPE getDatasourceKey() {
+		return datasourceKey;
+	}
 
-    @NonNull
-    @Override
-    protected DataSource determineTargetDataSource() {
-        return (DataSource) dataSources.get(datasourceKey);
-    }
+	RoutingDataSource() {
+		setTargetDataSources(dataSources);
+	}
+
+	void addDataSource(DATASOURCE_TYPE key, DataSource dataSource) {
+		dataSources.put(key, dataSource);
+	}
+
+	@Override
+	protected Object determineCurrentLookupKey() {
+		return datasourceKey;
+	}
+
+	@NonNull
+	@Override
+	protected DataSource determineTargetDataSource() {
+		return (DataSource) dataSources.get(datasourceKey);
+	}
+
 }

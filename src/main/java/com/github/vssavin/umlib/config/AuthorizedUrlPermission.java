@@ -10,45 +10,47 @@ import java.util.Arrays;
  * @author vssavin on 17.05.2022.
  */
 public class AuthorizedUrlPermission {
-    private static final String DEFAULT_HTTP_METHOD = HttpMethod.GET.name();
-    private final String url;
-    private final String httpMethod;
-    private final String[] roles;
 
-    public AuthorizedUrlPermission(String url, String httpMethod, Permission permission) {
-        this.url = url;
-        this.httpMethod = httpMethod;
-        this.roles = permission.getRoles();
-    }
+	private static final String DEFAULT_HTTP_METHOD = HttpMethod.GET.name();
 
-    public AuthorizedUrlPermission(String url, Permission permission) {
-        this.url = url;
-        this.httpMethod = DEFAULT_HTTP_METHOD;
-        this.roles = permission.getRoles();
-    }
+	private final String url;
 
-    public String getUrl() {
-        return url;
-    }
+	private final String httpMethod;
 
-    public String getHttpMethod() {
-        return httpMethod;
-    }
+	private final String[] roles;
 
-    public String[] getRoles() {
-        return roles;
-    }
+	public AuthorizedUrlPermission(String url, String httpMethod, Permission permission) {
+		this.url = url;
+		this.httpMethod = httpMethod;
+		this.roles = permission.getRoles();
+	}
 
-    public static String getDefaultHttpMethod() {
-        return DEFAULT_HTTP_METHOD;
-    }
+	public AuthorizedUrlPermission(String url, Permission permission) {
+		this.url = url;
+		this.httpMethod = DEFAULT_HTTP_METHOD;
+		this.roles = permission.getRoles();
+	}
 
-    @Override
-    public String toString() {
-        return "AuthorizedUrlPermission{" +
-                "url='" + url + '\'' +
-                ", httpMethod='" + httpMethod + '\'' +
-                ", roles=" + Arrays.toString(roles) +
-                '}';
-    }
+	public String getUrl() {
+		return url;
+	}
+
+	public String getHttpMethod() {
+		return httpMethod;
+	}
+
+	public String[] getRoles() {
+		return roles;
+	}
+
+	public static String getDefaultHttpMethod() {
+		return DEFAULT_HTTP_METHOD;
+	}
+
+	@Override
+	public String toString() {
+		return "AuthorizedUrlPermission{" + "url='" + url + '\'' + ", httpMethod='" + httpMethod + '\'' + ", roles="
+				+ Arrays.toString(roles) + '}';
+	}
+
 }

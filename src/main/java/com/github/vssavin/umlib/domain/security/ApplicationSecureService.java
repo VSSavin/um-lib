@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 class ApplicationSecureService extends OSPlatformCrypt {
+
 }

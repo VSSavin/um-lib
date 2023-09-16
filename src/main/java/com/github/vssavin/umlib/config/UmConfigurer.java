@@ -11,286 +11,298 @@ import java.util.regex.Pattern;
  * @author vssavin on 26.06.2023
  */
 public class UmConfigurer {
-    private String loginUrl = UmConfig.LOGIN_URL;
-    private String loginProcessingUrl = UmConfig.LOGIN_PROCESSING_URL;
-    private String logoutUrl = UmConfig.LOGOUT_URL;
-    private String successUrl = "/index.html";
-    private String adminSuccessUrl = "/um/admin";
-    private SecureService secureService = SecureService.defaultSecureService();
-    private Pattern passwordPattern;
-    private PasswordConfig passwordConfig;
-    private String passwordDoesntMatchPatternMessage = "Wrong password!";
-    private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
-    private final Map<String, String[]> resourceHandlers = new HashMap<>();
-    private boolean csrfEnabled = true;
-    private boolean configured = false;
 
-    public UmConfigurer() {
-        Map<String, String[]> defaultResourceHandlers = new HashMap<>();
-        resourceHandlers.put("/js/**", new String[]{"classpath:/static/js/"});
-        resourceHandlers.put("/css/**", new String[]{"classpath:/static/css/"});
-        resourceHandlers.put("/flags/**", new String[]{"classpath:/static/flags/"});
-        resourceHandlers.put("/img/**", new String[]{"classpath:/static/img/"});
+	private String loginUrl = UmConfig.LOGIN_URL;
 
-        resourceHandlers(defaultResourceHandlers);
-    }
+	private String loginProcessingUrl = UmConfig.LOGIN_PROCESSING_URL;
 
-    public UmConfigurer loginUrl(String loginUrl) {
-        checkAccess();
-        this.loginUrl = loginUrl;
-        return this;
-    }
+	private String logoutUrl = UmConfig.LOGOUT_URL;
 
-    public UmConfigurer loginProcessingUrl(String loginProcessingUrl) {
-        checkAccess();
-        this.loginProcessingUrl = loginProcessingUrl;
-        return this;
-    }
+	private String successUrl = "/index.html";
 
-    public UmConfigurer logoutUrl(String logoutUrl) {
-        checkAccess();
-        this.logoutUrl = logoutUrl;
-        return this;
-    }
+	private String adminSuccessUrl = "/um/admin";
 
-    public UmConfigurer successUrl(String successUrl) {
-        checkAccess();
-        this.successUrl = successUrl;
-        return this;
-    }
+	private SecureService secureService = SecureService.defaultSecureService();
 
-    public UmConfigurer adminSuccessUrl(String adminSuccessUrl) {
-        checkAccess();
-        this.adminSuccessUrl = adminSuccessUrl;
-        return this;
-    }
+	private Pattern passwordPattern;
 
-    public UmConfigurer secureService(SecureService secureService) {
-        checkAccess();
-        this.secureService = secureService;
-        return this;
-    }
+	private PasswordConfig passwordConfig;
 
-    public UmConfigurer passwordDoesnotMatchPatternMessage(String passwordDoesntMatchPatternMessage) {
-        checkAccess();
-        this.passwordDoesntMatchPatternMessage = passwordDoesntMatchPatternMessage;
-        return this;
-    }
+	private String passwordDoesntMatchPatternMessage = "Wrong password!";
 
-    public UmConfigurer permissions(List<AuthorizedUrlPermission> permissions) {
-        checkAccess();
-        this.permissions = permissions;
-        return this;
-    }
+	private List<AuthorizedUrlPermission> permissions = new ArrayList<>();
 
-    public UmConfigurer permission(AuthorizedUrlPermission permission) {
-        checkAccess();
-        this.permissions.add(permission);
-        return this;
-    }
+	private final Map<String, String[]> resourceHandlers = new HashMap<>();
 
-    public UmConfigurer csrf(boolean enabled) {
-        checkAccess();
-        this.csrfEnabled = enabled;
-        return this;
-    }
+	private boolean csrfEnabled = true;
 
-    public UmConfigurer resourceHandlers(Map<String, String[]> resourceHandlers) {
-        checkAccess();
-        resourceHandlers.forEach((handler, locations) -> {
-            String[] existsLocations = this.resourceHandlers.get(handler);
-            if (existsLocations != null) {
-                String[] newLocations = Arrays.copyOf(existsLocations, existsLocations.length + locations.length);
-                System.arraycopy(locations, 0, newLocations, existsLocations.length, locations.length);
-                this.resourceHandlers.put(handler, newLocations);
-            } else {
-                this.resourceHandlers.put(handler, locations);
-            }
-        });
-        return this;
-    }
+	private boolean configured = false;
 
-    public UmConfigurer configure() {
-        this.configured = true;
-        return this;
-    }
+	public UmConfigurer() {
+		Map<String, String[]> defaultResourceHandlers = new HashMap<>();
+		resourceHandlers.put("/js/**", new String[] { "classpath:/static/js/" });
+		resourceHandlers.put("/css/**", new String[] { "classpath:/static/css/" });
+		resourceHandlers.put("/flags/**", new String[] { "classpath:/static/flags/" });
+		resourceHandlers.put("/img/**", new String[] { "classpath:/static/img/" });
 
-    public String getLoginUrl() {
-        return loginUrl;
-    }
+		resourceHandlers(defaultResourceHandlers);
+	}
 
-    public String getLoginProcessingUrl() {
-        return loginProcessingUrl;
-    }
+	public UmConfigurer loginUrl(String loginUrl) {
+		checkAccess();
+		this.loginUrl = loginUrl;
+		return this;
+	}
 
-    public String getLogoutUrl() {
-        return logoutUrl;
-    }
+	public UmConfigurer loginProcessingUrl(String loginProcessingUrl) {
+		checkAccess();
+		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
 
-    public String getSuccessUrl() {
-        return successUrl;
-    }
+	public UmConfigurer logoutUrl(String logoutUrl) {
+		checkAccess();
+		this.logoutUrl = logoutUrl;
+		return this;
+	}
 
-    public String getAdminSuccessUrl() {
-        return adminSuccessUrl;
-    }
+	public UmConfigurer successUrl(String successUrl) {
+		checkAccess();
+		this.successUrl = successUrl;
+		return this;
+	}
 
-    public SecureService getSecureService() {
-        return secureService;
-    }
+	public UmConfigurer adminSuccessUrl(String adminSuccessUrl) {
+		checkAccess();
+		this.adminSuccessUrl = adminSuccessUrl;
+		return this;
+	}
 
-    public Pattern getPasswordPattern() {
-        if (passwordPattern == null) {
-            if (passwordConfig == null) {
-                passwordConfig = new PasswordConfig();
-            }
-            passwordPattern = initPasswordPattern(passwordConfig);
-        }
-        return passwordPattern;
-    }
+	public UmConfigurer secureService(SecureService secureService) {
+		checkAccess();
+		this.secureService = secureService;
+		return this;
+	}
 
-    public String getPasswordDoesntMatchPatternMessage() {
-        return passwordDoesntMatchPatternMessage;
-    }
+	public UmConfigurer passwordDoesnotMatchPatternMessage(String passwordDoesntMatchPatternMessage) {
+		checkAccess();
+		this.passwordDoesntMatchPatternMessage = passwordDoesntMatchPatternMessage;
+		return this;
+	}
 
-    public List<AuthorizedUrlPermission> getPermissions() {
-        return permissions;
-    }
+	public UmConfigurer permissions(List<AuthorizedUrlPermission> permissions) {
+		checkAccess();
+		this.permissions = permissions;
+		return this;
+	}
 
-    public PasswordConfig passwordConfig() {
-        this.passwordConfig = new PasswordConfig();
-        return this.passwordConfig;
-    }
+	public UmConfigurer permission(AuthorizedUrlPermission permission) {
+		checkAccess();
+		this.permissions.add(permission);
+		return this;
+	}
 
-    public Map<String, String[]> getResourceHandlers() {
-        return resourceHandlers;
-    }
+	public UmConfigurer csrf(boolean enabled) {
+		checkAccess();
+		this.csrfEnabled = enabled;
+		return this;
+	}
 
-    public boolean isCsrfEnabled() {
-        return csrfEnabled;
-    }
+	public UmConfigurer resourceHandlers(Map<String, String[]> resourceHandlers) {
+		checkAccess();
+		resourceHandlers.forEach((handler, locations) -> {
+			String[] existsLocations = this.resourceHandlers.get(handler);
+			if (existsLocations != null) {
+				String[] newLocations = Arrays.copyOf(existsLocations, existsLocations.length + locations.length);
+				System.arraycopy(locations, 0, newLocations, existsLocations.length, locations.length);
+				this.resourceHandlers.put(handler, newLocations);
+			}
+			else {
+				this.resourceHandlers.put(handler, locations);
+			}
+		});
+		return this;
+	}
 
-    public static class PasswordConfig {
-        private int minLength = 4;
-        private int maxLength = 0;
-        private boolean atLeastOneDigit = false;
-        private boolean atLeastOneLowerCaseLatin = false;
-        private boolean atLeastOneUpperCaseLatin = false;
-        private boolean atLeastOneSpecialCharacter = false;
+	public UmConfigurer configure() {
+		this.configured = true;
+		return this;
+	}
 
-        public PasswordConfig minLength(int minLength) {
-            this.minLength = minLength;
-            return this;
-        }
+	public String getLoginUrl() {
+		return loginUrl;
+	}
 
-        public PasswordConfig maxLength(int maxLength) {
-            this.maxLength = maxLength;
-            return this;
-        }
+	public String getLoginProcessingUrl() {
+		return loginProcessingUrl;
+	}
 
-        public PasswordConfig atLeastOneDigit(boolean atLeastOneDigit) {
-            this.atLeastOneDigit = atLeastOneDigit;
-            return this;
-        }
+	public String getLogoutUrl() {
+		return logoutUrl;
+	}
 
-        public PasswordConfig atLeastOneLowerCaseLatin(boolean atLeastOneLowerCaseLatin) {
-            this.atLeastOneLowerCaseLatin = atLeastOneLowerCaseLatin;
-            return this;
-        }
+	public String getSuccessUrl() {
+		return successUrl;
+	}
 
-        public PasswordConfig atLeastOneUpperCaseLatin(boolean atLeastOneUpperCaseLatin) {
-            this.atLeastOneUpperCaseLatin = atLeastOneUpperCaseLatin;
-            return this;
-        }
+	public String getAdminSuccessUrl() {
+		return adminSuccessUrl;
+	}
 
-        public PasswordConfig atLeastOneSpecialCharacter(boolean atLeastOneSpecialCharacter) {
-            this.atLeastOneSpecialCharacter = atLeastOneSpecialCharacter;
-            return this;
-        }
+	public SecureService getSecureService() {
+		return secureService;
+	}
 
-        public int getMinLength() {
-            return minLength;
-        }
+	public Pattern getPasswordPattern() {
+		if (passwordPattern == null) {
+			if (passwordConfig == null) {
+				passwordConfig = new PasswordConfig();
+			}
+			passwordPattern = initPasswordPattern(passwordConfig);
+		}
+		return passwordPattern;
+	}
 
-        public int getMaxLength() {
-            return maxLength;
-        }
+	public String getPasswordDoesntMatchPatternMessage() {
+		return passwordDoesntMatchPatternMessage;
+	}
 
-        public boolean isAtLeastOneDigit() {
-            return atLeastOneDigit;
-        }
+	public List<AuthorizedUrlPermission> getPermissions() {
+		return permissions;
+	}
 
-        public boolean isAtLeastOneLowerCaseLatin() {
-            return atLeastOneLowerCaseLatin;
-        }
+	public PasswordConfig passwordConfig() {
+		this.passwordConfig = new PasswordConfig();
+		return this.passwordConfig;
+	}
 
-        public boolean isAtLeastOneUpperCaseLatin() {
-            return atLeastOneUpperCaseLatin;
-        }
+	public Map<String, String[]> getResourceHandlers() {
+		return resourceHandlers;
+	}
 
-        public boolean isAtLeastOneSpecialCharacter() {
-            return atLeastOneSpecialCharacter;
-        }
+	public boolean isCsrfEnabled() {
+		return csrfEnabled;
+	}
 
-        @Override
-        public String toString() {
-            return "PasswordConfig{" +
-                    "minLength=" + minLength +
-                    ", maxLength=" + maxLength +
-                    ", atLeastOneDigit=" + atLeastOneDigit +
-                    ", atLeastOneLowerCaseLatin=" + atLeastOneLowerCaseLatin +
-                    ", atLeastOneUpperCaseLatin=" + atLeastOneUpperCaseLatin +
-                    ", atLeastOneSpecialCharacter=" + atLeastOneSpecialCharacter +
-                    '}';
-        }
-    }
+	public static class PasswordConfig {
 
-    @Override
-    public String toString() {
-        return "UmConfigurer{" +
-                "loginUrl='" + loginUrl + '\'' +
-                ", loginProcessingUrl='" + loginProcessingUrl + '\'' +
-                ", logoutUrl='" + logoutUrl + '\'' +
-                ", successUrl='" + successUrl + '\'' +
-                ", adminSuccessUrl='" + adminSuccessUrl + '\'' +
-                ", secureService=" + secureService +
-                ", passwordPattern=" + passwordPattern +
-                ", passwordConfig=" + passwordConfig +
-                '}';
-    }
+		private int minLength = 4;
 
-    private void checkAccess() {
-        if (configured) {
-            throw new IllegalStateException("UmConfigurer is already configured!");
-        }
-    }
+		private int maxLength = 0;
 
-    private Pattern initPasswordPattern(PasswordConfig passwordConfig) {
-        StringBuilder stringPatternBuilder = new StringBuilder("^");
-        if (passwordConfig.isAtLeastOneDigit()) {
-            stringPatternBuilder.append("(?=.*[0-9])");
-        }
+		private boolean atLeastOneDigit = false;
 
-        if (passwordConfig.isAtLeastOneLowerCaseLatin()) {
-            stringPatternBuilder.append("(?=.*[a-z])");
-        }
+		private boolean atLeastOneLowerCaseLatin = false;
 
-        if (passwordConfig.isAtLeastOneUpperCaseLatin()) {
-            stringPatternBuilder.append("(?=.*[A-Z])");
-        }
+		private boolean atLeastOneUpperCaseLatin = false;
 
-        if (passwordConfig.isAtLeastOneSpecialCharacter()) {
-            stringPatternBuilder.append("(?=.*[!@#&()–[{}]:;',?/*~$^+=<>])");
-        }
+		private boolean atLeastOneSpecialCharacter = false;
 
-        stringPatternBuilder.append(".").append("{").append(passwordConfig.getMinLength()).append(",");
+		public PasswordConfig minLength(int minLength) {
+			this.minLength = minLength;
+			return this;
+		}
 
-        if (passwordConfig.getMaxLength() != 0) {
-            stringPatternBuilder.append(passwordConfig.getMaxLength());
-        }
+		public PasswordConfig maxLength(int maxLength) {
+			this.maxLength = maxLength;
+			return this;
+		}
 
-        stringPatternBuilder.append("}$");
+		public PasswordConfig atLeastOneDigit(boolean atLeastOneDigit) {
+			this.atLeastOneDigit = atLeastOneDigit;
+			return this;
+		}
 
-        return Pattern.compile(stringPatternBuilder.toString());
-    }
+		public PasswordConfig atLeastOneLowerCaseLatin(boolean atLeastOneLowerCaseLatin) {
+			this.atLeastOneLowerCaseLatin = atLeastOneLowerCaseLatin;
+			return this;
+		}
+
+		public PasswordConfig atLeastOneUpperCaseLatin(boolean atLeastOneUpperCaseLatin) {
+			this.atLeastOneUpperCaseLatin = atLeastOneUpperCaseLatin;
+			return this;
+		}
+
+		public PasswordConfig atLeastOneSpecialCharacter(boolean atLeastOneSpecialCharacter) {
+			this.atLeastOneSpecialCharacter = atLeastOneSpecialCharacter;
+			return this;
+		}
+
+		public int getMinLength() {
+			return minLength;
+		}
+
+		public int getMaxLength() {
+			return maxLength;
+		}
+
+		public boolean isAtLeastOneDigit() {
+			return atLeastOneDigit;
+		}
+
+		public boolean isAtLeastOneLowerCaseLatin() {
+			return atLeastOneLowerCaseLatin;
+		}
+
+		public boolean isAtLeastOneUpperCaseLatin() {
+			return atLeastOneUpperCaseLatin;
+		}
+
+		public boolean isAtLeastOneSpecialCharacter() {
+			return atLeastOneSpecialCharacter;
+		}
+
+		@Override
+		public String toString() {
+			return "PasswordConfig{" + "minLength=" + minLength + ", maxLength=" + maxLength + ", atLeastOneDigit="
+					+ atLeastOneDigit + ", atLeastOneLowerCaseLatin=" + atLeastOneLowerCaseLatin
+					+ ", atLeastOneUpperCaseLatin=" + atLeastOneUpperCaseLatin + ", atLeastOneSpecialCharacter="
+					+ atLeastOneSpecialCharacter + '}';
+		}
+
+	}
+
+	@Override
+	public String toString() {
+		return "UmConfigurer{" + "loginUrl='" + loginUrl + '\'' + ", loginProcessingUrl='" + loginProcessingUrl + '\''
+				+ ", logoutUrl='" + logoutUrl + '\'' + ", successUrl='" + successUrl + '\'' + ", adminSuccessUrl='"
+				+ adminSuccessUrl + '\'' + ", secureService=" + secureService + ", passwordPattern=" + passwordPattern
+				+ ", passwordConfig=" + passwordConfig + '}';
+	}
+
+	private void checkAccess() {
+		if (configured) {
+			throw new IllegalStateException("UmConfigurer is already configured!");
+		}
+	}
+
+	private Pattern initPasswordPattern(PasswordConfig passwordConfig) {
+		StringBuilder stringPatternBuilder = new StringBuilder("^");
+		if (passwordConfig.isAtLeastOneDigit()) {
+			stringPatternBuilder.append("(?=.*[0-9])");
+		}
+
+		if (passwordConfig.isAtLeastOneLowerCaseLatin()) {
+			stringPatternBuilder.append("(?=.*[a-z])");
+		}
+
+		if (passwordConfig.isAtLeastOneUpperCaseLatin()) {
+			stringPatternBuilder.append("(?=.*[A-Z])");
+		}
+
+		if (passwordConfig.isAtLeastOneSpecialCharacter()) {
+			stringPatternBuilder.append("(?=.*[!@#&()–[{}]:;',?/*~$^+=<>])");
+		}
+
+		stringPatternBuilder.append(".").append("{").append(passwordConfig.getMinLength()).append(",");
+
+		if (passwordConfig.getMaxLength() != 0) {
+			stringPatternBuilder.append(passwordConfig.getMaxLength());
+		}
+
+		stringPatternBuilder.append("}$");
+
+		return Pattern.compile(stringPatternBuilder.toString());
+	}
+
 }

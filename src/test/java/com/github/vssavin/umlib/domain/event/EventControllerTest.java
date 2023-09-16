@@ -22,43 +22,41 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 public class EventControllerTest extends AbstractTest {
 
-    @Test
-    public void shouldReturnForbiddenStatusFotNonAdminRole() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+	@Test
+	public void shouldReturnForbiddenStatusFotNonAdminRole() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
 
-        registerParams.add("userId", "");
+		registerParams.add("userId", "");
 
-        ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH)
-                .params(registerParams)
-                .with(getRequestPostProcessorForUser(testUser))
-                .with(csrf()));
+		ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH).params(registerParams)
+			.with(getRequestPostProcessorForUser(testUser))
+			.with(csrf()));
 
-        resultActions.andExpect(status().is(HttpStatus.FORBIDDEN.value()));
-    }
+		resultActions.andExpect(status().is(HttpStatus.FORBIDDEN.value()));
+	}
 
-    @Test
-    public void shouldLoggedInEventByUserId() throws Exception {
-        MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String userId = "1";
-        registerParams.add("userId", userId);
+	@Test
+	public void shouldLoggedInEventByUserId() throws Exception {
+		MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
+		String userId = "1";
+		registerParams.add("userId", userId);
 
-        ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH)
-                .params(registerParams)
-                .with(getRequestPostProcessorForUser(testAdminUser))
-                .with(csrf()));
+		ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH).params(registerParams)
+			.with(getRequestPostProcessorForUser(testAdminUser))
+			.with(csrf()));
 
-        resultActions.andExpect(status().is(HttpStatus.OK.value()));
+		resultActions.andExpect(status().is(HttpStatus.OK.value()));
 
-        String html = resultActions.andReturn().getResponse().getContentAsString();
-        Document doc = Jsoup.parse(html);
-        Element eventsTable = doc.getElementById("eventsTable");
-        Elements trElements = eventsTable.getElementsByTag("tbody")
-                .first().getElementsByTag("tr");
-        Element eventElement = trElements.get(0);
-        String actualUserId = eventElement.getElementsByTag("td").get(1).text();
-        EventType actualEventType = EventType.valueOf(eventElement.getElementsByTag("td").get(2).text());
+		String html = resultActions.andReturn().getResponse().getContentAsString();
+		Document doc = Jsoup.parse(html);
+		Element eventsTable = doc.getElementById("eventsTable");
+		Elements trElements = eventsTable.getElementsByTag("tbody").first().getElementsByTag("tr");
+		Element eventElement = trElements.get(0);
+		String actualUserId = eventElement.getElementsByTag("td").get(1).text();
+		EventType actualEventType = EventType.valueOf(eventElement.getElementsByTag("td").get(2).text());
 
-        Assertions.assertEquals(userId, actualUserId);
-        Assertions.assertEquals(EventType.LOGGED_IN, actualEventType);
-    }
+		Assertions.assertEquals(userId, actualUserId);
+		Assertions.assertEquals(EventType.LOGGED_IN, actualEventType);
+	}
+
 }
