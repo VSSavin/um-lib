@@ -1,32 +1,55 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.domain.security.SecureService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.DefaultApplicationArguments;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import java.util.Locale;
 
 import static com.github.vssavin.umlib.config.UmSecureServiceArgumentsHandler.SECURE_SERVICE_PROP_NAME;
+import static org.mockito.Mockito.*;
 
-public class ConfigureSecureServiceTest extends AbstractTest {
+@RunWith(MockitoJUnitRunner.class)
+public class ConfigureSecureServiceTest {
 
     private final UmConfigurer defaultConfigurer = new UmConfigurer();
 
     private final String defaultApplicationArgsBeanName = "springApplicationArguments";
 
-    private ApplicationContext context;
+    private final AbstractApplicationContext context = new AnnotationConfigServletWebApplicationContext();
 
-    @Autowired
-    public void setContext(ApplicationContext context) {
-        this.context = context;
+    @Mock
+    private SecureService aesSecureService;
+
+    @Mock
+    private SecureService rsaSecureService;
+
+    @Mock
+    private SecureService noSecureService;
+
+    @Before
+    public void setUp() {
+        context.refresh();
+        context.getBeanFactory().registerSingleton(defaultApplicationArgsBeanName, new DefaultApplicationArguments());
+
+        when(aesSecureService.toString()).thenReturn("AES");
+        when(rsaSecureService.toString()).thenReturn("RSA");
+        when(noSecureService.toString()).thenReturn("NO");
+
+        context.getBeanFactory().registerSingleton("aesSecureService", aesSecureService);
+        context.getBeanFactory().registerSingleton("rsaSecureService", rsaSecureService);
+        context.getBeanFactory().registerSingleton("noSecureService", noSecureService);
     }
 
     @Test
@@ -128,6 +151,7 @@ public class ConfigureSecureServiceTest extends AbstractTest {
         }
         catch (NoSuchBeanDefinitionException ignore) {
             // ignore
+            System.out.println();
         }
 
         try {
