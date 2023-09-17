@@ -2,8 +2,6 @@ package com.github.vssavin.umlib.domain.user;
 
 import com.github.vssavin.umlib.AbstractTest;
 import com.github.vssavin.umlib.config.LocaleConfig;
-import com.github.vssavin.umlib.domain.user.Role;
-import com.github.vssavin.umlib.domain.user.User;
 import com.github.vssavin.umlib.domain.language.MessageKey;
 import com.github.vssavin.umlib.domain.email.MockedEmailService;
 import org.junit.Test;
@@ -63,7 +61,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("confirmPassword", encodedPassword);
 
         ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/perform-register").params(registerParams)
-            .with(getRequestPostProcessorForUser(testUser))
+            .with(getRequestPostProcessorForUser(testUser()))
             .with(csrf()));
 
         resultActions.andExpect(status().is(403));
@@ -72,12 +70,12 @@ public class UserControllerTest extends AbstractTest {
     @Test
     public void suchUserExists() throws Exception {
         MultiValueMap<String, String> registerParams = new LinkedMultiValueMap<>();
-        String login = testUser.getLogin();
+        String login = testUser().getLogin();
         registerParams.add("login", login);
         registerParams.add("username", login);
         registerParams.add("email", "test@test.com");
-        registerParams.add("password", encrypt("", testUser.getPassword()));
-        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
+        registerParams.add("password", encrypt("", testUser().getPassword()));
+        registerParams.add("confirmPassword", encrypt("", testUser().getPassword()));
         ResultActions resultActions = mockMvc
             .perform(post(BASE_URL + "/perform-register").params(registerParams).with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKey.USER_EXISTS_PATTERN.getKey(),
@@ -94,8 +92,8 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("login", login);
         registerParams.add("username", login);
         registerParams.add("email", "user@example.com");
-        registerParams.add("password", encrypt("", testUser.getPassword()));
-        registerParams.add("confirmPassword", encrypt("", testUser.getPassword()));
+        registerParams.add("password", encrypt("", testUser().getPassword()));
+        registerParams.add("confirmPassword", encrypt("", testUser().getPassword()));
         ResultActions resultActions = mockMvc
             .perform(post(BASE_URL + "/perform-register").params(registerParams).with(csrf()));
         String messagePattern = registrationMessageSource.getMessage(MessageKey.EMAIL_EXISTS_MESSAGE.getKey(),
@@ -107,7 +105,7 @@ public class UserControllerTest extends AbstractTest {
 
     @Test
     public void changeUserPasswordSuccessful() throws Exception {
-        String currentPassword = testUser.getPassword();
+        String currentPassword = testUser().getPassword();
         String newPassword = "user2";
 
         String encodedCurrentPassword = encrypt("", currentPassword);
@@ -118,19 +116,19 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("newPassword", encodedNewPassword);
 
         ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword").params(registerParams)
-            .with(getRequestPostProcessorForUser(testUser))
+            .with(getRequestPostProcessorForUser(testUser()))
             .with(csrf()));
 
         String message = changePasswordMessageSource.getMessage(
                 MessageKey.PASSWORD_SUCCESSFULLY_CHANGED_MESSAGE.getKey(), new Object[] {},
                 LocaleConfig.DEFAULT_LOCALE);
         resultActions.andExpect(model().attribute("success", true)).andExpect(model().attribute("successMsg", message));
-        testUser.setPassword(newPassword);
+        testUser().setPassword(newPassword);
     }
 
     @Test
     public void changeUserPasswordFailed() throws Exception {
-        String currentPassword = testUser.getPassword() + "1";
+        String currentPassword = testUser().getPassword() + "1";
         String newPassword = "admin2";
 
         String encodedCurrentPassword = encrypt("", currentPassword);
@@ -141,7 +139,7 @@ public class UserControllerTest extends AbstractTest {
         registerParams.add("newPassword", encodedNewPassword);
 
         ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/changePassword").params(registerParams)
-            .with(getRequestPostProcessorForUser(testUser))
+            .with(getRequestPostProcessorForUser(testUser()))
             .with(csrf()));
         String message = changePasswordMessageSource.getMessage(MessageKey.WRONG_PASSWORD_MESSAGE.getKey(),
                 new Object[] {}, LocaleConfig.DEFAULT_LOCALE);
@@ -242,7 +240,7 @@ public class UserControllerTest extends AbstractTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", "12345");
         ResultActions resultActions = mockMvc
-            .perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser)).with(csrf()));
+            .perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser())).with(csrf()));
         ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
         Assertions.assertNotNull(modelAndView);
         boolean error = modelAndView.getModel().containsKey("error");
@@ -256,7 +254,7 @@ public class UserControllerTest extends AbstractTest {
         params.add("name", "testName");
         params.add("email", "testEmail.com");
         ResultActions resultActions = mockMvc
-            .perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser)).with(csrf()));
+            .perform(patch(BASE_URL).params(params).with(getRequestPostProcessorForUser(testUser())).with(csrf()));
         ModelAndView modelAndView = resultActions.andReturn().getModelAndView();
         Assertions.assertNotNull(modelAndView);
         boolean error = modelAndView.getModel().containsKey("error");

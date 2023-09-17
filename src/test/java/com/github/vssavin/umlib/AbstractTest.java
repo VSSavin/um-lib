@@ -41,10 +41,6 @@ public abstract class AbstractTest {
         DOMConfigurator.configure("./log4j.xml");
     }
 
-    protected final User testAdminUser = new User("admin", "admin", "admin", "admin@example.com", "ADMIN");
-
-    protected final User testUser = new User("user", "user", "user", "user@example.com", "USER");
-
     protected MockMvc mockMvc;
 
     protected SecureService secureService;
@@ -101,6 +97,32 @@ public abstract class AbstractTest {
         ResultActions secureAction = mockMvc.perform(get(urlTemplate));
         String secureKey = secureAction.andReturn().getResponse().getContentAsString();
         return secureService.decrypt(data, secureKey);
+    }
+
+    protected static User testAdminUser() {
+        // StringBuilder used to create a new String (not from the string pool),
+        // because if we use DefaultStringSafety - it changes the value of the object in
+        // the string pool!
+        User.UserBuilder builder = User.builder();
+        return builder.login(new StringBuilder().append("admin").toString())
+            .name(new StringBuilder().append("admin").toString())
+            .password(new StringBuilder().append("admin").toString())
+            .email("admin@example.com")
+            .authority("ADMIN")
+            .build();
+    }
+
+    protected static User testUser() {
+        // StringBuilder used to create a new String (not from the string pool),
+        // because if we use DefaultStringSafety - it changes the value of the object in
+        // the string pool!
+        return User.builder()
+            .login(new StringBuilder().append("user").toString())
+            .name(new StringBuilder().append("user").toString())
+            .password(new StringBuilder().append("user").toString())
+            .email("user@examle.com")
+            .authority("USER")
+            .build();
     }
 
 }

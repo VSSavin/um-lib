@@ -29,7 +29,7 @@ public class EventControllerTest extends AbstractTest {
         registerParams.add("userId", "");
 
         ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH).params(registerParams)
-            .with(getRequestPostProcessorForUser(testUser))
+            .with(getRequestPostProcessorForUser(testUser()))
             .with(csrf()));
 
         resultActions.andExpect(status().is(HttpStatus.FORBIDDEN.value()));
@@ -42,7 +42,7 @@ public class EventControllerTest extends AbstractTest {
         registerParams.add("userId", userId);
 
         ResultActions resultActions = mockMvc.perform(get(EVENT_CONTROLLER_PATH).params(registerParams)
-            .with(getRequestPostProcessorForUser(testAdminUser))
+            .with(getRequestPostProcessorForUser(testAdminUser()))
             .with(csrf()));
 
         resultActions.andExpect(status().is(HttpStatus.OK.value()));

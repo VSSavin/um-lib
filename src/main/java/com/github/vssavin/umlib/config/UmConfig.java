@@ -1,24 +1,16 @@
 package com.github.vssavin.umlib.config;
 
-import com.github.vssavin.jcrypt.DefaultStringSafety;
-import com.github.vssavin.jcrypt.StringSafety;
-import com.github.vssavin.jcrypt.osplatform.OSPlatformCrypt;
 import com.github.vssavin.umlib.domain.security.SecureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.annotation.PostConstruct;
 import org.springframework.http.HttpMethod;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -53,9 +45,6 @@ public class UmConfig extends StorableConfig {
     public static final String ADMIN_PATH = "/um/admin/*";
 
     @IgnoreField
-    public static final String AUTH_SERVICE_PROP_NAME = "authService";
-
-    @IgnoreField
     private final String adminSuccessUrl;
 
     @IgnoreField
@@ -69,17 +58,7 @@ public class UmConfig extends StorableConfig {
 
     private static final Logger log = LoggerFactory.getLogger(UmConfig.class);
 
-    private String[] applicationArgs;
-
-    private final ApplicationContext context;
-
-    private final SecureService defaultSecureService;
-
-    private final OSPlatformCrypt encryptPropertiesPasswordService;
-
     private final UmConfigurer umConfigurer;
-
-    private SecureService secureService;
 
     @Value("${" + NAME_PREFIX + ".url}")
     private String applicationUrl;
@@ -96,39 +75,24 @@ public class UmConfig extends StorableConfig {
     @Value("${um.auth.failureBlockTimeMinutes:60}")
     private int authFailureBlockTime;
 
+    private SecureService secureService;
+
     private final List<AuthorizedUrlPermission> authorizedUrlPermissions = new ArrayList<>();
 
     private final boolean csrfEnabled;
 
-    private final StringSafety stringSafety = new DefaultStringSafety();
-
     @Autowired
-    public UmConfig(ApplicationContext context, SecureService secureService, UmConfigurer umConfigurer,
-            @Qualifier("applicationSecureService") OSPlatformCrypt applicationSecureService) {
+    public UmConfig(UmConfigurer umConfigurer, UmSecureServiceArgumentsHandler umSecureServiceArgumentsHandler) {
         super.setConfigFile(CONFIG_FILE);
         super.setNamePrefix(NAME_PREFIX);
-        this.context = context;
-        this.defaultSecureService = secureService;
-        this.secureService = defaultSecureService;
+        secureService = umSecureServiceArgumentsHandler.getSecureService();
         this.umConfigurer = umConfigurer;
-        this.encryptPropertiesPasswordService = applicationSecureService;
         this.csrfEnabled = umConfigurer.isCsrfEnabled();
 
         initDefaultPermissions();
         this.authorizedUrlPermissions.addAll(umConfigurer.getPermissions());
-
-        if (applicationArgs == null || applicationArgs.length == 0) {
-            String[] args = getAppArgsFromContext(context);
-            if (args.length > 0) {
-                applicationArgs = args;
-            }
-        }
-
         adminSuccessUrl = umConfigurer.getAdminSuccessUrl();
         successUrl = umConfigurer.getSuccessUrl();
-
-        initSecureService("");
-        processArgs(applicationArgs);
         log.debug("Using auth service: {}", this.secureService);
     }
 
@@ -139,6 +103,10 @@ public class UmConfig extends StorableConfig {
             updatePermission(PERFORM_REGISTER_URL, Permission.ADMIN_ONLY);
             updatePermission(PERFORM_REGISTER_URL, HttpMethod.POST.name(), Permission.ADMIN_ONLY);
         }
+    }
+
+    void setSecureService(SecureService secureService) {
+        this.secureService = secureService;
     }
 
     public SecureService getSecureService() {
@@ -233,90 +201,6 @@ public class UmConfig extends StorableConfig {
         return AuthorizedUrlPermission.getDefaultHttpMethod();
     }
 
-    private String[] getAppArgsFromContext(ApplicationContext context) {
-        try {
-            Object appArgsBean = context.getBean("springApplicationArguments");
-            Method sourceArgesMethod = appArgsBean.getClass().getMethod("getSourceArgs");
-            String[] args = (String[]) sourceArgesMethod.invoke(appArgsBean);
-            if (args != null && args.length > 0) {
-                return args;
-            }
-        }
-        catch (NoSuchBeanDefinitionException ignore) { // ignore
-        }
-        catch (NoSuchMethodException e) {
-            log.error("Method \"getSourceArgs\" not found!", e);
-        }
-        catch (InvocationTargetException | IllegalAccessException e) {
-            log.error("Method invocation error", e);
-        }
-        return new String[] {};
-    }
-
-    private void initSecureService(String secureServiceName) {
-        if (context == null || defaultSecureService == null) {
-            throw new IllegalStateException("Not initialized application context or default secure service!");
-        }
-
-        if (secureServiceName != null && !secureServiceName.isEmpty()) {
-            secureService = getSecureServiceByName(secureServiceName);
-        }
-        else {
-            String authServiceName = System.getProperty(AUTH_SERVICE_PROP_NAME);
-            if (authServiceName == null || authServiceName.isEmpty()) {
-                authServiceName = System.getenv(AUTH_SERVICE_PROP_NAME);
-            }
-            if (authServiceName != null && !authServiceName.isEmpty()) {
-                secureService = getSecureServiceByName(authServiceName);
-            }
-            else {
-                secureService = umConfigurer.getSecureService();
-            }
-        }
-    }
-
-    private SecureService getSecureServiceByName(String serviceName) {
-        SecureService service = null;
-        boolean beanFound = true;
-        try {
-            service = (SecureService) context.getBean(serviceName + "SecureService");
-        }
-        catch (NoSuchBeanDefinitionException ignore) {
-            try {
-                service = (SecureService) context.getBean(serviceName.toUpperCase() + "SecureService");
-            }
-            catch (NoSuchBeanDefinitionException e) {
-                beanFound = false;
-            }
-        }
-        if (!beanFound) {
-            throw new NoSuchSecureServiceException(String.format("Service with name %s not found!", serviceName));
-        }
-        return service;
-    }
-
-    private void processArgs(String[] args) {
-        if (args != null && args.length > 0) {
-            String argsString = Arrays.toString(args);
-            log.debug("Application started with arguments: {}", argsString);
-            Map<String, String> mappedArgs = getMappedArgs(args);
-            String password = mappedArgs.get("ep");
-            if (password != null) {
-                String encrypted = encryptPropertiesPasswordService.encrypt(password, "");
-                stringSafety.clearString(password);
-                log.debug("Encryption for password [{}] : {}", password, encrypted);
-                stringSafety.clearString(password);
-            }
-            String authServiceName = mappedArgs.get(AUTH_SERVICE_PROP_NAME);
-            if (authServiceName != null) {
-                initSecureService(authServiceName);
-            }
-        }
-        else {
-            log.warn("Unknown application arguments!");
-        }
-    }
-
     private void initDefaultPermissions() {
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/js/**", Permission.ANY_USER));
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/css/**", Permission.ANY_USER));
@@ -366,28 +250,6 @@ public class UmConfig extends StorableConfig {
             .add(new AuthorizedUrlPermission("/um/users", HttpMethod.PATCH.name(), Permission.USER_ADMIN));
 
         authorizedUrlPermissions.add(new AuthorizedUrlPermission("/*", Permission.USER_ADMIN));
-    }
-
-    private static Map<String, String> getMappedArgs(String[] args) {
-        Map<String, String> resultMap = new HashMap<>();
-        if (args.length > 0) {
-            for (String arg : args) {
-                String[] params = arg.replace("--", "").split("=");
-                if (params.length > 0) {
-                    String value = params.length > 1 ? params[1] : "";
-                    resultMap.put(params[0], value);
-                }
-            }
-        }
-        return resultMap;
-    }
-
-    private static class NoSuchSecureServiceException extends RuntimeException {
-
-        NoSuchSecureServiceException(String message) {
-            super(message);
-        }
-
     }
 
 }

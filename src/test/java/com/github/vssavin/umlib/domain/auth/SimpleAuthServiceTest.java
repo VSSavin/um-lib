@@ -30,7 +30,7 @@ public class SimpleAuthServiceTest extends AbstractTest {
 
     private final User incorrectAdminUser = new User("admin", "admin", "notadmin", "admin@example.com", "ADMIN");
 
-    private final User correctAdminUser = testAdminUser;
+    private final User correctAdminUser = testAdminUser();
 
     private final HttpServletRequest request = new MockHttpServletRequest();
 
