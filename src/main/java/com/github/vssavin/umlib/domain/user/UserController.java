@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -31,7 +32,7 @@ import java.util.*;
  *
  * @author vssavin on 23.12.21
  */
-@RestController
+@Controller
 @RequestMapping(UserController.USER_CONTROLLER_PATH)
 final class UserController extends UmControllerBase {
 

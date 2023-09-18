@@ -9,6 +9,7 @@ import com.github.vssavin.umlib.domain.language.UmLanguage;
 import com.github.vssavin.umlib.domain.security.SecureService;
 import com.github.vssavin.umlib.domain.user.UserSecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -23,7 +24,7 @@ import java.util.Set;
  *
  * @author vssavin on 24.08.2023
  */
-@RestController
+@Controller
 @RequestMapping(EventController.EVENT_CONTROLLER_PATH)
 public class EventController extends UmControllerBase {
 

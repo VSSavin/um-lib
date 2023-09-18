@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,7 +33,7 @@ import static com.github.vssavin.umlib.domain.user.AdminController.ADMIN_CONTROL
  *
  * @author vssavin on 21.12.21
  */
-@RestController
+@Controller
 @RequestMapping(ADMIN_CONTROLLER_PATH)
 final class AdminController extends UmControllerBase {
 
