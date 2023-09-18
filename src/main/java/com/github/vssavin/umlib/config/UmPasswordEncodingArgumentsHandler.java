@@ -12,7 +12,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.PrintStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -24,23 +28,31 @@ import java.util.Map;
 @Configuration
 class UmPasswordEncodingArgumentsHandler extends AbstractApplicationArgumentsHandler {
 
+    static final String PRINT_ENCODE_PASSWORD_PROP_NAME = "um.ep";
+
+    static final String DB_PASSWORD_ENCODED_PROP_NAME = "um.db-password-encoded";
+
     private static final Logger log = LoggerFactory.getLogger(UmPasswordEncodingArgumentsHandler.class);
 
-    @Value("${um.ep:#{null}}")
-    private String encodePassword;
+    @Value("${" + PRINT_ENCODE_PASSWORD_PROP_NAME + ":#{null}}")
+    private String password;
 
-    @Value("${um.encode-db-password:#{null}}")
-    private String encodeDbPassword;
+    @Value("${" + DB_PASSWORD_ENCODED_PROP_NAME + ":#{false}}")
+    private boolean dbPasswordEncoded;
 
     private final StringSafety stringSafety = new DefaultStringSafety();
 
-    private final OSPlatformCrypt encryptPropertiesPasswordService;
+    private final OSPlatformCrypt passwordService;
+
+    private final PrintStream passwordPrintStream;
 
     @Autowired
     UmPasswordEncodingArgumentsHandler(ApplicationContext applicationContext,
-            @Qualifier("applicationSecureService") OSPlatformCrypt applicationSecureService) {
+            @Qualifier("applicationSecureService") OSPlatformCrypt applicationSecureService,
+            @Autowired(required = false) PrintStream passwordPrintStream) {
         super(log, applicationContext);
-        this.encryptPropertiesPasswordService = applicationSecureService;
+        this.passwordPrintStream = passwordPrintStream;
+        this.passwordService = applicationSecureService;
     }
 
     @PostConstruct
@@ -51,13 +63,47 @@ class UmPasswordEncodingArgumentsHandler extends AbstractApplicationArgumentsHan
             String argsString = Arrays.toString(args);
             log.debug("Application started with arguments: {}", argsString);
             Map<String, String> mappedArgs = getMappedArgs(args);
-            String password = mappedArgs.get("ep");
-            if (password != null) {
-                String encrypted = encryptPropertiesPasswordService.encrypt(password, "");
-                stringSafety.clearString(password);
-                log.debug("Encryption for password [{}] : {}", password, encrypted);
-                stringSafety.clearString(password);
+            String pass = mappedArgs.get(PRINT_ENCODE_PASSWORD_PROP_NAME);
+            if (pass != null) {
+                printPassword(pass);
             }
+
+            String passwordEncodedString = mappedArgs.get(DB_PASSWORD_ENCODED_PROP_NAME);
+            if (passwordEncodedString != null) {
+                this.dbPasswordEncoded = Boolean.parseBoolean(passwordEncodedString);
+            }
+        }
+        else {
+            if (password != null) {
+                printPassword(password);
+            }
+        }
+    }
+
+    public boolean isDbPasswordEncoded() {
+        return dbPasswordEncoded;
+    }
+
+    public OSPlatformCrypt getPasswordService() {
+        return passwordService;
+    }
+
+    private void printPassword(String pass) {
+        String messageText = "Encryption for password";
+        String logMessageFormat = messageText + " [{}] : {}";
+        String stringMessageFormat = "%s " + messageText + " [%s] : %s";
+        if (pass != null) {
+            String encrypted = passwordService.encrypt(pass, "");
+            stringSafety.clearString(pass);
+            if (passwordPrintStream == null) {
+                log.debug(logMessageFormat, pass, encrypted);
+            }
+            else {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                passwordPrintStream
+                    .println(String.format(stringMessageFormat, dateFormat.format(new Date()), pass, encrypted));
+            }
+            stringSafety.clearString(pass);
         }
     }
 
