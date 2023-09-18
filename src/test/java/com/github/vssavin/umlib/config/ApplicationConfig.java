@@ -16,6 +16,9 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +91,24 @@ public class ApplicationConfig {
     @Bean
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
+    }
+
+    /**
+     * An example bean to print an encoded password in a specified file. Used in the
+     * ${@link com.github.vssavin.umlib.config.UmPasswordEncodingArgumentsHandler} class.
+     *
+     * @return PrintStream bean.
+     */
+    @Bean
+    public PrintStream passwordPrintStream() {
+        try {
+            return new PrintStream(new FileOutputStream("password-output.txt", true));
+        }
+        catch (FileNotFoundException e) {
+            log.error("Initialize passwordPrintStream bean error!", e);
+        }
+
+        return null;
     }
 
 }
