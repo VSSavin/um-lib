@@ -21,10 +21,13 @@ public class UmDataSourceConfig {
 
     private final UmDatabaseConfig umDatabaseConfig;
 
+    private final UmPasswordEncodingArgumentsHandler argumentsHandler;
+
     private DataSource umDataSource;
 
-    public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig) {
+    public UmDataSourceConfig(UmDatabaseConfig umDatabaseConfig, UmPasswordEncodingArgumentsHandler argumentsHandler) {
         this.umDatabaseConfig = umDatabaseConfig;
+        this.argumentsHandler = argumentsHandler;
     }
 
     @Bean
@@ -41,7 +44,7 @@ public class UmDataSourceConfig {
             }
             dataSource.setUrl(url);
             dataSource.setUsername(umDatabaseConfig.getUser());
-            dataSource.setPassword(umDatabaseConfig.getPassword());
+            setDatasourcePassword(dataSource, argumentsHandler);
         }
         catch (Exception e) {
             log.error("Creating datasource error: ", e);
@@ -69,6 +72,23 @@ public class UmDataSourceConfig {
         }
 
         return routingDataSource;
+    }
+
+    private void setDatasourcePassword(DriverManagerDataSource dataSource,
+                                       UmPasswordEncodingArgumentsHandler argumentsHandler) {
+        if (argumentsHandler.isDbPasswordEncoded()) {
+            try {
+                dataSource
+                        .setPassword(argumentsHandler.getPasswordService().decrypt(umDatabaseConfig.getPassword()));
+            }
+            catch (Exception e) {
+                log.debug("Can't decrypt password! Using a password from the config...", e);
+                dataSource.setPassword(umDatabaseConfig.getPassword());
+            }
+        }
+        else {
+            dataSource.setPassword(umDatabaseConfig.getPassword());
+        }
     }
 
 }
