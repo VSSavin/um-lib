@@ -96,7 +96,6 @@ public class ApplicationConfig {
     /**
      * An example bean to print an encoded password in a specified file. Used in the
      * ${@link com.github.vssavin.umlib.config.UmPasswordEncodingArgumentsHandler} class.
-     *
      * @return PrintStream bean.
      */
     @Bean
