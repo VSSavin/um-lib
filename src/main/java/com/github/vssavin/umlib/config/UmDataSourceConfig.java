@@ -75,11 +75,10 @@ public class UmDataSourceConfig {
     }
 
     private void setDatasourcePassword(DriverManagerDataSource dataSource,
-                                       UmPasswordEncodingArgumentsHandler argumentsHandler) {
+            UmPasswordEncodingArgumentsHandler argumentsHandler) {
         if (argumentsHandler.isDbPasswordEncoded()) {
             try {
-                dataSource
-                        .setPassword(argumentsHandler.getPasswordService().decrypt(umDatabaseConfig.getPassword()));
+                dataSource.setPassword(argumentsHandler.getPasswordService().decrypt(umDatabaseConfig.getPassword()));
             }
             catch (Exception e) {
                 log.debug("Can't decrypt password! Using a password from the config...", e);
