@@ -52,7 +52,7 @@ public class LocaleConfig {
     }
 
     public LocaleSpringMessageSource forPage(String page) {
-        return languageBeans.getOrDefault(page + "MessageSource", EMPTY);
+        return languageBeans.getOrDefault(page.replace(".html", "") + "MessageSource", EMPTY);
     }
 
     public static class LocaleSpringMessageSource extends ReloadableResourceBundleMessageSource {
@@ -122,7 +122,7 @@ public class LocaleConfig {
     }
 
     public static String getMessage(String page, String key, String localeString) {
-        LocaleSpringMessageSource messageSource = messageSourceMap.get(page);
+        LocaleSpringMessageSource messageSource = messageSourceMap.get(page.replace(".html", ""));
         String locale = localeString == null ? DEFAULT_LANGUAGE : localeString;
         return messageSource.getMessage(key, new Object[] {}, Locale.forLanguageTag(locale));
     }
