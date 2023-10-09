@@ -405,6 +405,19 @@
                 </executions>
             </plugin>
 
+            <!--This tool for Java codebases will help you identify the God Classes and classes with High Coupling-->
+            <!--you should refactor first. It runs PMD's God Class Rule and Coupling Between Objects rule and-->
+            <!--scans your Git repository history.-->
+            <plugin>
+                <groupId>org.hjug.refactorfirst.plugin</groupId>
+                <artifactId>refactor-first-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <!-- optional -->
+                <configuration>
+                    <showDetails>true</showDetails>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
