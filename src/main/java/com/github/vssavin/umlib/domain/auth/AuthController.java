@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,8 +35,6 @@ final class AuthController extends UmControllerBase {
     private static final String PAGE_LOGIN = UmConfig.LOGIN_URL.replace("/", "");
 
     private static final String PAGE_LOGOUT = UmConfig.LOGOUT_URL.replace("/", "");
-
-    private static final String PERFORM_LOGOUT = "/perform-logout";
 
     private final Set<String> pageLoginParams;
 
@@ -90,12 +87,6 @@ final class AuthController extends UmControllerBase {
         ModelAndView modelAndView = new ModelAndView(PAGE_LOGOUT);
         addObjectsToModelAndView(modelAndView, pageLogoutParams, secureService.getEncryptMethodName(), lang);
         return modelAndView;
-    }
-
-    @PostMapping(value = PERFORM_LOGOUT)
-    ModelAndView logout(@RequestParam(required = false) final String lang) {
-        String language = lang != null ? "?lang=" + lang : "";
-        return new ModelAndView("redirect:" + UmConfig.LOGIN_URL + language);
     }
 
     private List<String> normalizeScriptNames(List<String> scripts) {
