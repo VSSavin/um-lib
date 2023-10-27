@@ -44,12 +44,12 @@ public class DefaultSecurityConfig {
     private final UmConfigurer configurer;
 
     @Autowired
-    public DefaultSecurityConfig(UmConfigurer configurer, UserService userService,
+    public DefaultSecurityConfig(UmConfigurer umConfigurer, UserService userService,
             AuthenticationSuccessHandler customAuthenticationSuccessHandler,
             AuthenticationFailureHandler customAuthenticationFailureHandler,
             CustomOAuth2UserService customOAuth2UserService, LogoutSuccessHandler customLogoutSuccessHandler,
             OAuth2Config oAuth2Config) {
-        this.configurer = configurer;
+        this.configurer = umConfigurer;
         this.userService = userService;
         this.authSuccessHandler = customAuthenticationSuccessHandler;
         this.authFailureHandler = customAuthenticationFailureHandler;
