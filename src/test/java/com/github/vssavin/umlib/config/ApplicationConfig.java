@@ -20,8 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -38,17 +36,10 @@ public class ApplicationConfig {
     private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
     @Bean
-    public UmConfigurer umConfigurer() {
-        Map<String, String[]> resourceHandlers = new HashMap<>();
-        resourceHandlers.put("/js/**", new String[] { "classpath:/static/js/" });
-        resourceHandlers.put("/css/**", new String[] { "classpath:/static/css/" });
-        resourceHandlers.put("/flags/**", new String[] { "classpath:/static/flags/" });
-        resourceHandlers.put("/img/**", new String[] { "classpath:/static/img/" });
-
-        return new UmConfigurer().successUrl("/index.html")
+    public UmConfigurer umConfigurer(UmConfigurer defaultUmConfigurer) {
+        return defaultUmConfigurer.successUrl("/index.html")
             .permission(new AuthorizedUrlPermission("/index.html", Permission.ANY_USER))
             .permission(new AuthorizedUrlPermission("/index", Permission.ANY_USER))
-            .resourceHandlers(resourceHandlers)
             .configure();
     }
 
