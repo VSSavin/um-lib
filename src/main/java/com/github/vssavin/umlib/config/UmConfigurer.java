@@ -38,16 +38,6 @@ public class UmConfigurer {
 
     private boolean configured = false;
 
-    public UmConfigurer() {
-        Map<String, String[]> defaultResourceHandlers = new HashMap<>();
-        resourceHandlers.put("/js/**", new String[] { "classpath:/static/js/" });
-        resourceHandlers.put("/css/**", new String[] { "classpath:/static/css/" });
-        resourceHandlers.put("/flags/**", new String[] { "classpath:/static/flags/" });
-        resourceHandlers.put("/img/**", new String[] { "classpath:/static/img/" });
-
-        resourceHandlers(defaultResourceHandlers);
-    }
-
     public UmConfigurer loginUrl(String loginUrl) {
         checkAccess();
         this.loginUrl = loginUrl;

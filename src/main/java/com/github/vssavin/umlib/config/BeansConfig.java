@@ -7,6 +7,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Contains default beans for user management.
  *
@@ -20,9 +23,23 @@ public class BeansConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean()
+    @Bean
     public JavaMailSender emailSender() {
         return new JavaMailSenderImpl();
+    }
+
+    @Bean
+    public UmConfigurer defaultUmConfigurer() {
+        Map<String, String[]> defaultResourceHandlers = new HashMap<>();
+        defaultResourceHandlers.put("/js/**", new String[] { "classpath:/static/js/" });
+        defaultResourceHandlers.put("/css/**", new String[] { "classpath:/static/css/" });
+        defaultResourceHandlers.put("/flags/**", new String[] { "classpath:/static/flags/" });
+        defaultResourceHandlers.put("/img/**", new String[] { "classpath:/static/img/" });
+
+        UmConfigurer defaultUmConfigurer = new UmConfigurer();
+        defaultUmConfigurer.resourceHandlers(defaultResourceHandlers);
+
+        return defaultUmConfigurer;
     }
 
 }
