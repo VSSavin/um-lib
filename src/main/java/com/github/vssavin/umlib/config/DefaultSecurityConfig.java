@@ -2,6 +2,7 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.domain.security.spring.BlackListFilter;
 import com.github.vssavin.umlib.domain.security.spring.CustomOAuth2UserService;
+import com.github.vssavin.umlib.domain.security.spring.RefreshOnAutologinTokenBasedRememberMeServices;
 import com.github.vssavin.umlib.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -106,6 +108,18 @@ public class DefaultSecurityConfig {
             .logoutSuccessHandler(logoutSuccessHandler)
             .deleteCookies("JSESSIONID")
             .invalidateHttpSession(true);
+
+        AbstractRememberMeServices rememberMeServices = new RefreshOnAutologinTokenBasedRememberMeServices(
+                "um-secret-key", userService);
+        rememberMeServices.setAlwaysRemember(true);
+        security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        // security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
+
+        security.rememberMe(customizer -> customizer.userDetailsService(userService)
+            .rememberMeServices(rememberMeServices)
+            .key("um-secret-key")
+            .alwaysRemember(true));
 
         if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {
             registry.and()
