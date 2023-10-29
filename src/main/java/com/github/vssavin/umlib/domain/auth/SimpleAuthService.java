@@ -114,6 +114,11 @@ public class SimpleAuthService implements AuthService {
     @UmRouteDatasource
     public Collection<GrantedAuthority> processSuccessAuthentication(Authentication authentication,
             HttpServletRequest request, EventType eventType) {
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return Collections.emptyList();
+        }
+
         User user = null;
         try {
             OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
@@ -121,6 +126,10 @@ public class SimpleAuthService implements AuthService {
         }
         catch (ClassCastException e) {
             // ignore, it's ok
+        }
+
+        if (user == null && authentication.getPrincipal() instanceof User) {
+            user = userService.getUserByLogin(((User) authentication.getPrincipal()).getLogin());
         }
 
         if (user == null) {
