@@ -1,5 +1,6 @@
 DROP table IF EXISTS events;
 DROP table IF EXISTS users;
+DROP table IF EXISTS rememberme_tokens;
 
 create table IF NOT EXISTS users(
  id SERIAL primary key,
