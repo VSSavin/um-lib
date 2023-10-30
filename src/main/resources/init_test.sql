@@ -1,6 +1,7 @@
 DROP table IF EXISTS events;
 DROP table IF EXISTS users;
 DROP table IF EXISTS rememberme_tokens;
+DROP table IF EXISTS csrf_tokens;
 
 create table IF NOT EXISTS users(
  id SERIAL primary key,
@@ -29,6 +30,14 @@ create table IF NOT EXISTS rememberme_tokens(
  id SERIAL primary key,
  user_id SERIAL not null,
  token varchar(255) not null,
+ foreign key (user_id) references users(id)
+);
+
+create table IF NOT EXISTS csrf_tokens(
+ id SERIAL primary key,
+ user_id SERIAL not null,
+ token varchar(255) not null,
+ expiration_date timestamp not null,
  foreign key (user_id) references users(id)
 );
 

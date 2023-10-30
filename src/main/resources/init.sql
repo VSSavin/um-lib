@@ -28,6 +28,14 @@ create table IF NOT EXISTS rememberme_tokens(
  foreign key (user_id) references users(id)
 );
 
+create table IF NOT EXISTS csrf_tokens(
+ id SERIAL primary key,
+ user_id SERIAL not null,
+ token varchar(255) not null,
+ expiration_date timestamp not null,
+ foreign key (user_id) references users(id)
+);
+
 insert into users(login, name, password, email, authority, expiration_date)
 select 'admin', 'admin', E'$2a$10$YdgnnXcd4W1IV2bXx9j8BevMDvfhHU1wNM5Puhmsbu1eknmqEsyCK', 'admin@example.com',
 'ROLE_ADMIN', '2099-01-01 00:00:00'
