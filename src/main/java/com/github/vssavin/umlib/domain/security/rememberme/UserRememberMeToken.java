@@ -3,6 +3,8 @@ package com.github.vssavin.umlib.domain.security.rememberme;
 import javax.persistence.*;
 
 /**
+ * Base remember-me entity.
+ *
  * @author vssavin on 30.10.2023
  */
 @Entity
