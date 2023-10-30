@@ -15,6 +15,9 @@ public interface UserCsrfTokenRepository extends CrudRepository<UserCsrfToken, L
     List<UserCsrfToken> findByUserId(Long userId);
 
     @Transactional
+    void deleteByToken(String token);
+
+    @Transactional
     void deleteByUserId(Long userId);
 
 }
