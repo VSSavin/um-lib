@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.domain.security.spring;
+package com.github.vssavin.umlib.domain.security.auth;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;

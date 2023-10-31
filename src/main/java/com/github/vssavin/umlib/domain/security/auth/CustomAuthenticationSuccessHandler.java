@@ -1,4 +1,4 @@
-package com.github.vssavin.umlib.domain.security.spring;
+package com.github.vssavin.umlib.domain.security.auth;
 
 import com.github.vssavin.umlib.config.UmConfig;
 import com.github.vssavin.umlib.domain.auth.AuthService;
