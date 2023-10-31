@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.domain.security.rememberme;
 
-import com.github.vssavin.umlib.domain.security.spring.RefreshOnAutologinTokenBasedRememberMeServices;
 import com.github.vssavin.umlib.domain.user.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;

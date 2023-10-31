@@ -2,7 +2,7 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.domain.security.spring.BlackListFilter;
 import com.github.vssavin.umlib.domain.security.spring.CustomOAuth2UserService;
-import com.github.vssavin.umlib.domain.security.spring.RefreshOnAutologinTokenBasedRememberMeServices;
+import com.github.vssavin.umlib.domain.security.rememberme.RefreshOnAutologinTokenBasedRememberMeServices;
 import com.github.vssavin.umlib.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
