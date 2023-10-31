@@ -1,8 +1,10 @@
 package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.domain.security.auth.BlackListFilter;
-import com.github.vssavin.umlib.domain.security.auth.CustomOAuth2UserService;
-import com.github.vssavin.umlib.domain.security.rememberme.RefreshOnAutologinTokenBasedRememberMeServices;
+import com.github.vssavin.umlib.domain.security.csrf.UserCsrfTokenRepository;
+import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeTokenRepository;
+import com.github.vssavin.umlib.domain.security.rememberme.RefreshOnLoginDatabaseTokenBasedRememberMeService;
+import com.github.vssavin.umlib.domain.security.csrf.UmCsrfTokenRepository;
 import com.github.vssavin.umlib.domain.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -37,27 +42,31 @@ public class DefaultSecurityConfig {
 
     private final AuthenticationFailureHandler authFailureHandler;
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService;
 
     private final LogoutSuccessHandler logoutSuccessHandler;
 
     private final OAuth2Config oAuth2Config;
 
+    private final UserRememberMeTokenRepository rememberMeTokenRepository;
+
+    private final UserCsrfTokenRepository csrfTokenRepository;
+
     private final UmConfigurer configurer;
 
     @Autowired
     public DefaultSecurityConfig(UmConfigurer umConfigurer, UserService userService,
-            AuthenticationSuccessHandler customAuthenticationSuccessHandler,
-            AuthenticationFailureHandler customAuthenticationFailureHandler,
-            CustomOAuth2UserService customOAuth2UserService, LogoutSuccessHandler customLogoutSuccessHandler,
-            OAuth2Config oAuth2Config) {
+            DefaultAuthConfig defaultAuthConfig, OAuth2Config oAuth2Config,
+            UserRememberMeTokenRepository rememberMeTokenRepository, UserCsrfTokenRepository csrfTokenRepository) {
         this.configurer = umConfigurer;
         this.userService = userService;
-        this.authSuccessHandler = customAuthenticationSuccessHandler;
-        this.authFailureHandler = customAuthenticationFailureHandler;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.logoutSuccessHandler = customLogoutSuccessHandler;
+        this.authSuccessHandler = defaultAuthConfig.getAuthSuccessHandler();
+        this.authFailureHandler = defaultAuthConfig.getAuthFailureHandler();
+        this.customOAuth2UserService = defaultAuthConfig.getOAuth2UserService();
+        this.logoutSuccessHandler = defaultAuthConfig.getLogoutSuccessHandler();
         this.oAuth2Config = oAuth2Config;
+        this.rememberMeTokenRepository = rememberMeTokenRepository;
+        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @Bean
@@ -90,8 +99,18 @@ public class DefaultSecurityConfig {
 
         HttpSecurity security = registry.and();
 
+        AbstractRememberMeServices rememberMeServices = new RefreshOnLoginDatabaseTokenBasedRememberMeService(
+                "um-secret-key", userService, rememberMeTokenRepository);
+        rememberMeServices.setAlwaysRemember(true);
+
         if (!umConfig.isCsrfEnabled()) {
             security = security.csrf().disable();
+        }
+        else {
+            security = security.csrf()
+                .csrfTokenRepository(
+                        new UmCsrfTokenRepository(rememberMeServices, csrfTokenRepository, rememberMeTokenRepository))
+                .and();
         }
 
         security.formLogin()
@@ -109,12 +128,7 @@ public class DefaultSecurityConfig {
             .deleteCookies("JSESSIONID")
             .invalidateHttpSession(true);
 
-        AbstractRememberMeServices rememberMeServices = new RefreshOnAutologinTokenBasedRememberMeServices(
-                "um-secret-key", userService);
-        rememberMeServices.setAlwaysRemember(true);
         security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        // security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
-        // security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
 
         security.rememberMe(customizer -> customizer.userDetailsService(userService)
             .rememberMeServices(rememberMeServices)
