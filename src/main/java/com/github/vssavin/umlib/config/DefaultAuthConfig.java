@@ -10,6 +10,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.stereotype.Component;
 
 /**
+ * Aggregates authentication beans.
+ *
  * @author vssavin on 31.10.2023
  */
 @Component
