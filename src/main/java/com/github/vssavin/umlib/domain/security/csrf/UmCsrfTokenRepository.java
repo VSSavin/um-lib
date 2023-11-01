@@ -1,10 +1,10 @@
 package com.github.vssavin.umlib.domain.security.csrf;
 
+import com.github.vssavin.umlib.domain.security.rememberme.Authenticator;
 import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeToken;
 import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeTokenRepository;
 import com.github.vssavin.umlib.domain.user.User;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -40,7 +40,7 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
     private CsrfToken anonymousDefaultToken = new DefaultCsrfToken(this.headerName, this.parameterName,
             createNewToken());
 
-    private final AbstractRememberMeServices rememberMeServices;
+    private final Authenticator authenticator;
 
     private final UserCsrfTokenRepository tokenRepository;
 
@@ -48,9 +48,9 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     private int tokenValiditySeconds = TWO_WEEKS_SECONDS;
 
-    public UmCsrfTokenRepository(AbstractRememberMeServices rememberMeServices, UserCsrfTokenRepository tokenRepository,
+    public UmCsrfTokenRepository(Authenticator authenticator, UserCsrfTokenRepository tokenRepository,
             UserRememberMeTokenRepository rememberMeTokenRepository) {
-        this.rememberMeServices = rememberMeServices;
+        this.authenticator = authenticator;
         this.tokenRepository = tokenRepository;
         this.rememberMeTokenRepository = rememberMeTokenRepository;
     }
@@ -62,8 +62,9 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
-        Authentication authentication = rememberMeServices.autoLogin(request, response);
+        Authentication authentication;
         if (token == null) {
+            authentication = authenticator.retrieveAuthentication(request, response);
             if (authentication != null && authentication.getPrincipal() instanceof User) {
                 User user = (User) authentication.getPrincipal();
                 List<UserRememberMeToken> rememberMeTokens = rememberMeTokenRepository.findByUserId(user.getId());
@@ -81,6 +82,7 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
             }
         }
         else {
+            authentication = authenticator.retrieveAuthentication(request, response);
             if (!token.getToken().equals(anonymousDefaultToken.getToken()) && authentication != null
                     && authentication.getPrincipal() instanceof User) {
                 User user = (User) authentication.getPrincipal();
@@ -106,7 +108,8 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public CsrfToken loadToken(HttpServletRequest request) {
-        Authentication authentication = rememberMeServices.autoLogin(request, new UmMockHttpServletResponse());
+        Authentication authentication = authenticator.retrieveAuthentication(request, new UmMockHttpServletResponse());
+
         if (authentication == null) {
             return anonymousDefaultToken;
         }

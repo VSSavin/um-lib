@@ -2,6 +2,7 @@ package com.github.vssavin.umlib.config;
 
 import com.github.vssavin.umlib.domain.security.auth.BlackListFilter;
 import com.github.vssavin.umlib.domain.security.csrf.UserCsrfTokenRepository;
+import com.github.vssavin.umlib.domain.security.rememberme.Authenticator;
 import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeTokenRepository;
 import com.github.vssavin.umlib.domain.security.rememberme.RefreshOnLoginDatabaseTokenBasedRememberMeService;
 import com.github.vssavin.umlib.domain.security.csrf.UmCsrfTokenRepository;
@@ -103,13 +104,15 @@ public class DefaultSecurityConfig {
                 "um-secret-key", userService, rememberMeTokenRepository);
         rememberMeServices.setAlwaysRemember(true);
 
+        Authenticator authenticator = (Authenticator) rememberMeServices;
+
         if (!umConfig.isCsrfEnabled()) {
             security = security.csrf().disable();
         }
         else {
             security = security.csrf()
                 .csrfTokenRepository(
-                        new UmCsrfTokenRepository(rememberMeServices, csrfTokenRepository, rememberMeTokenRepository))
+                        new UmCsrfTokenRepository(authenticator, csrfTokenRepository, rememberMeTokenRepository))
                 .and();
         }
 
