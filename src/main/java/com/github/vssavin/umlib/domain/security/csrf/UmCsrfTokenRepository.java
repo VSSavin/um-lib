@@ -4,6 +4,8 @@ import com.github.vssavin.umlib.domain.security.rememberme.Authenticator;
 import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeToken;
 import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeTokenRepository;
 import com.github.vssavin.umlib.domain.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -26,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author vssavin on 30.10.2023
  */
 public class UmCsrfTokenRepository implements CsrfTokenRepository {
+    private static final Logger log = LoggerFactory.getLogger(UmCsrfTokenRepository.class);
 
     private static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 
@@ -39,6 +43,12 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     private CsrfToken anonymousDefaultToken = new DefaultCsrfToken(this.headerName, this.parameterName,
             createNewToken());
+
+    private boolean useCache = false;
+
+    private static final Map<Long, List<UserCsrfToken>> csrfCache = new ConcurrentHashMap<>(32);
+
+    private static final Map<UserRememberMeToken, UserCsrfToken> rememberMeCsrfMap = new ConcurrentHashMap<>(32);
 
     private final Authenticator authenticator;
 
@@ -62,40 +72,86 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
-        Authentication authentication;
-        if (token == null) {
-            authentication = authenticator.retrieveAuthentication(request, response);
-            if (authentication != null && authentication.getPrincipal() instanceof User) {
-                User user = (User) authentication.getPrincipal();
-                List<UserRememberMeToken> rememberMeTokens = rememberMeTokenRepository.findByUserId(user.getId());
-                AtomicReference<String> requestRememberMeToken = new AtomicReference<>("");
-                rememberMeTokens.forEach(rememberMeToken -> {
-                    if (isRememberMeTokenPresentInCookies(request, rememberMeToken)) {
-                        requestRememberMeToken.set(rememberMeToken.getToken());
-                    }
-                });
+        Authentication authentication = authenticator.retrieveAuthentication(request, response);
 
-                // delete token from database by user remember-me token
-                if (!requestRememberMeToken.get().isEmpty()) {
-                    tokenRepository.deleteByToken(requestRememberMeToken.get());
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
+            log.debug("Requested saving token for user {}", user);
+            List<UserRememberMeToken> rememberMeTokens;
+
+            rememberMeTokens = rememberMeTokenRepository.findByUserId(user.getId());
+
+            AtomicReference<UserRememberMeToken> requestRememberMeToken = new AtomicReference<>();
+            rememberMeTokens.forEach(rememberMeToken -> {
+                if (isRememberMeTokenPresentInCookies(request, rememberMeToken)) {
+                    requestRememberMeToken.set(rememberMeToken);
+                }
+            });
+
+            if (token == null && requestRememberMeToken.get() != null) {
+                // delete token from storage by user remember-me token
+                deleteTokenFromStorage(user, requestRememberMeToken.get());
+            } else {
+                if (token != null && !token.getToken().equals(anonymousDefaultToken.getToken())) {
+                    // save token to database by user id
+                    saveTokenToStorage(user, requestRememberMeToken.get(), token);
                 }
             }
         }
-        else {
-            authentication = authenticator.retrieveAuthentication(request, response);
-            if (!token.getToken().equals(anonymousDefaultToken.getToken()) && authentication != null
-                    && authentication.getPrincipal() instanceof User) {
-                User user = (User) authentication.getPrincipal();
-                // save token to database by user id
-                List<UserCsrfToken> userTokens = tokenRepository.findByUserId(user.getId());
-                Optional<UserCsrfToken> optionalUserCsrfToken = userTokens.stream()
-                    .filter(userToken -> userToken.getToken().equals(token.getToken()))
-                    .findFirst();
-                UserCsrfToken userCsrfToken = optionalUserCsrfToken.orElseGet(() -> new UserCsrfToken(user.getId(),
-                        token.getToken(), new Date(System.currentTimeMillis() + (long) tokenValiditySeconds * 1000)));
-                tokenRepository.save(userCsrfToken);
+    }
+
+    private void deleteTokenFromStorage(User user, UserRememberMeToken rememberMeToken) {
+        log.debug("Requested token deleting {} {}", user, rememberMeToken);
+        UserCsrfToken requestedCsrfToken = rememberMeCsrfMap.get(rememberMeToken);
+        if (!rememberMeToken.getToken().isEmpty()) {
+
+            if (useCache) {
+                List<UserCsrfToken> userCsrfTokens = csrfCache.get(user.getId());
+                if (userCsrfTokens != null) {
+                    userCsrfTokens.remove(requestedCsrfToken);
+                }
+            } else {
+                log.debug("Deleting csrf token from the database!");
+                tokenRepository.deleteByToken(requestedCsrfToken.getToken());
             }
+            rememberMeCsrfMap.remove(rememberMeToken);
         }
+        log.debug("Deleting finished!");
+    }
+
+    private void saveTokenToStorage(User user, UserRememberMeToken rememberMeToken, CsrfToken token) {
+        log.debug("Requested token saving {} {} {}", user, rememberMeToken, token);
+        List<UserCsrfToken> userTokens;
+        Optional<UserCsrfToken> optionalUserCsrfToken;
+        UserCsrfToken userCsrfToken;
+        if (useCache) {
+            userTokens = csrfCache.get(user.getId());
+            if (userTokens == null) {
+                userTokens = Collections.emptyList();
+            }
+        } else {
+            log.debug("Searching in database!");
+            userTokens = tokenRepository.findByUserId(user.getId());
+        }
+
+        optionalUserCsrfToken = userTokens.stream()
+                .filter(userToken -> userToken.getToken().equals(token.getToken()))
+                .findFirst();
+        userCsrfToken = optionalUserCsrfToken.orElseGet(() -> new UserCsrfToken(user.getId(), token.getToken(),
+                new Date(System.currentTimeMillis() + (long) tokenValiditySeconds * 1000)));
+
+        if (useCache) {
+            csrfCache.put(user.getId(), Collections.singletonList(userCsrfToken));
+        } else {
+            log.debug("Saving data to the database!");
+            tokenRepository.save(userCsrfToken);
+        }
+
+        if (rememberMeToken != null) {
+            rememberMeCsrfMap.put(rememberMeToken, userCsrfToken);
+        }
+
+        log.debug("Token saving finished!");
     }
 
     public void setTokenValiditySeconds(int tokenValiditySeconds) {
@@ -108,24 +164,43 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public CsrfToken loadToken(HttpServletRequest request) {
+        log.debug("Loading token!");
         Authentication authentication = authenticator.retrieveAuthentication(request, new UmMockHttpServletResponse());
 
         if (authentication == null) {
             return anonymousDefaultToken;
         }
+
         if (authentication.getPrincipal() instanceof User) {
             User user = (User) authentication.getPrincipal();
-            // load token from database by user id or remember-me token
-            List<UserCsrfToken> userTokens = tokenRepository.findByUserId(user.getId());
+            List<UserCsrfToken> userTokens;
             List<UserCsrfToken> tokensToUpdate = new ArrayList<>();
+            // load token from database by user id or remember-me token
+            if (useCache) {
+                userTokens = csrfCache.get(user.getId());
+                if (userTokens == null) {
+                    userTokens = Collections.emptyList();
+                }
+            } else {
+                log.debug("Searching token in the database for user {}", user);
+                userTokens = tokenRepository.findByUserId(user.getId());
+            }
+
             userTokens.forEach(token -> {
                 if (token.getExpirationDate().getTime() < System.currentTimeMillis()) {
                     token.setExpirationDate(new Date(System.currentTimeMillis() + (long) tokenValiditySeconds * 1000));
                     tokensToUpdate.add(token);
                 }
             });
-            tokenRepository.saveAll(tokensToUpdate);
+
+            if (!useCache) {
+                log.debug("Updating tokens in the database!");
+                tokenRepository.saveAll(tokensToUpdate);
+            }
+
+            log.debug("Loading finished!");
             if (!userTokens.isEmpty()) {
+
                 return new DefaultCsrfToken(this.headerName, this.parameterName, userTokens.get(0).getToken());
             }
         }
@@ -146,6 +221,10 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
             }
         }
         return present;
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
     }
 
     /**

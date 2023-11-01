@@ -110,10 +110,10 @@ public class DefaultSecurityConfig {
             security = security.csrf().disable();
         }
         else {
-            security = security.csrf()
-                .csrfTokenRepository(
-                        new UmCsrfTokenRepository(authenticator, csrfTokenRepository, rememberMeTokenRepository))
-                .and();
+            UmCsrfTokenRepository umCsrfTokenRepository =
+                    new UmCsrfTokenRepository(authenticator, csrfTokenRepository, rememberMeTokenRepository);
+            umCsrfTokenRepository.setUseCache(true);
+            security = security.csrf().csrfTokenRepository(umCsrfTokenRepository).and();
         }
 
         security.formLogin()
