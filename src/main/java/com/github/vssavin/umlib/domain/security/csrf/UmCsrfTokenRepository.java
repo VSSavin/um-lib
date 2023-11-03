@@ -73,6 +73,8 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+        log.trace("Requested saving token for user!");
+
         Authentication authentication = authenticator.retrieveAuthentication(request, response);
 
         if (authentication != null && authentication.getPrincipal() instanceof User) {
@@ -106,7 +108,6 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
         log.debug("Requested token deleting {} {}", user, rememberMeToken);
         UserCsrfToken requestedCsrfToken = rememberMeCsrfMap.get(rememberMeToken);
         if (!rememberMeToken.getToken().isEmpty()) {
-
             if (useCache) {
                 List<UserCsrfToken> userCsrfTokens = csrfCache.get(user.getId());
                 if (userCsrfTokens != null) {
@@ -115,7 +116,9 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
             }
             else {
                 log.debug("Deleting csrf token from the database!");
-                tokenRepository.deleteByToken(requestedCsrfToken.getToken());
+                if (requestedCsrfToken != null) {
+                    tokenRepository.deleteByToken(requestedCsrfToken.getToken());
+                }
             }
             rememberMeCsrfMap.remove(rememberMeToken);
         }
@@ -169,7 +172,7 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
     @Override
     public CsrfToken loadToken(HttpServletRequest request) {
-        log.debug("Loading token!");
+        log.trace("Requested token loading!");
         Authentication authentication = authenticator.retrieveAuthentication(request, new UmMockHttpServletResponse());
 
         if (authentication == null) {
@@ -206,7 +209,6 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
 
             log.debug("Loading finished!");
             if (!userTokens.isEmpty()) {
-
                 return new DefaultCsrfToken(this.headerName, this.parameterName, userTokens.get(0).getToken());
             }
         }
