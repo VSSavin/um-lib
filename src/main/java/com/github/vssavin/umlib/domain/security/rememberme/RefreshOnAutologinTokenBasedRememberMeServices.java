@@ -15,18 +15,30 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Identifies previously remembered users by a Base-64 encoded cookie and refresh it on
  * autoLogin event. Also implements method {@link #retrieveAuthentication} to create
- * {@link Authentication} object without changing response cookies.
+ * {@link Authentication} object without changing response cookies. It contains a
+ * temporary local cache of usernames to reduce database connections.
  *
  * @author vssavin on 29.10.2023
  */
 public class RefreshOnAutologinTokenBasedRememberMeServices extends TokenBasedRememberMeServices
         implements Authenticator {
 
+    private final Map<String, UserDetails> userDetailsCache = new ConcurrentHashMap<>();
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+
+    private int userRemoveDelaySeconds = 10;
 
     public RefreshOnAutologinTokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
         super(key, userDetailsService);
@@ -35,7 +47,8 @@ public class RefreshOnAutologinTokenBasedRememberMeServices extends TokenBasedRe
     @Override
     protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
             HttpServletResponse response) {
-        UserDetails result = super.processAutoLoginCookie(cookieTokens, request, response);
+        this.logger.trace("Processing autoLogin cookie...");
+        UserDetails result = getUserDetails(cookieTokens, request, response);
 
         int tokenLifetime = getTokenValiditySeconds();
         long expiryTime = System.currentTimeMillis();
@@ -54,6 +67,7 @@ public class RefreshOnAutologinTokenBasedRememberMeServices extends TokenBasedRe
 
     @Override
     public Authentication retrieveAuthentication(HttpServletRequest request, HttpServletResponse response) {
+        this.logger.trace("Retrieving authentication...");
         String rememberMeCookie = extractRememberMeCookie(request);
         if (rememberMeCookie == null || rememberMeCookie.isEmpty()) {
             return null;
@@ -61,9 +75,9 @@ public class RefreshOnAutologinTokenBasedRememberMeServices extends TokenBasedRe
 
         try {
             String[] cookieTokens = decodeCookie(rememberMeCookie);
-            UserDetails user = super.processAutoLoginCookie(cookieTokens, request, response);
+            UserDetails user = getUserDetails(cookieTokens, request, response);
             userDetailsChecker.check(user);
-            this.logger.debug("Remember-me cookie accepted");
+            this.logger.debug("Remember-me cookie accepted!");
             return createSuccessfulAuthentication(request, user);
         }
         catch (CookieTheftException ex) {
@@ -89,6 +103,34 @@ public class RefreshOnAutologinTokenBasedRememberMeServices extends TokenBasedRe
     public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
         super.setUserDetailsChecker(userDetailsChecker);
         this.userDetailsChecker = userDetailsChecker;
+    }
+
+    public void setUserRemoveDelaySeconds(int userRemoveDelaySeconds) {
+        this.userRemoveDelaySeconds = userRemoveDelaySeconds;
+    }
+
+    public int getUserRemoveDelaySeconds() {
+        return userRemoveDelaySeconds;
+    }
+
+    private UserDetails getUserDetails(String[] cookieTokens, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        String userLogin = cookieTokens[0];
+        String threadName = Thread.currentThread().getName();
+        return userDetailsCache.computeIfAbsent(userLogin, login -> {
+            if (this.logger.isDebugEnabled()) {
+                this.logger.debug(String.format("[%s] User '%s' not found in the local cache!", threadName, userLogin));
+            }
+            executorService.schedule(() -> {
+                if (logger.isDebugEnabled()) {
+                    this.logger
+                        .debug(String.format("[%s] Removing user '%s' from th local cache!", threadName, userLogin));
+                }
+                userDetailsCache.remove(userLogin);
+            }, userRemoveDelaySeconds, TimeUnit.SECONDS);
+            return super.processAutoLoginCookie(cookieTokens, request, response);
+        });
     }
 
 }
