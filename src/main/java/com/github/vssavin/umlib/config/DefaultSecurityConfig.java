@@ -110,8 +110,8 @@ public class DefaultSecurityConfig {
             security = security.csrf().disable();
         }
         else {
-            UmCsrfTokenRepository umCsrfTokenRepository =
-                    new UmCsrfTokenRepository(authenticator, csrfTokenRepository, rememberMeTokenRepository);
+            UmCsrfTokenRepository umCsrfTokenRepository = new UmCsrfTokenRepository(authenticator, csrfTokenRepository,
+                    rememberMeTokenRepository);
             umCsrfTokenRepository.setUseCache(true);
             security = security.csrf().csrfTokenRepository(umCsrfTokenRepository).and();
         }
