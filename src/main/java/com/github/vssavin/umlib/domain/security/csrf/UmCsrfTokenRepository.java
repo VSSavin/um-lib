@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author vssavin on 30.10.2023
  */
 public class UmCsrfTokenRepository implements CsrfTokenRepository {
+
     private static final Logger log = LoggerFactory.getLogger(UmCsrfTokenRepository.class);
 
     private static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
@@ -91,7 +92,8 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
             if (token == null && requestRememberMeToken.get() != null) {
                 // delete token from storage by user remember-me token
                 deleteTokenFromStorage(user, requestRememberMeToken.get());
-            } else {
+            }
+            else {
                 if (token != null && !token.getToken().equals(anonymousDefaultToken.getToken())) {
                     // save token to database by user id
                     saveTokenToStorage(user, requestRememberMeToken.get(), token);
@@ -110,7 +112,8 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
                 if (userCsrfTokens != null) {
                     userCsrfTokens.remove(requestedCsrfToken);
                 }
-            } else {
+            }
+            else {
                 log.debug("Deleting csrf token from the database!");
                 tokenRepository.deleteByToken(requestedCsrfToken.getToken());
             }
@@ -129,20 +132,22 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
             if (userTokens == null) {
                 userTokens = Collections.emptyList();
             }
-        } else {
+        }
+        else {
             log.debug("Searching in database!");
             userTokens = tokenRepository.findByUserId(user.getId());
         }
 
         optionalUserCsrfToken = userTokens.stream()
-                .filter(userToken -> userToken.getToken().equals(token.getToken()))
-                .findFirst();
+            .filter(userToken -> userToken.getToken().equals(token.getToken()))
+            .findFirst();
         userCsrfToken = optionalUserCsrfToken.orElseGet(() -> new UserCsrfToken(user.getId(), token.getToken(),
                 new Date(System.currentTimeMillis() + (long) tokenValiditySeconds * 1000)));
 
         if (useCache) {
             csrfCache.put(user.getId(), Collections.singletonList(userCsrfToken));
-        } else {
+        }
+        else {
             log.debug("Saving data to the database!");
             tokenRepository.save(userCsrfToken);
         }
@@ -181,7 +186,8 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
                 if (userTokens == null) {
                     userTokens = Collections.emptyList();
                 }
-            } else {
+            }
+            else {
                 log.debug("Searching token in the database for user {}", user);
                 userTokens = tokenRepository.findByUserId(user.getId());
             }
