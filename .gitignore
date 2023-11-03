@@ -4,4 +4,5 @@
 /lib
 /log
 /um-lib
+/um_data
 /src/main/resources/oauth2.properties
