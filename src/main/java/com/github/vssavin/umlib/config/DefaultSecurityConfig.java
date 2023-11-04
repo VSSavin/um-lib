@@ -100,8 +100,10 @@ public class DefaultSecurityConfig {
 
         HttpSecurity security = registry.and();
 
+        String secretKey = UUID.randomUUID().toString();
+
         AbstractRememberMeServices rememberMeServices = new RefreshOnLoginDatabaseTokenBasedRememberMeService(
-                "um-secret-key", userService, rememberMeTokenRepository);
+                secretKey, userService, rememberMeTokenRepository);
         rememberMeServices.setAlwaysRemember(true);
 
         Authenticator authenticator = (Authenticator) rememberMeServices;
@@ -128,14 +130,14 @@ public class DefaultSecurityConfig {
             .permitAll()
             .logoutUrl(configurer.getLogoutUrl())
             .logoutSuccessHandler(logoutSuccessHandler)
-            .deleteCookies("JSESSIONID")
+            //.deleteCookies("JSESSIONID")
             .invalidateHttpSession(true);
 
         security.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         security.rememberMe(customizer -> customizer.userDetailsService(userService)
             .rememberMeServices(rememberMeServices)
-            .key("um-secret-key")
+            .key(secretKey)
             .alwaysRemember(true));
 
         if (!Objects.equals(oAuth2Config.getGoogleClientId(), "")) {

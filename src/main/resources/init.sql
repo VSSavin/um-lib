@@ -1,3 +1,6 @@
+DROP table IF EXISTS rememberme_tokens;
+DROP table IF EXISTS csrf_tokens;
+
 create table IF NOT EXISTS users(
  id SERIAL primary key,
  login varchar(50) not null,
