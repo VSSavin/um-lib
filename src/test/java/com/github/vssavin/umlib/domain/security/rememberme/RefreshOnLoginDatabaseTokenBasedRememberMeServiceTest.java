@@ -1,6 +1,5 @@
-package com.github.vssavin.umlib.domain.sucurity.rememberme;
+package com.github.vssavin.umlib.domain.security.rememberme;
 
-import com.github.vssavin.umlib.domain.security.rememberme.RefreshOnLoginDatabaseTokenBasedRememberMeService;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
