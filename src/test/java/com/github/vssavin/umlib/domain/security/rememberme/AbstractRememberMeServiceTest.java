@@ -1,6 +1,5 @@
 package com.github.vssavin.umlib.domain.security.rememberme;
 
-import com.github.vssavin.umlib.domain.security.rememberme.UserRememberMeTokenRepository;
 import com.github.vssavin.umlib.domain.user.User;
 import org.junit.Before;
 import org.junit.runner.RunWith;
