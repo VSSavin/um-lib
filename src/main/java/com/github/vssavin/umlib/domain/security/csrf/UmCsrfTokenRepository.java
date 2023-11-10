@@ -148,11 +148,15 @@ public class UmCsrfTokenRepository implements CsrfTokenRepository {
                 new Date(System.currentTimeMillis() + (long) tokenValiditySeconds * 1000)));
 
         if (useCache) {
-            csrfCache.put(user.getId(), Collections.singletonList(userCsrfToken));
+            if (rememberMeToken != null) {
+                csrfCache.put(user.getId(), Collections.singletonList(userCsrfToken));
+            }
         }
         else {
-            log.debug("Saving data to the database!");
-            tokenRepository.save(userCsrfToken);
+            if (rememberMeToken != null) {
+                log.debug("Saving data to the database!");
+                tokenRepository.save(userCsrfToken);
+            }
         }
 
         if (rememberMeToken != null) {
