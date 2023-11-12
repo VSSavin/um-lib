@@ -1,5 +1,6 @@
 package com.github.vssavin.umlib.domain.security.rememberme;
 
+import com.github.vssavin.umlib.config.aspect.UmRouteDatasource;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Repository
 public interface UserRememberMeTokenRepository extends CrudRepository<UserRememberMeToken, Long> {
 
+    @UmRouteDatasource
     List<UserRememberMeToken> findByUserId(Long userId);
 
 }
