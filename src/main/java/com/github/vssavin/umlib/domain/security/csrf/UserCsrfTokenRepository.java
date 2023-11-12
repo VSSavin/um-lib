@@ -1,5 +1,6 @@
 package com.github.vssavin.umlib.domain.security.csrf;
 
+import com.github.vssavin.umlib.config.aspect.UmRouteDatasource;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,11 +13,14 @@ import java.util.List;
  */
 public interface UserCsrfTokenRepository extends CrudRepository<UserCsrfToken, Long> {
 
+    @UmRouteDatasource
     List<UserCsrfToken> findByUserId(Long userId);
 
+    @UmRouteDatasource
     @Transactional
     void deleteByToken(String token);
 
+    @UmRouteDatasource
     @Transactional
     void deleteByUserId(Long userId);
 
